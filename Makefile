@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -ggdb
 TGT=autopelihieno
-SRC=ajo.c 
+SRC=ajo.c hiscore.c 
 LDFLAGS=
 
 $(TGT): ajo.c

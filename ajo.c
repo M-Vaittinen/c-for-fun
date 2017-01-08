@@ -13,6 +13,11 @@
 //#include <sys/ioctl.h>
 //#include <linux/kd.h>
 
+#include "estestats.h"
+#include "hiscore.h"
+#include "este.h"
+#include "tienpala.h"
+#include "peliinfo.h"
 
 #define YLOS_NUOLI 0x415b1b
 #define ALAS_NUOLI 0x425b1b
@@ -24,12 +29,29 @@
 #define TIEMERKKI_VAS '#'
 #define TIEMERKKI_OIK '#'
 
-#define NAME_MAX 1024
-#define TALL_TIEDOSTO "scores.txt"
 #define HISCORE_AMNT 5
 
+#define BG_MAGNETA    "\x1B[45m"
+#define BG_RED    "\x1B[41m"
+#define COLOR_RESTORE "\x1B[0m"
+#define FG_WHITE      "\x1B[37m"
+#define FG_GREEN      "\x1B[32m"
+#define FG_BLUE       "\x1B[34m"
+
 static int TIEN_PITUUS=22;
-#define TIEN_MAX_LEVEYS 60
+/*static const char *RED_START="\[\033[31m\]" __attribute__((unused));
+static const char *GREEN_START="\[\033[32m\]";
+static const char *BLUE_START="\[\033[34m\]";*/
+//static const char *COLOR_END="\x1B[0m";
+
+
+
+#define VARIN_ALKU_LEVEYS 5 /* start 5 bytes, end 4 bytes */
+#define VARIN_LEVEYS (5+5) /* start 5 bytes, end 4 bytes */
+//#define TIEN_MAX_LEVEYS 60
+#define RADAN_LEVEYS 20
+#define TIEN_MAX_LEVEYS 80
+#define TIEN_MAX_LEVEYS_VAREINEEN (TIEN_MAX_LEVEYS+3*VARIN_LEVEYS/*esteet*/+VARIN_ALKU_LEVEYS/*taustaväri*/)
 //7 for spaces and "speed", 7 for spaces and"points", 6 for points 7 for speed, one for NULL byte
 #define GUESS_SPEED_SIZE  28
 
@@ -46,62 +68,23 @@ const char *extratext_s[EXTRA_AMNT] =
     [EXTRAT_POINTS] = "+10000 Points!!!",
     [EXTRAT_SPEED] = "Super Speed!!!" 
 };
-//struct extratext;
 typedef struct extratext
 {
- //   int display_ctr;
     const char *text;
 }extratext;
 
 struct extratext extra_array[1024];
 
-typedef enum estetyyppi
-{
-    este_unused=0,
-    este_block,
-    este_speed,
-    este_pisteet
-}estetyyppi;
+static const char *vari_loppu=FG_WHITE;
 
-typedef struct este
+static const char *vari_alut[este_last]=
 {
-    int type;
-    char merkki;
-    int paikka;
-}este;
+    [este_speed]=FG_GREEN "\x1B[32m",
+    [este_pisteet]=FG_BLUE "\x1B[34m",
+};
 
-typedef struct tienpala
-{
-    int vas;
-    int oik;
-    int esteamnt;
-    este tukko[3];
-    //struct *extratext;
-}tienpala;
+   
 
-typedef struct estestats
-{
-    int nopeus;
-    int piste;
-    int este;
-}estestats;
-
-typedef struct peliinfo
-{
-    int kierros;
-    unsigned int pisteet;
-    unsigned int pistekerroin;
-    unsigned int nopeus;
-    int suunta;
-    int autonpaikka;
-    int hidastus;
-    int hidastus_alku;
-    int speed_kierros;
-    int hidastus_saved;
-    tienpala *tie;
-    int extratext_array_current;
-    estestats stats;
-}peliinfo;
 void advance_extratext_ctr(peliinfo *pi)
 {
     pi->extratext_array_current++;
@@ -122,17 +105,6 @@ void clear_extratext(peliinfo *pi)
     extra_array[(pi->extratext_array_current)%1024].text=NULL;
 }
 
-typedef struct hiscore
-{
-    int used;
-    char name[NAME_MAX];
-    unsigned int max_speed;
-    unsigned int points;
-    estestats stats;
-}hiscore;
-
-static hiscore fivebests[HISCORE_AMNT];
-//static int ttyfd;
 
 void init_extra_array()
 {
@@ -156,109 +128,7 @@ void beebbeeb(int duration, int freq)
         printf("tty not opened\n");
 }
 */
-void print_fivebests()
-{
-    int i;
-    printf("Best Of The Best:\n\n");
-    for(i=0;i<5&&fivebests[i].used;i++)
-    {
-        printf("%d:\t%s: Speed %u, Points %u \t\t#(%d) V(%d) $(%d)\n",
-                i+1,
-                fivebests[i].name,
-                fivebests[i].max_speed,
-                fivebests[i].points,
-                fivebests[i].stats.este,
-                fivebests[i].stats.nopeus,
-                fivebests[i].stats.piste
-              );
-    }
-}
 
-void read_scores()
-{
-    FILE *rf;
-    int ptmp,stmp,st_etmp,st_ntmp,st_ptmp,rval;
-    //char name[1024];
-    char *name;
-    memset(fivebests,0,sizeof(fivebests));
-    rf=fopen(TALL_TIEDOSTO,"r");
-    if(rf)
-    {
-        int i=0;
-        for(i=0;i<5&&6==(rval=fscanf(rf,"%m[^!]!%u!%u!%d!%d!%d\n",&name,&stmp,&ptmp,&st_etmp,&st_ntmp,&st_ptmp));i++)
-        {
-        //    printf("Scanf returned %d, name=%s\n",rval,name);
-            strncpy(fivebests[i].name,name,1024);
-            fivebests[i].name[sizeof(fivebests[i].name)-1]='\0';
-            fivebests[i].max_speed=stmp;
-            fivebests[i].points=ptmp;
-            fivebests[i].stats.este=st_etmp;
-            fivebests[i].stats.nopeus=st_ntmp;
-            fivebests[i].stats.piste=st_ptmp;
-            fivebests[i].used=1;
-            free(name);
-        }
-        //printf("Scanf returned %d, name=%s\n",rval,name);
-        fclose(rf);
-    }
-}
-
-int write_scores()
-{
-    FILE *wf;
-    wf=fopen(TALL_TIEDOSTO,"w");
-    if(wf)
-    {
-        int i=0;
-        for(i=0;i<5&&fivebests[i].used;i++)
-        {
-            fprintf
-            (
-                wf,
-                "%s!%u!%u!%d!%d!%d\n",
-                fivebests[i].name,
-                fivebests[i].max_speed,
-                fivebests[i].points,
-                fivebests[i].stats.este,
-                fivebests[i].stats.nopeus,
-                fivebests[i].stats.piste
-            );
-        }
-        fclose(wf);
-    }
-    else
-        return errno;
-    return 0;
-}
-
-void update_fivebests(peliinfo *pi,char *name)
-{
-    int i;
-//    printf("Vanhat Huippupisteet:\n");
-//    print_fivebests();
-    for(i=0;i<5&&fivebests[i].used;i++)
-    {
-        if(fivebests[i].points<pi->pisteet)
-            break;
-    }
-    if(i==5)
-        return;
-    if(i<4)
-    {
-        memmove(&(fivebests[i+1]),&(fivebests[i]),sizeof(fivebests[i])*(4-i));
-    }
-    if(i<5)
-    {
-        strcpy(fivebests[i].name,name);
-        fivebests[i].max_speed=pi->nopeus;
-        fivebests[i].points=pi->pisteet;
-        fivebests[i].used=1;
-        fivebests[i].stats.este=pi->stats.este;
-        fivebests[i].stats.nopeus=pi->stats.nopeus;
-        fivebests[i].stats.piste=pi->stats.piste;
-    }
-    write_scores();
-}
 
 int init_sizes(void);
 int init_sizes()
@@ -270,28 +140,71 @@ int init_sizes()
        return -1;
    return 0; 
 }
+int hae_esteen_paikka(tienpala *tiep,int tukkoindex)
+{
+    int rval=tiep->tukko[tukkoindex].paikka;
+    if(tiep->esteamnt>1)
+    {
+        int i;
+        for(i=0;i<tiep->esteamnt;i++)
+            if(i==tukkoindex)
+                continue;
+            else
+                if(tiep->tukko[i].varileveys)
+                    if(tiep->tukko[i].paikka<tiep->tukko[tukkoindex].paikka)
+                        rval+=tiep->tukko[i].varileveys;
+    }
+    return rval;
+
+}
+int hae_oikea_tiepiste(tienpala *tiep)
+{
+    int i,rval=tiep->oik;
+    for(i=0;i<tiep->esteamnt;i++)
+        rval+=tiep->tukko[i].varileveys;
+   return rval;
+}
+int hae_oikea_autonpaikka(tienpala *tiep,int autonpaikka)
+{
+    int rval=autonpaikka;
+    if(tiep->esteamnt)
+    {
+        int i;
+        for(i=0;i<tiep->esteamnt;i++)
+            if(tiep->tukko[i].varileveys)
+            {
+                if(tiep->tukko[i].paikka<autonpaikka)
+                    rval+=tiep->tukko[i].varileveys;
+                else if(tiep->tukko[i].paikka==autonpaikka)
+                    rval+=tiep->tukko[i].varialkuleveys;
+            }
+    }
+    return rval;
+}
+
 void piirra_esteet(char *tie,tienpala *tiep)
 {
     int i;
+    int estepaikka;
     for(i=0;i<tiep->esteamnt && i<3;i++)
         if(tiep->tukko[i].type==este_block || tiep->tukko[i].type==este_speed || tiep->tukko[i].type==este_pisteet)
-            tie[tiep->tukko[i].paikka]=tiep->tukko[i].merkki;
+        {
+            estepaikka=hae_esteen_paikka(tiep,i);
+            if(!tiep->tukko[i].varileveys)
+                tie[estepaikka]=tiep->tukko[i].merkki;
+            else
+            {
+                memcpy(&(tie[estepaikka]),tiep->tukko[i].vari_alku,tiep->tukko[i].varialkuleveys);
+                tie[estepaikka+tiep->tukko[i].varialkuleveys]=tiep->tukko[i].merkki;
+                memcpy(&(tie[estepaikka+tiep->tukko[i].varialkuleveys+1]),tiep->tukko[i].vari_loppu,tiep->tukko[i].varileveys-tiep->tukko[i].varialkuleveys);
+            }
+        }
 }
 void hit_points_handler(peliinfo *pi)
 {
-    //int i;
     pi->pisteet+=10000;
     pi->stats.piste++;
-    /*
-    for(i=0;i<TIEN_PITUUS/2;i++)
-        printf("\n");
-    printf("Jippii!!! +2000 Pistettä!!!\n");
-    for(i=0;i<TIEN_PITUUS/2;i++)
-        printf("\n");
-    sleep(1);
-    */
     add_new_extratext(pi,EXTRAT_POINTS);
-    //fprintf(stdout, "\7");
 }
 void hit_speed_handler(peliinfo *pi)
 {
@@ -321,53 +234,55 @@ int tarkista_esteet(peliinfo *pi, tienpala *tiep)
         }
     return rval;
 }
+void lisaa_reunat(tienpala *tiep, char *tie)
+{
+    int tiepiste;
+    memcpy(&tie[tiep->vas-VARIN_ALKU_LEVEYS],BG_RED,VARIN_ALKU_LEVEYS);
+    tie[tiep->vas]=TIEMERKKI_VAS;
+    tiepiste=hae_oikea_tiepiste(tiep);
+    tie[tiepiste]=TIEMERKKI_OIK;
+    tie[tiepiste+1]='\0';
+}
 int piirra_ylarivi(tienpala *tiep, peliinfo *pi, char *kuski)
 {
-    char tie[TIEN_MAX_LEVEYS+1];
+    char tie[TIEN_MAX_LEVEYS_VAREINEEN+1];
     int rval=0;
-   // int i;
 
     memset(tie,' ',sizeof(tie));
+    lisaa_reunat(tiep, tie);
 
-    tie[tiep->vas]=TIEMERKKI_VAS;
-    tie[tiep->oik]=TIEMERKKI_OIK;
-    tie[pi->autonpaikka]=AUTOMERKKI;
+    tie[hae_oikea_autonpaikka(tiep,pi->autonpaikka)]=AUTOMERKKI;
     piirra_esteet(tie,tiep);
         
-    tie[TIEN_MAX_LEVEYS]='\0';
 
     if(pi->autonpaikka<=tiep->vas || pi->autonpaikka>=tiep->oik || tarkista_esteet(pi,tiep))
     {
-        tie[pi->autonpaikka]='X';
+        tie[hae_oikea_autonpaikka(tiep,pi->autonpaikka)]='X';
         rval=-1;
     }
-    printf("%s Ajajana %s\n",tie,kuski);
+    printf("%s" COLOR_RESTORE " Ajajana %s\n",tie,kuski);
     clear_extratext(pi);
     return rval;
 }
 void piirra_alarivi(tienpala *tiep,unsigned int nopeus, unsigned int pisteet)
 {
-    char tie[TIEN_MAX_LEVEYS+1];
+    char tie[TIEN_MAX_LEVEYS_VAREINEEN+1];
     memset(tie,' ',sizeof(tie));
-    tie[tiep->vas]=TIEMERKKI_VAS;
-    tie[tiep->oik]=TIEMERKKI_OIK;
+    lisaa_reunat(tiep, tie);
     piirra_esteet(tie,tiep);
-    tie[TIEN_MAX_LEVEYS]='\0';
-    printf("%s speed %u points %u\n",tie,nopeus,pisteet);
+    printf("%s" COLOR_RESTORE " speed %u points %u\n",tie,nopeus,pisteet);
 }
 void piirra_rivi(tienpala *tiep, const char *et)
 {
-    char tie[TIEN_MAX_LEVEYS+1];
+    char tie[TIEN_MAX_LEVEYS_VAREINEEN+1];
     memset(tie,' ',sizeof(tie));
 
-    tie[tiep->vas]=TIEMERKKI_VAS;
-    tie[tiep->oik]=TIEMERKKI_OIK;
+    lisaa_reunat(tiep, tie);
     piirra_esteet(tie,tiep);
-    tie[TIEN_MAX_LEVEYS]='\0';
     if(et)
-        printf("%s %s\n",tie,et);
+        printf("%s" COLOR_RESTORE " %s\n",tie,et);
     else
-        printf("%s\n",tie);
+        printf("%s" COLOR_RESTORE "\n",tie);
 }
 
 int piirra_ja_tarkista(peliinfo *pi, char *kuski)
@@ -375,21 +290,22 @@ int piirra_ja_tarkista(peliinfo *pi, char *kuski)
     int rval=0;
     int i;
  
-    if(!(rval=piirra_ylarivi(&(pi->tie[0]),pi,kuski)))
-    {
-        for(i=1;i<TIEN_PITUUS-1;i++)
-            piirra_rivi
-            (
-                &(pi->tie[i]),
-                get_extratext_for_tienpala_index(pi,i)
-            );
-        piirra_alarivi(&(pi->tie[i]),pi->nopeus,pi->pisteet);
-    }
+    rval=piirra_ylarivi(&(pi->tie[0]),pi,kuski);
+    for(i=1;i<TIEN_PITUUS-1;i++)
+        piirra_rivi
+        (
+            &(pi->tie[i]),
+            get_extratext_for_tienpala_index(pi,i)
+        );
+    piirra_alarivi(&(pi->tie[i]),pi->nopeus,pi->pisteet);
+
     fflush(stdout);
+    if(rval)
+        sleep(2);
     return rval;
 }
 
-void lopeta(peliinfo *pi, char *nimi,int huijaus)
+void lopeta(peliinfo *pi, char *nimi,hiscore *fivebests,int hcamnt)
 {
     int i;
     for(i=0;i<TIEN_PITUUS;i++)
@@ -398,10 +314,10 @@ void lopeta(peliinfo *pi, char *nimi,int huijaus)
         printf("Olipa hauska ajella vaikka meninkin päin seinää - Pisteesi %s: %u\n",nimi,(unsigned)pi->pisteet);
     else
         printf("Olipa hauska ajella vaikka meninkin päin seinää - pisteet %u\n",(unsigned)pi->pisteet);
-    if(!huijaus)
+    if(!pi->huijaukset.huijaus)
     {
-        update_fivebests(pi,nimi);
-        print_fivebests();
+        update_fivebests(pi,nimi,fivebests,hcamnt);
+        print_fivebests(fivebests,hcamnt);
     }
     printf("Matkalla keräsit %d pistebonusta\nnappasit %d supervauhtia\nja osuit %d esteeseen\n",pi->stats.piste,pi->stats.nopeus,pi->stats.este);
 }
@@ -416,46 +332,145 @@ int kbhit()
     select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
     return FD_ISSET(STDIN_FILENO, &fds);
 }
+int check_possible_directions(tienpala *tiep,int autopaikka)
+{
+    int suunnat=0,i;
+    if(tiep->vas<autopaikka-1) 
+        for(suunnat |=1, i=0; i<tiep->esteamnt;i++)
+            if(tiep->tukko[i].type == este_block && tiep->tukko[i].paikka==autopaikka-1)
+               suunnat&=(~1);
+    if(tiep->oik>autopaikka+1)
+        for(suunnat |=(1<<1), i=0; i<tiep->esteamnt;i++)
+            if(tiep->tukko[i].type == este_block && tiep->tukko[i].paikka==autopaikka+1)
+                suunnat&=(~(1<<1));
+    return suunnat;
+}
+#if 0
+int leads_to_deadend(peliinfo *pi,int autopaikka,int suunta, int depth)
+{
+    for(i=0;i<depth;i++)
+    {
+        get_next_position(&autonpaikka,suunta);
+        if(0==check_possible_directions(&(pi->tie[i+2])autonpaikka))
+        {
 
+            suunta*=-1;
+            get_next_position(&autonpaikka,suunta); /* original place */
+            get_next_position(&autonpaikka,suunta);
+            if(0==check_possible_directions(&(pi->tie[i+2])autonpaikka))
+                return 1;
+        }
+}
+#endif
+int try_find_path(peliinfo *pi,int autopaikka,int suunta, int current_attempt, int target_attempt)
+{
+    //int rval;
+    int next_possibilities = check_possible_directions(&(pi->tie[current_attempt+2]),autopaikka+suunta);
+    if(!next_possibilities)
+        return -1;
+    if(target_attempt==current_attempt)
+        return 0;
+    if(suunta == SUUNTA_VASEN && 1&next_possibilities)
+    {
+        /* Ok, let's try Vasen */
+        if(0!=try_find_path(pi,autopaikka-1,SUUNTA_VASEN,current_attempt+1,target_attempt))
+            if((1<<1)&next_possibilities)
+                if(0!=try_find_path(pi,autopaikka+1,SUUNTA_OIKEA,current_attempt+1,target_attempt))
+
+            return -1;
+                else
+                    return 1;
+            else
+                return -1;
+        else
+            return 0;
+
+    }
+    else if(suunta == SUUNTA_OIKEA && (1<<1)&next_possibilities)
+    {
+            if(0!=try_find_path(pi,autopaikka+1,SUUNTA_OIKEA,current_attempt+1,target_attempt))
+                if((1)&next_possibilities)
+                    if(0!=try_find_path(pi,autopaikka-1,SUUNTA_VASEN,current_attempt+1,target_attempt))
+                        return -1;
+                    else
+                        return 1;
+                else
+                    return -1;
+            else
+                return 0;
+    }
+    else
+    {
+        if(0!=try_find_path(pi,autopaikka+(-1*suunta),-1*suunta,current_attempt+1,target_attempt))
+            return -1;
+    }
+    return 1;
+}
+void autopilotti_suunnista(peliinfo *pi)
+{
+    int current_attempt=0,target_attempt=5;
+    int rval;
+    if(1==(rval=try_find_path(pi,pi->autonpaikka,pi->suunta,current_attempt,target_attempt)))
+        pi->suunta*=-1;
+    if(-1==rval)
+        pi->hidastus=pi->hidastus_alku;
+/*
+    if(pi->autonpaikka-1<=pi->tie[1].vas)
+        pi->suunta=SUUNTA_OIKEA;
+    else if(pi->autonpaikka+1==pi->tie[0].oik)
+        pi->suunta=SUUNTA_VASEN;
+    else
+    {
+        int i;
+        for(i=0;i<pi->tie[1].esteamnt;i++)
+            if(pi->autonpaikka+pi->suunta == pi->tie[1].tukko[i].paikka)
+            {
+                pi->suunta*=-1;
+                break;
+            }
+    }
+    */
+}
 int ohjaa(peliinfo *pi)
 {
     int nappi=0;
     int arvo=0;
 
-    while(kbhit())
-        if( 3==(arvo=read(0,&nappi,sizeof(int))))
-        {
-            if(VAS_NUOLI==nappi)
-                pi->suunta=SUUNTA_VASEN;
-            else if(OIK_NUOLI==nappi)
-                pi->suunta=SUUNTA_OIKEA;
-            else if(ALAS_NUOLI==nappi && !pi->speed_kierros)
+    if(pi->huijaukset.autopilotti)
+        autopilotti_suunnista(pi);
+    else
+        while(kbhit())
+            if( 3==(arvo=read(0,&nappi,sizeof(int))))
             {
-                pi->hidastus-=10000;
-                if(pi->hidastus<0)
-                    pi->hidastus=0;
-            //pi->pistekerroin+;
+                if(VAS_NUOLI==nappi)
+                    pi->suunta=SUUNTA_VASEN;
+                else if(OIK_NUOLI==nappi)
+                    pi->suunta=SUUNTA_OIKEA;
+                else if(ALAS_NUOLI==nappi && !pi->speed_kierros)
+                {
+                    pi->hidastus-=10000;
+                    if(pi->hidastus<0)
+                        pi->hidastus=0;
             /* lisää nopeutta ja pistekerrointa */
-            }
-            else if(YLOS_NUOLI==nappi && !pi->speed_kierros)
-            {
+                }
+                else if(YLOS_NUOLI==nappi && !pi->speed_kierros)
+                {
             /* vähennä nopeutta ja pistekerrointa */
-                pi->hidastus+=10000;
-                if(pi->hidastus>pi->hidastus_alku)
-                    pi->hidastus=pi->hidastus_alku;
+                    pi->hidastus+=10000;
+                    if(pi->hidastus>pi->hidastus_alku)
+                        pi->hidastus=pi->hidastus_alku;
 
-            //pi->pistekerroin-=600/20;
-           }
-        }
+                }
+            }
 
     return 0;
 }
-void uusi_este(tienpala *tie,int index)
+void uusi_este(peliinfo *pi,tienpala *tie,int index)
 {
     int luku;
     int tyyppi;
 uus:
-    luku=rand()%10+1;
+    luku=rand()%RADAN_LEVEYS+1;
     if(index==2)
         if(tie->vas+luku==tie->tukko[1].paikka)
             goto uus;
@@ -466,38 +481,48 @@ uus:
     tie->esteamnt++;
     tie->tukko[index].paikka=tie->vas+luku;
     tyyppi=rand()%10;
-    if(tyyppi<5)
+    if(!pi->huijaukset.estehuijaus && tyyppi<5)
     {
+        tie->tukko[index].varialkuleveys=0;
+        tie->tukko[index].varileveys=0;
         tie->tukko[index].merkki='#';
         tie->tukko[index].type=este_block;
     }
-    else if(tyyppi<8)
+    else if(!pi->huijaukset.estehuijaus && tyyppi<8)
     {
+        tie->tukko[index].varialkuleveys=VARIN_ALKU_LEVEYS;
+        tie->tukko[index].vari_alku=vari_alut[este_speed];
+        tie->tukko[index].vari_loppu=vari_loppu;
+        tie->tukko[index].varileveys=VARIN_LEVEYS;
         tie->tukko[index].merkki='V';
         tie->tukko[index].type=este_speed;
     }
     else
     {
+        tie->tukko[index].vari_alku=vari_alut[este_pisteet];
+        tie->tukko[index].vari_loppu=vari_loppu;
+        tie->tukko[index].varialkuleveys=VARIN_ALKU_LEVEYS;
+        tie->tukko[index].varileveys=VARIN_LEVEYS;
         tie->tukko[index].merkki='$';
         tie->tukko[index].type=este_pisteet;
     }
         
 }
-void arvo_esteet(tienpala *tie)
+void arvo_esteet(peliinfo *pi,tienpala *tie)
 {
     int satunnaisluku;
     int esteet;
-
+    tie->esteamnt=0;
     for(esteet=0;esteet<3;esteet++)
     {
         satunnaisluku=rand();
-        if(satunnaisluku<RAND_MAX/10)
-            uusi_este(tie,esteet);
+        if((!pi->huijaukset.estehuijaus && satunnaisluku<RAND_MAX/10) || (pi->huijaukset.estehuijaus && satunnaisluku>RAND_MAX/10))
+            uusi_este(pi,tie,esteet);
         else
             break;
     }
 }
-void arvo_tie(tienpala *tie)
+void arvo_tie(peliinfo *pi)
 {
     tienpala tie_uusi[TIEN_PITUUS];
     int satunnaisluku;
@@ -506,7 +531,7 @@ void arvo_tie(tienpala *tie)
 arvo_uudestaan:
     satunnaisluku= rand();
 
-    memcpy(tie_uusi,&(tie[1]),sizeof(tienpala)*(TIEN_PITUUS-1));
+    memcpy(tie_uusi,&(pi->tie[1]),sizeof(tienpala)*(TIEN_PITUUS-1));
 
     if(satunnaisluku < RAND_MAX/4)
     {
@@ -525,11 +550,11 @@ arvo_uudestaan:
         /* suoraan */
         tie_uusi[TIEN_PITUUS-1]=tie_uusi[TIEN_PITUUS-2];
     }
-    if(tie_uusi[TIEN_PITUUS-1].oik>TIEN_MAX_LEVEYS || tie_uusi[TIEN_PITUUS-1].vas<0)
+    if(tie_uusi[TIEN_PITUUS-1].oik>TIEN_MAX_LEVEYS || tie_uusi[TIEN_PITUUS-1].vas<VARIN_ALKU_LEVEYS)
         goto arvo_uudestaan;
     
-    memcpy(tie,tie_uusi,sizeof(tienpala)*TIEN_PITUUS);
-    arvo_esteet(&tie[TIEN_PITUUS-1]);
+    memcpy(pi->tie,tie_uusi,sizeof(tienpala)*TIEN_PITUUS);
+    arvo_esteet(pi,&(pi->tie[TIEN_PITUUS-1]));
     
 }
 
@@ -586,48 +611,61 @@ void uusi_autonpaikka(peliinfo *pi)
 }
 int main(int argc, char *argv[])
 {
-//    int autonpaikka=30,i;
     peliinfo pi;
- //   int suunta=SUUNTA_OIKEA;
- //   int kierros;
- //   int hidastus = 100000;
-    float hidastuskerroin=1;
-    int elamat=1;
-    int huijaus=0;
+    //float hidastuskerroin=1;
+    //int elamat=1;
+//    int huijaus=0;
     int ikahyvitys=0;
     int i;
+    hiscore fivebests[HISCORE_AMNT];
+//    int lisaleveys=0;
+    
     memset(&pi,0,sizeof(pi));
-    //pi.pistekerroin=1;
+    pi.huijaukset.hidastuskerroin=1;
+    pi.huijaukset.elamat=1;
+    pi.huijaukset.huijaus=0;
+    pi.huijaukset.lisaleveys=0;
+    pi.huijaukset.estehuijaus=0;
     pi.kierros=0;
     pi.pisteet=0;
     pi.nopeus=0;
     pi.hidastus=pi.hidastus_alku=100000;
     pi.suunta=SUUNTA_OIKEA;
-    pi.autonpaikka=30;
 
     //init_beeb_tty();
     //beebbeeb(0xfff, 250);
-    //sleep(1);
     //return 0;
     if(init_sizes())
     {
-        printf("liian pieni ruutu\n");
-        return -1;
+ //       printf("liian pieni ruutu\n");
+ //       return -1;
     }
     if(!(pi.tie=calloc(sizeof(tienpala),TIEN_PITUUS)))
         return -ENOMEM;
     init_extra_array();
-    read_scores();
-    print_fivebests();
+    read_scores(fivebests,HISCORE_AMNT);
+    print_fivebests(fivebests,HISCORE_AMNT);
     ajo_pause();
  
     if(argc>1)
     {
+        if(!strcmp(argv[1],"Siri") || !strcmp(argv[1],"siri"))
+        {
+            pi.huijaukset.lisaleveys=20;
+            pi.huijaukset.hidastuskerroin=0.3;
+        }
         if(!strcmp(argv[1],"Iivari") || !strcmp(argv[1],"iivari"))
         {
-            hidastuskerroin=5;
+            pi.huijaukset.hidastuskerroin=5;
             ikahyvitys=4;
+            pi.huijaukset.huijaus=1;
         }
+        if(!strcmp(argv[1],"autopilotti"))
+        {
+            pi.huijaukset.autopilotti=1;
+        }
+        else if( !strcmp(argv[1],"Jasper") || !strcmp(argv[1],"jasper") )
+            pi.huijaukset.estehuijaus=1;
         /*
         else if(!strcmp(argv[1],"Joona") || !strcmp(argv[1],"joona") )
             hidastuskerroin=1;
@@ -639,19 +677,20 @@ int main(int argc, char *argv[])
             */
         else if(!strcmp(argv[1],"Johanna") || !strcmp(argv[1],"johanna"))
         {
-            //pi.pistekerroin=10;
-            elamat=6;
+            pi.huijaukset.elamat=6;
         }
     }
-    if( elamat>1 || (hidastuskerroin-ikahyvitys)>1)
-        huijaus=1;
+    if( pi.huijaukset.estehuijaus || pi.huijaukset.lisaleveys || pi.huijaukset.elamat>1 || (pi.huijaukset.hidastuskerroin-ikahyvitys)>1 || pi.huijaukset.autopilotti)
+        pi.huijaukset.huijaus=1;
     srand(time(NULL));
     tty_break();
+
+    pi.autonpaikka=30+pi.huijaukset.lisaleveys/2;
 
     for(i=0;i<TIEN_PITUUS;i++)
     {
         pi.tie[i].vas=20;
-        pi.tie[i].oik=40;
+        pi.tie[i].oik=pi.tie[i].vas+RADAN_LEVEYS+pi.huijaukset.lisaleveys;
     }   
 
 
@@ -662,10 +701,10 @@ int main(int argc, char *argv[])
             advance_extratext_ctr(&pi);
         if(piirra_ja_tarkista(&pi /*(100000-hidastus)/20,kierros*pistekerroin*/,(argc>1)?argv[1]:"Tuntematon"))
         {
-            elamat--;
-            if(!elamat)
+            pi.huijaukset.elamat--;
+            if(!pi.huijaukset.elamat)
             {
-                lopeta(&pi,(argc>1)?argv[1]:"Tuntematon",huijaus);
+                lopeta(&pi,(argc>1)?argv[1]:"Tuntematon",fivebests,HISCORE_AMNT);
                 break;
             }
             else
@@ -675,10 +714,10 @@ int main(int argc, char *argv[])
         if(ohjaa(&pi))
             break;
         uusi_autonpaikka(&pi);
-        arvo_tie(pi.tie);
+        arvo_tie(&pi);
         pi.hidastus-=100;
         laske_nopeus(&pi);
-        usleep((pi.hidastus<=0)?0:(pi.hidastus*hidastuskerroin));
+        usleep((pi.hidastus<=0)?0:(pi.hidastus*pi.huijaukset.hidastuskerroin));
     }
     tty_fix();
     return 0;
