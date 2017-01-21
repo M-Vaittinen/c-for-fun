@@ -639,7 +639,7 @@ void ajo_pause()
 
 void lisaa_pisteet(peliinfo *pi)
 {
-    unsigned int pistekerroin=(pi->hidastus_alku-pi->hidastus)/20;
+    unsigned int pistekerroin=(pi->hidastus_alku-pi->hidastus)/200;
     pi->pisteet+=pistekerroin;
     if(pi->speed_kierros)
     {
