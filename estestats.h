@@ -6,6 +6,7 @@ typedef struct estestats
     int nopeus;
     int piste;
     int este;
+    int laser;
 }estestats;
 
 #endif

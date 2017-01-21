@@ -11,14 +11,15 @@ void print_fivebests(hiscore *fivebests,int hcamnt)
     printf("Best Of The Best:\n\n");
     for(i=0;i<hcamnt&&fivebests[i].used;i++)
     {
-        printf("%d:\t%s: Speed %u, Points %u \t\t#(%d) V(%d) $(%d)\n",
+        printf("%d:\t%s: Speed %u, Points %u \t\t#(%d) V(%d) $(%d) |(%d)\n",
                 i+1,
                 fivebests[i].name,
                 fivebests[i].max_speed,
                 fivebests[i].points,
                 fivebests[i].stats.este,
                 fivebests[i].stats.nopeus,
-                fivebests[i].stats.piste
+                fivebests[i].stats.piste,
+                fivebests[i].stats.laser
               );
     }
 }
@@ -26,14 +27,14 @@ void print_fivebests(hiscore *fivebests,int hcamnt)
 void read_scores(hiscore *fivebests,int hcamnt)
 {
     FILE *rf;
-    int ptmp,stmp,st_etmp,st_ntmp,st_ptmp,rval;
+    int ptmp,stmp,st_etmp,st_ntmp,st_ptmp,st_laser,rval;
     char name[1024];
     memset(fivebests,0,sizeof(hiscore)*hcamnt);
     rf=fopen(TALL_TIEDOSTO,"r");
     if(rf)
     {
         int i=0;
-        for(i=0;i<hcamnt&&6==(rval=fscanf(rf,"%1024[^!]!%u!%u!%d!%d!%d\n",name,&stmp,&ptmp,&st_etmp,&st_ntmp,&st_ptmp));i++)
+        for(i=0;i<hcamnt&&7==(rval=fscanf(rf,"%1024[^!]!%u!%u!%d!%d!%d!%d\n",name,&stmp,&ptmp,&st_etmp,&st_ntmp,&st_ptmp,&st_laser));i++)
         {
             strncpy(fivebests[i].name,name,1024);
             fivebests[i].name[sizeof(fivebests[i].name)-1]='\0';
@@ -42,6 +43,7 @@ void read_scores(hiscore *fivebests,int hcamnt)
             fivebests[i].stats.este=st_etmp;
             fivebests[i].stats.nopeus=st_ntmp;
             fivebests[i].stats.piste=st_ptmp;
+            fivebests[i].stats.laser=st_laser;
             fivebests[i].used=1;
         }
         fclose(rf);
@@ -60,13 +62,14 @@ int write_scores(hiscore *fivebests,int hcamnt)
             fprintf
             (
                 wf,
-                "%s!%u!%u!%d!%d!%d\n",
+                "%s!%u!%u!%d!%d!%d!%d\n",
                 fivebests[i].name,
                 fivebests[i].max_speed,
                 fivebests[i].points,
                 fivebests[i].stats.este,
                 fivebests[i].stats.nopeus,
-                fivebests[i].stats.piste
+                fivebests[i].stats.piste,
+                fivebests[i].stats.laser
             );
         }
         fclose(wf);
@@ -99,6 +102,7 @@ void update_fivebests(peliinfo *pi,char *name,hiscore *fivebests,int hcamnt)
         fivebests[i].stats.este=pi->stats.este;
         fivebests[i].stats.nopeus=pi->stats.nopeus;
         fivebests[i].stats.piste=pi->stats.piste;
+        fivebests[i].stats.laser=pi->stats.laser;
     }
     write_scores(fivebests,hcamnt);
 }

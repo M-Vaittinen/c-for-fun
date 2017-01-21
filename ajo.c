@@ -9,9 +9,6 @@
 #include <sgtty.h>
 #include <sys/select.h>
 #include <sys/types.h>
-//#include <fcntl.h>
-//#include <sys/ioctl.h>
-//#include <linux/kd.h>
 
 #include "estestats.h"
 #include "hiscore.h"
@@ -61,6 +58,7 @@ typedef enum extratexts
 {
     EXTRAT_POINTS = 0,
     EXTRAT_SPEED,
+    EXTRAT_LASER,
     EXTRA_AMNT
 }extratexts;
 #define EXTRA_MAX (EXTRA_AMNT-1)
@@ -68,7 +66,8 @@ typedef enum extratexts
 const char *extratext_s[EXTRA_AMNT] =
 {
     [EXTRAT_POINTS] = "+10000 Points!!!",
-    [EXTRAT_SPEED] = "Super Speed!!!" 
+    [EXTRAT_SPEED] = "Super Speed!!!", 
+    [EXTRAT_SPEED] = "Laser hit +5000!!!" 
 };
 typedef struct extratext
 {
@@ -331,7 +330,7 @@ void lopeta(peliinfo *pi, char *nimi,hiscore *fivebests,int hcamnt)
         update_fivebests(pi,nimi,fivebests,hcamnt);
         print_fivebests(fivebests,hcamnt);
     }
-    printf("Matkalla keräsit %d pistebonusta\nnappasit %d supervauhtia\nja osuit %d esteeseen\n",pi->stats.piste,pi->stats.nopeus,pi->stats.este);
+    printf("Matkalla\nKeräsit %d pistebonusta\nOsuit %d kohteeseen laserilla\nnappasit %d supervauhtia\nja törmäsit %d esteeseen\n",pi->stats.piste,pi->stats.laser,pi->stats.nopeus,pi->stats.este);
 }
 int kbhit()
 {
@@ -444,11 +443,11 @@ void autopilotti_suunnista(peliinfo *pi)
     */
 }
 
-void hit_este_handler(peliinfo *pi)
+void hit_laser_handler(peliinfo *pi)
 {
     pi->pisteet+=5000;
-    pi->stats.piste++;
-    add_new_extratext(pi,EXTRAT_POINTS);
+    pi->stats.laser++;
+    add_new_extratext(pi,EXTRAT_LASER);
 }
 
 
@@ -472,7 +471,7 @@ void poista_esteet(peliinfo *pi)
                 if(pi->tie[i].tukko[j].paikka == pi->autonpaikka)
                 {
                     poista_este(&(pi->tie[i]),j);
-                    hit_este_handler(pi);
+                    hit_laser_handler(pi);
                 }
 }
 int ohjaa(peliinfo *pi)

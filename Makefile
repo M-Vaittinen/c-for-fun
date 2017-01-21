@@ -4,7 +4,7 @@ TGT=autopelihieno
 SRC=ajo.c hiscore.c 
 LDFLAGS=
 
-$(TGT): ajo.c
+$(TGT): ajo.c hiscore.c
 		$(CC) $(CFLAGS) -o $(TGT) $(SRC) $(LDFLAGS)
 
 clean:
