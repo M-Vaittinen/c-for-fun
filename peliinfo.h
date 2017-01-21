@@ -17,6 +17,7 @@ typedef struct peliinfo
     int hidastus_alku;
     int speed_kierros;
     int hidastus_saved;
+    int ammu;
     tienpala *tie;
     int extratext_array_current;
     estestats stats;

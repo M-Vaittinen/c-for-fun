@@ -19,6 +19,7 @@
 #include "tienpala.h"
 #include "peliinfo.h"
 
+#define F1 0x504f1b
 #define YLOS_NUOLI 0x415b1b
 #define ALAS_NUOLI 0x425b1b
 #define VAS_NUOLI 0x445b1b
@@ -28,6 +29,7 @@
 #define AUTOMERKKI 'H'
 #define TIEMERKKI_VAS '#'
 #define TIEMERKKI_OIK '#'
+#define GUN_RELOAD 1
 
 #define HISCORE_AMNT 5
 
@@ -182,6 +184,11 @@ int hae_oikea_autonpaikka(tienpala *tiep,int autonpaikka)
     return rval;
 }
 
+void piirra_laser(char *tie, tienpala *tiep, int autonpaikka)
+{
+    if(tiep->vas < autonpaikka && tiep->oik > autonpaikka)
+        tie[hae_oikea_autonpaikka(tiep, autonpaikka)] = '|';
+}
 void piirra_esteet(char *tie,tienpala *tiep)
 {
     int i;
@@ -264,21 +271,25 @@ int piirra_ylarivi(tienpala *tiep, peliinfo *pi, char *kuski)
     clear_extratext(pi);
     return rval;
 }
-void piirra_alarivi(tienpala *tiep,unsigned int nopeus, unsigned int pisteet)
+void piirra_alarivi(peliinfo *pi,tienpala *tiep,unsigned int nopeus, unsigned int pisteet)
 {
     char tie[TIEN_MAX_LEVEYS_VAREINEEN+1];
     memset(tie,' ',sizeof(tie));
     lisaa_reunat(tiep, tie);
     piirra_esteet(tie,tiep);
+    if(pi->ammu==GUN_RELOAD)
+        piirra_laser(tie,tiep,pi->autonpaikka);
     printf("%s" COLOR_RESTORE " speed %u points %u\n",tie,nopeus,pisteet);
 }
-void piirra_rivi(tienpala *tiep, const char *et)
+void piirra_rivi(peliinfo *pi,tienpala *tiep, const char *et)
 {
     char tie[TIEN_MAX_LEVEYS_VAREINEEN+1];
     memset(tie,' ',sizeof(tie));
 
     lisaa_reunat(tiep, tie);
     piirra_esteet(tie,tiep);
+    if(pi->ammu==GUN_RELOAD)
+        piirra_laser(tie,tiep,pi->autonpaikka);
     if(et)
         printf("%s" COLOR_RESTORE " %s\n",tie,et);
     else
@@ -294,10 +305,11 @@ int piirra_ja_tarkista(peliinfo *pi, char *kuski)
     for(i=1;i<TIEN_PITUUS-1;i++)
         piirra_rivi
         (
+            pi,
             &(pi->tie[i]),
             get_extratext_for_tienpala_index(pi,i)
         );
-    piirra_alarivi(&(pi->tie[i]),pi->nopeus,pi->pisteet);
+    piirra_alarivi(pi,&(pi->tie[i]),pi->nopeus,pi->pisteet);
 
     fflush(stdout);
     if(rval)
@@ -431,6 +443,38 @@ void autopilotti_suunnista(peliinfo *pi)
     }
     */
 }
+
+void hit_este_handler(peliinfo *pi)
+{
+    pi->pisteet+=5000;
+    pi->stats.piste++;
+    add_new_extratext(pi,EXTRAT_POINTS);
+}
+
+
+void poista_este(tienpala *tiep, int esteindeksi)
+{
+    if(tiep->esteamnt > (esteindeksi+1))
+        memcpy(&(tiep->tukko[esteindeksi]),&(tiep->tukko[esteindeksi+1]),sizeof(este)*(tiep->esteamnt-(esteindeksi+1)));
+    memset(&(tiep->tukko[tiep->esteamnt-1]),0,sizeof(este));
+    tiep->esteamnt--;
+
+}
+void poista_esteet(peliinfo *pi)
+{
+    int i,j;
+    /* etsi auton paikka */
+    for(i=0;i<TIEN_PITUUS;i++)
+        if(pi->tie[i].vas >= pi->autonpaikka || pi->tie[i].oik <= pi->autonpaikka)
+            break;
+        else
+            for(j=0;j<pi->tie[i].esteamnt;j++)
+                if(pi->tie[i].tukko[j].paikka == pi->autonpaikka)
+                {
+                    poista_este(&(pi->tie[i]),j);
+                    hit_este_handler(pi);
+                }
+}
 int ohjaa(peliinfo *pi)
 {
     int nappi=0;
@@ -440,7 +484,7 @@ int ohjaa(peliinfo *pi)
         autopilotti_suunnista(pi);
     else
         while(kbhit())
-            if( 3==(arvo=read(0,&nappi,sizeof(int))))
+            if(3==(arvo=read(0,&nappi,sizeof(int))))
             {
                 if(VAS_NUOLI==nappi)
                     pi->suunta=SUUNTA_VASEN;
@@ -460,6 +504,10 @@ int ohjaa(peliinfo *pi)
                     if(pi->hidastus>pi->hidastus_alku)
                         pi->hidastus=pi->hidastus_alku;
 
+                }
+                else if(F1==nappi && !pi->ammu)
+                {
+                    pi->ammu=GUN_RELOAD; //vähennä tätä joka kierroksella 
                 }
             }
 
@@ -612,13 +660,9 @@ void uusi_autonpaikka(peliinfo *pi)
 int main(int argc, char *argv[])
 {
     peliinfo pi;
-    //float hidastuskerroin=1;
-    //int elamat=1;
-//    int huijaus=0;
     int ikahyvitys=0;
     int i;
     hiscore fivebests[HISCORE_AMNT];
-//    int lisaleveys=0;
     
     memset(&pi,0,sizeof(pi));
     pi.huijaukset.hidastuskerroin=1;
@@ -697,6 +741,8 @@ int main(int argc, char *argv[])
     for (pi.kierros=0;1;pi.kierros++)
     {
         lisaa_pisteet(&pi);
+        if(pi.ammu == GUN_RELOAD)
+            poista_esteet(&pi);
         if(!(pi.kierros%3))
             advance_extratext_ctr(&pi);
         if(piirra_ja_tarkista(&pi /*(100000-hidastus)/20,kierros*pistekerroin*/,(argc>1)?argv[1]:"Tuntematon"))
@@ -710,7 +756,8 @@ int main(int argc, char *argv[])
             else
                 pi.autonpaikka=pi.tie[0].vas+10;
         }
-        
+        if(pi.ammu)
+            pi.ammu--;   
         if(ohjaa(&pi))
             break;
         uusi_autonpaikka(&pi);
