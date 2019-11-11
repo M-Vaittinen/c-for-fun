@@ -5,6 +5,8 @@
 #include <time.h>
 #include <math.h>
 #include <unistd.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #define WINDOW_X (640*2)
 #define WINDOW_Y (480*2)
@@ -13,7 +15,7 @@
 
 #define ALUKSET_MAX 255
 #define LOOP_DELAY_US 5000 //5 ms
-#define NOP_MAX 36000
+#define NOP_MAX 36000*2
 
 struct paikka {
 	int x;
@@ -36,8 +38,14 @@ struct seina {
 };
 
 struct alus {
+	int oma;
 	struct paikka p;
+	struct paikka coll_min;
+	struct paikka coll_max;
 	struct paikka p_delta;
+	struct paikka vas_takanurkka;
+	struct paikka oik_takanurkka;
+	struct paikka etunurkka;
 	float suunta;
 	int nopeus;
 	float pituus;
@@ -47,6 +55,7 @@ struct alus {
 };
 
 struct areena {
+	int stop;
 	int leveys;
 	int korkeus;
 	int seinien_maara;
@@ -58,7 +67,18 @@ struct areena {
 
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v);
 
-void alus_laske_nurkat(struct alus *a, struct paikka *vas_takanurkka, struct paikka *oik_takanurkka, struct paikka *etunurkka)
+#define MIN(a,b) ((a)<=(b))?(a):(b)
+#define MAX(a,b) ((a)>=(b))?(a):(b)
+
+void coll_update(struct alus *a, struct paikka *p)
+{
+	a->coll_max.x = MAX(a->coll_max.x, p->x);
+	a->coll_max.y = MAX(a->coll_max.y, p->y);
+	a->coll_min.x = MIN(a->coll_min.x, p->x);
+	a->coll_min.y = MIN(a->coll_min.y, p->y);
+}
+
+void alus_laske_nurkat(struct alus *a)
 {
 	float change_x;
 	float change_y;
@@ -85,35 +105,40 @@ void alus_laske_nurkat(struct alus *a, struct paikka *vas_takanurkka, struct pai
 	change_x = cosf(angle) * pit;
 	//SDL_Log("X change %f, len %f\n", change_x, pit);
 
-	etunurkka->x = a->p.x + change_x;
-	etunurkka->y = a->p.y + change_y;
+	a->etunurkka.x = a->p.x + change_x;
+	a->etunurkka.y = a->p.y + change_y;
+
+	a->coll_max.x = a->coll_min.x = a->etunurkka.x;
+	a->coll_max.y = a->coll_min.y = a->etunurkka.y;
 
 	change_y = sin(M_PI + tangle + angle) * pit_nurkka;
 	change_x = cos(M_PI + tangle + angle) * pit_nurkka;
 
-	oik_takanurkka->x = a->p.x + change_x;
-	oik_takanurkka->y = a->p.y + change_y;
+	a->oik_takanurkka.x = a->p.x + change_x;
+	a->oik_takanurkka.y = a->p.y + change_y;
+
+	coll_update(a, &a->oik_takanurkka);
 
 	change_y = sin(M_PI - tangle + angle) * pit_nurkka;
 	change_x = cos(M_PI - tangle + angle) * pit_nurkka;
 
-	vas_takanurkka->x = a->p.x + change_x;
-	vas_takanurkka->y = a->p.y + change_y;
+	a->vas_takanurkka.x = a->p.x + change_x;
+	a->vas_takanurkka.y = a->p.y + change_y;
 
+	coll_update(a, &a->vas_takanurkka);
 }
 
 void piirra_alus(SDL_Renderer* renderer, struct alus *a)
 {
-	struct paikka vas_takanurkka, oik_takanurkka, etunurkka;
+//	struct paikka vas_takanurkka, oik_takanurkka, etunurkka;
 	struct seina s;
 //	struct vari v = {255, 0, 0, SDL_ALPHA_OPAQUE};
 
-	alus_laske_nurkat(a, &vas_takanurkka, &oik_takanurkka, &etunurkka);
-	alusta_seina(&s, &vas_takanurkka, &oik_takanurkka, &a->vri /* &v */);
+	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, &a->vri /* &v */);
 	s.piirra(renderer, &s);
-	alusta_seina(&s, &oik_takanurkka, &etunurkka, &a->vri);
+	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, &a->vri);
 	s.piirra(renderer, &s);
-	alusta_seina(&s, &etunurkka, &vas_takanurkka, &a->vri);
+	alusta_seina(&s, &a->etunurkka, &a->vas_takanurkka, &a->vri);
 	s.piirra(renderer, &s);
 /*
 	SDL_SetRenderDrawColor(renderer, 0,255,0,SDL_ALPHA_OPAQUE);
@@ -187,12 +212,18 @@ void piirra_areena(SDL_Renderer* renderer, struct areena *a)
 	for (i = 0; i < a->alusten_maara; i++)
 		a->alukset[i].piirra(renderer, &a->alukset[i]);
 	SDL_RenderPresent(renderer);
+
+	if (a->stop) {
+		sleep(5);
+		exit(0);	
+	}
 }
 
 int luo_areena(struct areena *a)
 {
 	int ok;
 
+	a->stop = 0;
 	a->leveys = WINDOW_X-2;
 	a->korkeus = WINDOW_Y-2;
 	a->seinien_maara = 4;
@@ -213,6 +244,7 @@ int luo_areena(struct areena *a)
 void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *p,
 	      float suunta, int nopeus, struct vari *v)
 {
+	a->oma = 0;
 	a->leveys = leveys;
 	a->pituus = pituus;
 	a->suunta = suunta;
@@ -247,6 +279,62 @@ void arvo_alus(struct areena *a, int index)
 	i+=90;
 */
 }
+
+int orientation(struct paikka *p, struct paikka *q, struct paikka *r) 
+{ 
+    // See https://www.geeksforgeeks.org/orientation-3-ordered-points/ 
+    // for details of below formula. 
+    int val = (q->y - p->y) * (r->x - q->x) - 
+              (q->x - p->x) * (r->y - q->y); 
+  
+    if (val == 0) return 0;  // colinear 
+  
+    return (val > 0)? 1: 2; // clock or counterclock wise 
+} 
+ 
+// Given three colinear points p, q, r, the function checks if 
+// point q lies on line segment 'pr' 
+bool onSegment(struct paikka *p, struct paikka *q, struct paikka *r) 
+{ 
+    if (q->x <= MAX(p->x, r->x) && q->x >= MIN(p->x, r->x) && 
+        q->y <= MAX(p->y, r->y) && q->y >= MIN(p->y, r->y)) 
+       return true; 
+  
+    return false; 
+} 
+ 
+// The main function that returns true if line segment 'p1q1' 
+// and 'p2q2' intersect. 
+bool doIntersect(struct paikka *p1, struct paikka *q1, struct paikka *p2, struct paikka *q2) 
+{ 
+    // Find the four orientations needed for general and 
+    // special cases 
+    int o1 = orientation(p1, q1, p2); 
+    int o2 = orientation(p1, q1, q2); 
+    int o3 = orientation(p2, q2, p1); 
+    int o4 = orientation(p2, q2, q1); 
+  
+    // General case 
+    if (o1 != o2 && o3 != o4) 
+        return true; 
+  
+    // Special Cases 
+    // p1, q1 and p2 are colinear and p2 lies on segment p1q1 
+    if (o1 == 0 && onSegment(p1, p2, q1)) return true; 
+  
+    // p1, q1 and q2 are colinear and q2 lies on segment p1q1 
+    if (o2 == 0 && onSegment(p1, q2, q1)) return true; 
+  
+    // p2, q2 and p1 are colinear and p1 lies on segment p2q2 
+    if (o3 == 0 && onSegment(p2, p1, q2)) return true; 
+  
+     // p2, q2 and q1 are colinear and q1 lies on segment p2q2 
+    if (o4 == 0 && onSegment(p2, q1, q2)) return true; 
+  
+    return false; // Doesn't fall in any of the above cases 
+} 
+ 
+
 #define ALUS_OLETUS_PITUUS 30
 #define ALUS_OLETUS_LEVEYS 15
 #define ALUS_OLETUS_VARI { 0, 255, 0, SDL_ALPHA_OPAQUE }
@@ -259,7 +347,7 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 	float angle;
 	struct paikka p = a->p;
 	struct paikka pd = a->p_delta;
-	int ex = 0;
+	struct alus *oma = &ar->alukset[0];
 
 	if (!a->nopeus)
 		return;
@@ -267,7 +355,6 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 uuziaan:
 		a->p = p;
 		a->p_delta = pd;
-		ex++;
 	}
 	angle = a->suunta * M_PI / 180.0f;
 	nop_y = sinf(angle) * a->nopeus;
@@ -296,10 +383,16 @@ uuziaan:
 	}
 
 	//SDL_Log("Raakapaikka %d, %d\n", a->p.x, a->p.y);
-	if (ex>4)
-		exit(1);
 
 	if ( a->p.x <= 0 ) {
+		if (a->oma) {
+			printf("Törmäsit seinään\n");
+			
+			oma->vri.r = 255;
+			oma->vri.g = 0;
+			oma->vri.b = 0;
+			ar->stop = 1;
+		}
 		//SDL_Log("Paikka %d,%d - x<0\n", a->p.x, a->p.y);
 		//SDL_Log("Suunta %f\n", a->suunta);
 		if ( a->suunta <= 180.0)
@@ -310,6 +403,13 @@ uuziaan:
 		goto uuziaan;
 	}
 	if ( a->p.x >= ar->leveys ) {
+		if (a->oma) {
+			printf("Törmäsit seinään\n");
+			oma->vri.r = 255;
+			oma->vri.g = 0;
+			oma->vri.b = 0;
+			ar->stop = 1;
+		}
 		//SDL_Log("Paikka %d,%d - x>%d\n", a->p.x, a->p.y, ar->leveys);
 		//SDL_Log("Suunta %f\n", a->suunta);
 		if( a->suunta <= 90.0)
@@ -320,6 +420,13 @@ uuziaan:
 		goto uuziaan;
 	}
 	if ( a->p.y >= ar->korkeus || a->p.y <= 0 ) {
+		if (a->oma) {
+			printf("Törmäsit seinään\n");
+			oma->vri.r = 255;
+			oma->vri.g = 0;
+			oma->vri.b = 0;
+			ar->stop = 1;
+		}
 		//SDL_Log("Paikka %d,%d - y<0 || y>%d\n", a->p.x, a->p.y, ar->korkeus);
 		//SDL_Log("Suunta %f\n", a->suunta);
 		a->suunta = 360.0 - a->suunta;
@@ -327,16 +434,36 @@ uuziaan:
 		goto uuziaan;
 	}
 
-	/*
-	if ( a->p.y <= 0) {
-		a->suunta = 360 - a->suunta;
-		if (a->suunta >= 270)
-			a->suunta = 270-a->suunta;
-		else
-			a->suunta = 180 - a->suunta - 180;
-		goto uuziaan;
+	alus_laske_nurkat(a);
+
+	if (a->oma)
+		return;
+
+	if ( (oma->coll_min.x <= a->coll_max.x) &&
+	     (oma->coll_max.x >= a->coll_min.x) &&
+	     (oma->coll_min.y <= a->coll_max.y ) &&
+	     (oma->coll_max.y >= a->coll_min.y)) {
+
+		if (doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka, &a->vas_takanurkka, &a->oik_takanurkka) ||
+		    doIntersect(&oma->oik_takanurkka, &oma->etunurkka, &a->vas_takanurkka, &a->oik_takanurkka) ||
+		    doIntersect(&oma->etunurkka, &oma->vas_takanurkka, &a->vas_takanurkka, &a->oik_takanurkka) ||
+		    
+		    doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka, &a->oik_takanurkka, &a->etunurkka) ||
+		    doIntersect(&oma->oik_takanurkka, &oma->etunurkka, &a->oik_takanurkka, &a->etunurkka) ||
+		    doIntersect(&oma->etunurkka, &oma->vas_takanurkka, &a->oik_takanurkka, &a->etunurkka) ||
+
+		    doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka, &a->etunurkka, &a->oik_takanurkka) ||
+		    doIntersect(&oma->oik_takanurkka, &oma->etunurkka, &a->etunurkka, &a->oik_takanurkka) ||
+		    doIntersect(&oma->etunurkka, &oma->vas_takanurkka, &a->etunurkka,  &a->oik_takanurkka))
+		{
+
+			oma->vri.r = a->vri.r = 255;
+			oma->vri.g = a->vri.g = 0;
+			oma->vri.b = a->vri.b = 0;
+
+			ar->stop = 1;
+		}
 	}
-	*/
 }
 
 void alusta_oma_alus(struct areena *a)
@@ -349,6 +476,7 @@ void alusta_oma_alus(struct areena *a)
 
 	luo_alus(&a->alukset[0], ALUS_OLETUS_LEVEYS, ALUS_OLETUS_PITUUS, &p,
 		 ALUS_OLETUS_SUUNTA, ALUS_OLETUS_NOPEUS, &v);
+	a->alukset[0].oma = 1;
 }
 
 int luo_alukset(struct areena *a)
@@ -356,6 +484,7 @@ int luo_alukset(struct areena *a)
 	int i;
 
 	a->alusten_maara = 100;
+//	a->alusten_maara = 20;
 
 	alusta_oma_alus(a);
 
@@ -406,13 +535,25 @@ int get_input(struct areena *a)
 {
 	int x = 0,y = 0;
 	struct alus *oma = &a->alukset[0];
-	static int i = 0;
 	float fix = 0;
-
-	i++;
+	const Uint8 *state;
 
 	/* Is this needed anymore? */
 	SDL_PumpEvents();
+	state = SDL_GetKeyboardState(NULL);
+
+	if(state) {
+		if (state[SDL_SCANCODE_UP])
+			oma->nopeus+=100;
+		if (state[SDL_SCANCODE_DOWN])
+			oma->nopeus-=100;
+	}
+
+	if (oma->nopeus < 0)
+		oma->nopeus = 0;
+	if (oma->nopeus > NOP_MAX)
+		oma->nopeus = NOP_MAX; 
+
 	if (SDL_GetMouseState(&x,&y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 		return -1;
 
@@ -443,7 +584,6 @@ int get_input(struct areena *a)
 	oma->suunta += fix;
 	if (oma->suunta < 0)
 		oma->suunta += 360;
-	oma->nopeus = 2000; 
 	SDL_Log("OmaSuunta %f\n", oma->suunta);
 //	SDL_Log("Oma suunta muutettu, uusi suunta %f\n", oma->suunta);
 	return 0;
@@ -482,13 +622,13 @@ int main(int arc, char *argv[])
 //	test_display(&a, window, renderer);
 //	SDL_PumpEvents();
 
-	for (i = 0; i<5000; i++) {
+	for (i = 0; 1 ; i++) {
 	//	hae_napinpainallukset();
 	//	laske_alusten_paikat();
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(renderer);
-		a.piirra(renderer, &a);
 		uudet_paikat(&a);
+		a.piirra(renderer, &a);
 		usleep(LOOP_DELAY_US);
 		if (get_input(&a))
 			break;
