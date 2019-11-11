@@ -1,11 +1,7 @@
-CC=gcc
-CFLAGS=-Wall -ggdb
-TGT=autopelihieno
-SRC=ajo.c hiscore.c 
-LDFLAGS=
+CC = gcc
 
-$(TGT): ajo.c hiscore.c
-		$(CC) $(CFLAGS) -o $(TGT) $(SRC) $(LDFLAGS)
+all:
+	$(CC) -Wall main.c -o ampu -lSDL2 -lm
 
 clean:
-	rm -rf $(TGT)
+	rm -rf ampu
