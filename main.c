@@ -370,25 +370,28 @@ uus:
 
 #define ALUS_OLETUS_PITUUS 30
 #define ALUS_OLETUS_LEVEYS 15
-#define ALUS_OLETUS_VARI { 0, 255, 0, SDL_ALPHA_OPAQUE }
+#define ALUS_OLETUS_VARI { 51, 255, 255, SDL_ALPHA_OPAQUE }
 #define ALUS_OLETUS_SUUNTA 0
 #define ALUS_OLETUS_NOPEUS NOP_MAX
+
+void loppu_punaa(struct areena *ar)
+{
+	struct alus *oma = &ar->alukset[0];
+	oma->vri.r = 255;
+	oma->vri.g = 0;
+	oma->vri.b = 0;
+	ar->stop = 1;
+}
 
 void uusi_paikka(struct areena *ar, struct alus *a)
 {
 	int nop_x, nop_y;
 	float angle;
-	struct paikka p = a->p;
-	struct paikka pd = a->p_delta;
 	struct alus *oma = &ar->alukset[0];
 
 	if (!a->nopeus)
 		return;
-	if (0) {
-uuziaan:
-		a->p = p;
-		a->p_delta = pd;
-	}
+
 	angle = a->suunta * M_PI / 180.0f;
 	nop_y = sinf(angle) * a->nopeus;
 	nop_x = cosf(angle) * a->nopeus;
@@ -420,51 +423,62 @@ uuziaan:
 	if ( a->p.x <= 0 ) {
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
-			
-			oma->vri.r = 255;
-			oma->vri.g = 0;
-			oma->vri.b = 0;
-			ar->stop = 1;
+			loppu_punaa(ar);	
 		}
-		//SDL_Log("Paikka %d,%d - x<0\n", a->p.x, a->p.y);
-		//SDL_Log("Suunta %f\n", a->suunta);
-		if ( a->suunta <= 180.0)
-			a->suunta = 90.0 - (a->suunta - 90.0);
-		else
-			a->suunta = 270.0 - a->suunta + 270.0;
-		//SDL_Log("Uusi suunta %f\n", a->suunta);
-		goto uuziaan;
+
+		a->p.x=1;
+		a->p_delta.x=0;
+
+		if (a->suunta > 90 && a->suunta < 270) {
+			//SDL_Log("Paikka %d,%d - x<0\n", a->p.x, a->p.y);
+			//SDL_Log("Suunta %f\n", a->suunta);
+			if ( a->suunta <= 180.0)
+				a->suunta = 90.0 - (a->suunta - 90.0);
+			else
+				a->suunta = 270.0 - a->suunta + 270.0;
+			//SDL_Log("Uusi suunta %f\n", a->suunta);
+		}
 	}
 	if ( a->p.x >= ar->leveys ) {
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
-			oma->vri.r = 255;
-			oma->vri.g = 0;
-			oma->vri.b = 0;
-			ar->stop = 1;
+			loppu_punaa(ar);	
 		}
-		//SDL_Log("Paikka %d,%d - x>%d\n", a->p.x, a->p.y, ar->leveys);
-		//SDL_Log("Suunta %f\n", a->suunta);
-		if( a->suunta <= 90.0)
-			a->suunta = 90.0 - a->suunta + 90.0;
-		else
-			a->suunta = 270.0 - (a->suunta - 270);
-		//SDL_Log("Uusi suunta %f\n", a->suunta);
-		goto uuziaan;
+
+		a->p.x=ar->leveys-1;
+		a->p_delta.x=0;
+
+		if (a->suunta > 270 && a->suunta < 90) {
+
+			//SDL_Log("Paikka %d,%d - x>%d\n", a->p.x, a->p.y, ar->leveys);
+			//SDL_Log("Suunta %f\n", a->suunta);
+			if( a->suunta <= 90.0)
+				a->suunta = 90.0 - a->suunta + 90.0;
+			else
+				a->suunta = 270.0 - (a->suunta - 270);
+			//SDL_Log("Uusi suunta %f\n", a->suunta);
+		}
 	}
 	if ( a->p.y >= ar->korkeus || a->p.y <= 0 ) {
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
-			oma->vri.r = 255;
-			oma->vri.g = 0;
-			oma->vri.b = 0;
-			ar->stop = 1;
+			loppu_punaa(ar);	
 		}
+		if (a->p.y >= ar->korkeus) {
+			a->p.y = ar->korkeus - 1;
+			a->p_delta.y = 0;
+		}
+
+		if (a->p.y <= 0) {
+			a->p.y = 1;
+			a->p_delta.y = 0;
+		}
+
 		//SDL_Log("Paikka %d,%d - y<0 || y>%d\n", a->p.x, a->p.y, ar->korkeus);
 		//SDL_Log("Suunta %f\n", a->suunta);
-		a->suunta = 360.0 - a->suunta;
+		if (a->suunta >= 270 || a->suunta <= 90)
+			a->suunta = 360.0 - a->suunta;
 		//SDL_Log("Uusi suunta %f\n", a->suunta);
-		goto uuziaan;
 	}
 
 	alus_laske_nurkat(a);
@@ -472,15 +486,9 @@ uuziaan:
 	if (a->oma)
 		return;
 
-	if ( o_iholla(oma,a)) {
-		if ( tormasi(oma, a)) {
-			oma->vri.r = a->vri.r = 255;
-			oma->vri.g = a->vri.g = 0;
-			oma->vri.b = a->vri.b = 0;
-
-			ar->stop = 1;
-		}
-	}
+	if ( o_iholla(oma,a))
+		if ( tormasi(oma, a))
+			loppu_punaa(ar);	
 }
 
 void alusta_oma_alus(struct areena *a)
@@ -500,8 +508,8 @@ int luo_alukset(struct areena *a)
 {
 	int i;
 
-	a->alusten_maara = 100;
-//	a->alusten_maara = 20;
+//	a->alusten_maara = 100;
+	a->alusten_maara = 20;
 
 	alusta_oma_alus(a);
 
@@ -509,6 +517,12 @@ int luo_alukset(struct areena *a)
 		arvo_alus(a, i);
 
 	return 0;
+}
+
+void lisaa_alus(struct areena *a)
+{
+	arvo_alus(a,a->alusten_maara);
+	a->alusten_maara++;
 }
 
 void uudet_paikat(struct areena *a)
@@ -574,15 +588,16 @@ int get_input(struct areena *a)
 	if (SDL_GetMouseState(&x,&y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 		return -1;
 
-	SDL_Log("Hiirulainen ny %d,%d\n",x,y);
+	if (oma->p.x == x && oma->p.y == y) {
+		SDL_Log("Törmäsit hiireen!\n");
+		loppu_punaa(a);
+	}
 
 	x-=oma->p.x;
 	y-=oma->p.y;
 
 	if (x < 0)
 		fix = -180.0;
-
-	SDL_Log("Hiirulainen mun paatista %d, %d\n",x,y);
 
 	if (!y) {
 		if (x<0)
@@ -645,6 +660,8 @@ int main(int arc, char *argv[])
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(renderer);
 		uudet_paikat(&a);
+		if (!(i%100))
+			lisaa_alus(&a);
 		a.piirra(renderer, &a);
 		usleep(LOOP_DELAY_US);
 		if (get_input(&a))
