@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=Triangles
+Name[en_US]=Triangles
+Exec=/usr/bin/ampu
+Comment[en_US]=Triangles
+#StartupNotify=true

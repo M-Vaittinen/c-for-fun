@@ -300,7 +300,7 @@ void piirra_areena(SDL_Renderer* renderer, struct areena *a)
 	SDL_RenderPresent(renderer);
 
 	if (a->stop) {
-		sleep(5);
+		sleep(3);
 		exit(0);	
 	}
 }
@@ -588,7 +588,8 @@ int get_input(struct areena *a)
 	if (SDL_GetMouseState(&x,&y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 		return -1;
 
-	if (oma->p.x == x && oma->p.y == y) {
+	if ( x - 2 <= oma->p.x && x + 2 >= oma->p.x &&
+	     y - 2 <= oma->p.y && y + 2 >= oma->p.y ) {
 		SDL_Log("Törmäsit hiireen!\n");
 		loppu_punaa(a);
 	}
