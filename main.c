@@ -14,7 +14,8 @@
 #define MOVE_JUMP_THRESH 6000
 
 #define ALUKSET_MAX 255
-#define LOOP_DELAY_US 5000 //5 ms
+//5 ms
+#define LOOP_DELAY_US 5000
 #define NOP_MAX 36000*2
 
 struct paikka {
@@ -69,6 +70,92 @@ int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, str
 
 #define MIN(a,b) ((a)<=(b))?(a):(b)
 #define MAX(a,b) ((a)>=(b))?(a):(b)
+
+int orientation(struct paikka *p, struct paikka *q, struct paikka *r) 
+{ 
+    // See https://www.geeksforgeeks.org/orientation-3-ordered-points/ 
+    // for details of below formula. 
+    int val = (q->y - p->y) * (r->x - q->x) - 
+              (q->x - p->x) * (r->y - q->y); 
+  
+    if (val == 0) return 0;  // colinear 
+  
+    return (val > 0)? 1: 2; // clock or counterclock wise 
+} 
+ 
+// Given three colinear points p, q, r, the function checks if 
+// point q lies on line segment 'pr' 
+bool onSegment(struct paikka *p, struct paikka *q, struct paikka *r) 
+{ 
+    if (q->x <= MAX(p->x, r->x) && q->x >= MIN(p->x, r->x) && 
+        q->y <= MAX(p->y, r->y) && q->y >= MIN(p->y, r->y)) 
+       return true; 
+  
+    return false; 
+} 
+ 
+// The main function that returns true if line segment 'p1q1' 
+// and 'p2q2' intersect. 
+bool doIntersect(struct paikka *p1, struct paikka *q1, struct paikka *p2, struct paikka *q2) 
+{ 
+    // Find the four orientations needed for general and 
+    // special cases 
+    int o1 = orientation(p1, q1, p2); 
+    int o2 = orientation(p1, q1, q2); 
+    int o3 = orientation(p2, q2, p1); 
+    int o4 = orientation(p2, q2, q1); 
+  
+    // General case 
+    if (o1 != o2 && o3 != o4) 
+        return true; 
+  
+    // Special Cases 
+    // p1, q1 and p2 are colinear and p2 lies on segment p1q1 
+    if (o1 == 0 && onSegment(p1, p2, q1)) return true; 
+  
+    // p1, q1 and q2 are colinear and q2 lies on segment p1q1 
+    if (o2 == 0 && onSegment(p1, q2, q1)) return true; 
+  
+    // p2, q2 and p1 are colinear and p1 lies on segment p2q2 
+    if (o3 == 0 && onSegment(p2, p1, q2)) return true; 
+  
+     // p2, q2 and q1 are colinear and q1 lies on segment p2q2 
+    if (o4 == 0 && onSegment(p2, q1, q2)) return true; 
+  
+    return false; // Doesn't fall in any of the above cases 
+} 
+
+int o_iholla(struct alus *a, struct alus *a2)
+{
+	return ((a->coll_min.x <= a2->coll_max.x) &&
+		(a->coll_max.x >= a2->coll_min.x) &&
+		(a->coll_min.y <= a2->coll_max.y ) &&
+		(a->coll_max.y >= a2->coll_min.y));
+}
+
+int tormasi(struct alus *oma, struct alus *a)
+{
+	return (doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka,
+			    &a->vas_takanurkka, &a->oik_takanurkka) ||
+		doIntersect(&oma->oik_takanurkka, &oma->etunurkka,
+			    &a->vas_takanurkka, &a->oik_takanurkka) ||
+		doIntersect(&oma->etunurkka, &oma->vas_takanurkka,
+			    &a->vas_takanurkka, &a->oik_takanurkka) ||
+
+		doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka,
+			    &a->oik_takanurkka, &a->etunurkka) ||
+		doIntersect(&oma->oik_takanurkka, &oma->etunurkka,
+			    &a->oik_takanurkka, &a->etunurkka) ||
+		doIntersect(&oma->etunurkka, &oma->vas_takanurkka,
+			    &a->oik_takanurkka, &a->etunurkka) ||
+
+		doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka,
+			    &a->etunurkka, &a->oik_takanurkka) ||
+		doIntersect(&oma->oik_takanurkka, &oma->etunurkka,
+			    &a->etunurkka, &a->oik_takanurkka) ||
+		doIntersect(&oma->etunurkka, &oma->vas_takanurkka,
+			    &a->etunurkka,  &a->oik_takanurkka));
+}
 
 void coll_update(struct alus *a, struct paikka *p)
 {
@@ -130,7 +217,6 @@ void alus_laske_nurkat(struct alus *a)
 
 void piirra_alus(SDL_Renderer* renderer, struct alus *a)
 {
-//	struct paikka vas_takanurkka, oik_takanurkka, etunurkka;
 	struct seina s;
 //	struct vari v = {255, 0, 0, SDL_ALPHA_OPAQUE};
 
@@ -252,6 +338,7 @@ void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *p,
 	a->nopeus = nopeus;
 	a->vri = *v;
 	a->piirra = piirra_alus;
+	alus_laske_nurkat(a);
 }
 
 void arvo_alus(struct areena *a, int index)
@@ -261,85 +348,31 @@ void arvo_alus(struct areena *a, int index)
 	float lev, pit, suunta;
 	int nop;
 	float koko = (float) (rand() % 20);
+	struct alus *al = &a->alukset[index];
 
-	p.x = 1 + rand() % a->leveys - 2;
-	p.y = 1 + rand() % a->korkeus - 2;
+	if (index >= ALUKSET_MAX) {
+		SDL_Log("Ouch! Bad index %d\n", index);
+		return;
+	}
+uus:
+	p.x = 1 + (rand() % a->leveys) - 2;
+	p.y = 1 + (rand() % a->korkeus) - 2;
 	lev = 5 + koko;
 	pit = 10 + koko*2;
 	suunta = (float)(rand() % 360);
-//	nop = 1.0/(double)(rand() % 100);
 	nop = rand() % NOP_MAX;
 
-	luo_alus(&a->alukset[index], lev, pit, &p, suunta, nop, &v);
-/*	a->alukset[index].p.x = rand() % a->leveys; 
-	a->alukset[index].p.y = rand() % a->korkeus;
-	a->alukset[index].suunta = (float)(rand() % 360);
-	a->alukset[index].suunta = (float) i;
-	a->alukset[index].nopeus = rand() % 5;
-	i+=90;
-*/
-}
+	luo_alus(al, lev, pit, &p, suunta, nop, &v);
 
-int orientation(struct paikka *p, struct paikka *q, struct paikka *r) 
-{ 
-    // See https://www.geeksforgeeks.org/orientation-3-ordered-points/ 
-    // for details of below formula. 
-    int val = (q->y - p->y) * (r->x - q->x) - 
-              (q->x - p->x) * (r->y - q->y); 
-  
-    if (val == 0) return 0;  // colinear 
-  
-    return (val > 0)? 1: 2; // clock or counterclock wise 
-} 
- 
-// Given three colinear points p, q, r, the function checks if 
-// point q lies on line segment 'pr' 
-bool onSegment(struct paikka *p, struct paikka *q, struct paikka *r) 
-{ 
-    if (q->x <= MAX(p->x, r->x) && q->x >= MIN(p->x, r->x) && 
-        q->y <= MAX(p->y, r->y) && q->y >= MIN(p->y, r->y)) 
-       return true; 
-  
-    return false; 
-} 
- 
-// The main function that returns true if line segment 'p1q1' 
-// and 'p2q2' intersect. 
-bool doIntersect(struct paikka *p1, struct paikka *q1, struct paikka *p2, struct paikka *q2) 
-{ 
-    // Find the four orientations needed for general and 
-    // special cases 
-    int o1 = orientation(p1, q1, p2); 
-    int o2 = orientation(p1, q1, q2); 
-    int o3 = orientation(p2, q2, p1); 
-    int o4 = orientation(p2, q2, q1); 
-  
-    // General case 
-    if (o1 != o2 && o3 != o4) 
-        return true; 
-  
-    // Special Cases 
-    // p1, q1 and p2 are colinear and p2 lies on segment p1q1 
-    if (o1 == 0 && onSegment(p1, p2, q1)) return true; 
-  
-    // p1, q1 and q2 are colinear and q2 lies on segment p1q1 
-    if (o2 == 0 && onSegment(p1, q2, q1)) return true; 
-  
-    // p2, q2 and p1 are colinear and p1 lies on segment p2q2 
-    if (o3 == 0 && onSegment(p2, p1, q2)) return true; 
-  
-     // p2, q2 and q1 are colinear and q1 lies on segment p2q2 
-    if (o4 == 0 && onSegment(p2, q1, q2)) return true; 
-  
-    return false; // Doesn't fall in any of the above cases 
-} 
- 
+	if (o_iholla(&a->alukset[0], al))
+		goto uus;
+}
 
 #define ALUS_OLETUS_PITUUS 30
 #define ALUS_OLETUS_LEVEYS 15
 #define ALUS_OLETUS_VARI { 0, 255, 0, SDL_ALPHA_OPAQUE }
 #define ALUS_OLETUS_SUUNTA 0
-#define ALUS_OLETUS_NOPEUS 0
+#define ALUS_OLETUS_NOPEUS NOP_MAX
 
 void uusi_paikka(struct areena *ar, struct alus *a)
 {
@@ -439,24 +472,8 @@ uuziaan:
 	if (a->oma)
 		return;
 
-	if ( (oma->coll_min.x <= a->coll_max.x) &&
-	     (oma->coll_max.x >= a->coll_min.x) &&
-	     (oma->coll_min.y <= a->coll_max.y ) &&
-	     (oma->coll_max.y >= a->coll_min.y)) {
-
-		if (doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka, &a->vas_takanurkka, &a->oik_takanurkka) ||
-		    doIntersect(&oma->oik_takanurkka, &oma->etunurkka, &a->vas_takanurkka, &a->oik_takanurkka) ||
-		    doIntersect(&oma->etunurkka, &oma->vas_takanurkka, &a->vas_takanurkka, &a->oik_takanurkka) ||
-		    
-		    doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka, &a->oik_takanurkka, &a->etunurkka) ||
-		    doIntersect(&oma->oik_takanurkka, &oma->etunurkka, &a->oik_takanurkka, &a->etunurkka) ||
-		    doIntersect(&oma->etunurkka, &oma->vas_takanurkka, &a->oik_takanurkka, &a->etunurkka) ||
-
-		    doIntersect(&oma->vas_takanurkka, &oma->oik_takanurkka, &a->etunurkka, &a->oik_takanurkka) ||
-		    doIntersect(&oma->oik_takanurkka, &oma->etunurkka, &a->etunurkka, &a->oik_takanurkka) ||
-		    doIntersect(&oma->etunurkka, &oma->vas_takanurkka, &a->etunurkka,  &a->oik_takanurkka))
-		{
-
+	if ( o_iholla(oma,a)) {
+		if ( tormasi(oma, a)) {
 			oma->vri.r = a->vri.r = 255;
 			oma->vri.g = a->vri.g = 0;
 			oma->vri.b = a->vri.b = 0;
