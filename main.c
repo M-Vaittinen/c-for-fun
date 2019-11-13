@@ -529,7 +529,7 @@ void uudet_paikat(struct areena *a)
 {
 	int i;
 
-	for (i = 0; i < a->alusten_maara; i++)
+	for (i = 0; i < a->alusten_maara && !a->stop; i++)
 		uusi_paikka(a, &a->alukset[i]);
 }
 
