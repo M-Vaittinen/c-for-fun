@@ -1,4 +1,5 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
+#include <SDL/SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -56,6 +57,7 @@ struct alus {
 };
 
 struct areena {
+	unsigned pisteet;
 	int stop;
 	int leveys;
 	int korkeus;
@@ -70,6 +72,33 @@ int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, str
 
 #define MIN(a,b) ((a)<=(b))?(a):(b)
 #define MAX(a,b) ((a)>=(b))?(a):(b)
+
+void draw_text(SDL_Renderer* renderer, const char *text, struct paikka *p, int w, int h)
+{
+	TTF_Font* Sans = TTF_OpenFont("Sans.ttf", 24); //this opens a font style and sets a size
+
+	SDL_Color White = {255, 255, 255};  // this is the color in rgb format, maxing out all would give you the color white, and it will be your text's color
+
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, text, White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+
+	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage); //now you can convert it into a texture
+
+	SDL_Rect Message_rect; //create a rect
+
+	Message_rect.x = p->x;  //controls the rect's x coordinate 
+	Message_rect.y = p->y; // controls the rect's y coordinte
+	Message_rect.w = w; // controls the width of the rect
+	Message_rect.h = h; // controls the height of the rect
+
+//Mind you that (0,0) is on the top left of the window/screen, think a rect as the text's box, that way it would be very simple to understance
+
+//Now since it's a texture, you have to put RenderCopy in your game loop area, the area where the whole code executes
+
+	SDL_RenderCopy(renderer, Message, NULL, &Message_rect); //you put the renderer's name first, the Message, the crop size(you can ignore this if you don't want to dabble with cropping), and the rect which is the size and coordinate of your texture
+
+//Don't forget too free your surface and texture
+
+}
 
 int orientation(struct paikka *p, struct paikka *q, struct paikka *r) 
 { 
@@ -300,6 +329,13 @@ void piirra_areena(SDL_Renderer* renderer, struct areena *a)
 	SDL_RenderPresent(renderer);
 
 	if (a->stop) {
+		char pisteet[255];
+		struct paikka p = { .x = a->leveys/2 - 50,
+				    .y = a->korkeus/2 -50, };
+
+		snprintf(pisteet, 255, "%u", a->pisteet);
+
+		draw_text(renderer, pisteet, struct paikka *p, int w, int h
 		sleep(3);
 		exit(0);	
 	}
@@ -448,7 +484,7 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 		a->p.x=ar->leveys-1;
 		a->p_delta.x=0;
 
-		if (a->suunta > 270 && a->suunta < 90) {
+		if (a->suunta > 270 || a->suunta < 90) {
 
 			//SDL_Log("Paikka %d,%d - x>%d\n", a->p.x, a->p.y, ar->leveys);
 			//SDL_Log("Suunta %f\n", a->suunta);
@@ -658,6 +694,8 @@ int main(int arc, char *argv[])
 	for (i = 0; 1 ; i++) {
 	//	hae_napinpainallukset();
 	//	laske_alusten_paikat();
+		
+		a->pisteet = i;
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(renderer);
 		uudet_paikat(&a);
