@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -56,6 +57,16 @@ struct alus {
 	void (*piirra) (SDL_Renderer*, struct alus*);
 };
 
+struct sounds {
+	//The music that will be played
+	Mix_Music *music;
+
+	//The sound effects that will be used
+	Mix_Chunk *new_ship;
+	Mix_Chunk *crash;
+	Mix_Chunk *points;
+};
+
 struct piirrin {
 	TTF_Font* font;
 	SDL_Renderer* renderer;
@@ -63,9 +74,11 @@ struct piirrin {
 
 struct areena {
 	struct piirrin p;
+	struct sounds s;
 	unsigned pisteet;
 	unsigned valipisteet;
 	int stop;
+	int realstop;
 	int leveys;
 	int korkeus;
 	int seinien_maara;
@@ -80,16 +93,51 @@ int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, str
 #define MIN(a,b) ((a)<=(b))?(a):(b)
 #define MAX(a,b) ((a)>=(b))?(a):(b)
 
+int music_init(struct sounds *s)
+{
+	int ret;
+
+	//Initialize SDL_mixer
+	if( (ret = Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ))
+		return ret;    
+
+	s->music = Mix_LoadMUS( "/home/mvaittin/.kolomiosnd/MoodyLoop.wav" );
+	s->points = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/glass_breaking_2.wav" );
+	s->crash = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/firework-explosion-1.wav" );
+	s->new_ship = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/bottle_pop_2.wav" );
+	
+	return !(s->music && s->new_ship && s->crash && s->points);
+}
+
+bool isin_kolmio(struct paikka *a, struct paikka *b, struct paikka *c,
+		struct paikka *p)
+{
+	long long int fAB = ((long long int)(p->y-a->y)) *
+			    ((long long int)(b->x-a->x)) -
+			    ((long long int)(p->x-a->x)) *
+			    ((long long int)(b->y-a->y));
+	long long int fCA = ((long long int)(p->y-c->y)) *
+			    ((long long int)(a->x-c->x)) -
+			    ((long long int)(p->x-c->x)) *
+			    ((long long int)(a->y-c->y));
+	long long int fBC = ((long long int)(p->y-b->y)) *
+			    ((long long int)(c->x-b->x)) -
+			    ((long long int)(p->x-b->x)) *
+			    ((long long int)(c->y-b->y));
+
+	return ((fAB*fBC > 0) && (fBC*fCA > 0));
+}
+
+
+
 void draw_text(struct piirrin *pr, const char *text, struct paikka *p, int w, int h, struct SDL_Color *v)
 {
 	SDL_Surface* surfaceMessage;
 	SDL_Texture* Message;
 	SDL_Rect Message_rect;
-//	SDL_Color White = {255, 255, 255, SDL_ALPHA_OPAQUE };
 
 	SDL_SetRenderDrawColor(pr->renderer, v->r, v->g, v->b, v->a);
 	surfaceMessage = TTF_RenderText_Blended(pr->font, text, *v);
-	//surfaceMessage = TTF_RenderText_Solid(pr->font, text, *v);
 	if (!surfaceMessage)
 		SDL_Log("Surface ei surffannu %s\n", SDL_GetError());
 
@@ -357,6 +405,7 @@ int luo_areena(struct areena *a)
 	int ok;
 
 	a->stop = 0;
+	a->realstop = 0;
 	a->leveys = WINDOW_X-2;
 	a->korkeus = WINDOW_Y-2;
 	a->seinien_maara = 4;
@@ -428,6 +477,7 @@ void loppu_punaa(struct areena *ar)
 	oma->vri.g = 0;
 	oma->vri.b = 0;
 	ar->stop = 1;
+	Mix_PlayChannel( -1, ar->s.crash, 0);
 }
 
 void uusi_paikka(struct areena *ar, struct alus *a)
@@ -496,7 +546,23 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 				a->suunta = 270.0 - (a->suunta - 270);
 		}
 	}
-	if ( a->p.y >= ar->korkeus || a->p.y <= 0 ) {
+	if ( a->p.y <= 0 ) {
+		if (a->oma) {
+			printf("Törmäsit seinään\n");
+			loppu_punaa(ar);	
+		}
+
+		if (a->p.y <= 0) {
+			a->p.y = 1;
+			a->p_delta.y = 0;
+		}
+
+		if ((a->suunta <= 270 && a->suunta >= 180) )
+			a->suunta = 180 - (a->suunta - 180);
+		else if (a->suunta > 270)
+			a->suunta = 360.0 - a->suunta;
+	}
+	if (a->p.y >= ar->korkeus) {
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
 			loppu_punaa(ar);	
@@ -506,13 +572,10 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 			a->p_delta.y = 0;
 		}
 
-		if (a->p.y <= 0) {
-			a->p.y = 1;
-			a->p_delta.y = 0;
-		}
-
-		if (a->suunta >= 270 || a->suunta <= 90)
+		if ( a->suunta <= 180 )
 			a->suunta = 360.0 - a->suunta;
+
+
 	}
 
 	alus_laske_nurkat(a);
@@ -554,8 +617,11 @@ int luo_alukset(struct areena *a)
 
 void lisaa_alus(struct areena *a)
 {
+	if (a->alusten_maara == ALUKSET_MAX)
+		return;
 	arvo_alus(a,a->alusten_maara);
 	a->alusten_maara++;
+	Mix_PlayChannel( -1, a->s.new_ship, 0 );
 }
 
 void uudet_paikat(struct areena *a)
@@ -595,12 +661,12 @@ void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
-int get_input(struct areena *a)
+void get_input(struct areena *a)
 {
-	int x = 0,y = 0;
 	struct alus *oma = &a->alukset[0];
 	float fix = 0;
 	const Uint8 *state;
+	struct paikka hiiri = {0,0};;
 
 	/* Is this needed anymore? */
 	SDL_PumpEvents();
@@ -618,54 +684,65 @@ int get_input(struct areena *a)
 	if (oma->nopeus > NOP_MAX)
 		oma->nopeus = NOP_MAX; 
 
-	if (SDL_GetMouseState(&x,&y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-		return -1;
+	if (SDL_GetMouseState(&hiiri.x,&hiiri.y) & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
+		a->realstop = 1;
+		return;
+	}
 
-	if ( x - 2 <= oma->p.x && x + 2 >= oma->p.x &&
-	     y - 2 <= oma->p.y && y + 2 >= oma->p.y ) {
+	if ( isin_kolmio(&oma->vas_takanurkka, &oma->oik_takanurkka,
+			 &oma->etunurkka, &hiiri)) {
 		SDL_Log("Törmäsit hiireen!\n");
 		loppu_punaa(a);
 	}
 
-	x-=oma->p.x;
-	y-=oma->p.y;
+	hiiri.x-=oma->p.x;
+	hiiri.y-=oma->p.y;
 
-	if (x < 0)
+	if (hiiri.x < 0)
 		fix = -180.0;
 
-	if (!y) {
-		if (x<0)
+	if (!hiiri.y) {
+		if (hiiri.x<0)
 			oma->suunta = 180;
-		else if (!x)
+		else if (!hiiri.x)
 			;
 		else
 			oma->suunta = 0;
-	} else if (!x) {
-			if (y<0)
+	} else if (!hiiri.x) {
+			if (hiiri.y<0)
 				oma->suunta = 90;
 			else
 				oma->suunta = 270;
 	} else
-		oma->suunta = 180.0/M_PI * atan((float)-y/(float)-x);
+		oma->suunta = 180.0/M_PI * atan((float)-hiiri.y/(float)-hiiri.x);
 	oma->suunta += fix;
 	if (oma->suunta < 0)
 		oma->suunta += 360;
-	SDL_Log("OmaSuunta %f\n", oma->suunta);
-	return 0;
 }
 
 void valipisteet(struct areena *ar)
 {
-	struct SDL_Color v = { 255, 255, 255, SDL_ALPHA_OPAQUE };
-	char pisteet[255];
-	struct paikka p = { .x = ar->leveys/2 - 50, .y = ar->korkeus/2 -50, };
+	static struct SDL_Color v = { 255, 255, 255, SDL_ALPHA_OPAQUE };
+	static char pisteet[255];
+	struct paikka p = { .x = ar->leveys/2 - 100, .y = ar->korkeus/2 -100, };
 	static int loop = 0;
 
-	snprintf(pisteet, 255, "%u", ar->pisteet);
+	struct SDL_Color v_table[] = {
+		{ 255, 255, 255, SDL_ALPHA_OPAQUE },
+		{ 0, 255, 255, SDL_ALPHA_OPAQUE },
+		{ 255, 0, 255, SDL_ALPHA_OPAQUE },
+		{ 255, 255, 0, SDL_ALPHA_OPAQUE },
+		{ 0, 0, 255, SDL_ALPHA_OPAQUE },
+		{ 255, 0, 0, SDL_ALPHA_OPAQUE },
+		{ 0, 255, 0, SDL_ALPHA_OPAQUE },
+	};
 
 	if (ar->valipisteet == 0) {
+		snprintf(pisteet, 255, "%u", ar->pisteet);
 		ar->valipisteet = 150;
 		loop = 0;
+		v = v_table[((ar->pisteet/50)-1)%7];
+		Mix_PlayChannel( -1, ar->s.points, 0 );
 	} else {
 		if (!((loop++)%5))
 			ar->valipisteet -= 10;
@@ -674,6 +751,30 @@ void valipisteet(struct areena *ar)
 	v.a -= ar->valipisteet;
 
 	draw_text(&ar->p, pisteet, &p, 200-ar->valipisteet, 200-ar->valipisteet, &v);	
+}
+
+void alkuruutu(struct areena *a)
+{
+	struct paikka p = { .x = a->leveys/2 - 500, .y = a->korkeus/4 -100, };
+	static struct SDL_Color v = { 0, 255, 0, SDL_ALPHA_OPAQUE };
+	uint32_t state;
+
+	draw_text(&a->p, "Aletaanko?", &p, 500, 100, &v);
+	p.x = a->leveys/2 - 500;
+	p.y = (a->korkeus/4)*3 -100;
+	draw_text(&a->p, "Hiirta klikkaa.", &p, 500, 100, &v);
+	SDL_RenderPresent(a->p.renderer);
+
+	for (;;) {
+		SDL_PumpEvents();
+		if ((state = SDL_GetMouseState(NULL,NULL)) & SDL_BUTTON(SDL_BUTTON_LEFT))
+			return;
+		if (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
+			a->realstop = 1;
+			return;
+		}
+		usleep(10000);
+	}
 }
 
 int main(int arc, char *argv[])
@@ -700,17 +801,30 @@ int main(int arc, char *argv[])
 
 	ok = luo_areena(&a);
 	if (ok)
-		return -1;
+		 goto err_out;
 
-	ok = luo_alukset(&a);
-	if (ok)
-		return -1;
+	//ok = luo_alukset(&a);
+	//if (ok)
+	//	goto err_out;
 
 	a.p.font = TTF_OpenFont("/usr/share/fonts/liberation/LiberationMono-Regular.ttf", 24);
 	if (!a.p.font) {
 		SDL_Log("Fontti ei auennu %s\n",SDL_GetError());
-		return -1;
+		goto err_out;
 	}
+	if (music_init(&a.s))
+		goto out_font;
+
+	Mix_PlayMusic( a.s.music, -1 );
+uusiksi:
+
+	ok = luo_alukset(&a);
+	a.stop = 0;
+	a.valipisteet = 0;
+	if (ok)
+		goto out_font;
+
+	alkuruutu(&a);
 
 
 	for (i = 0; 1 ; i++) {
@@ -718,21 +832,31 @@ int main(int arc, char *argv[])
 		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(a.p.renderer);
 		uudet_paikat(&a);
-		if (!(i%100)) {
+		if (i && !(i%100)) {
 			lisaa_alus(&a);
 		}
-		if (!(i%500))
+		if (i && !(i%500))
 			valipisteet(&a);
 		if (a.valipisteet)
 			valipisteet(&a);
 		if (a.piirra(&a))
-			break;
+			goto uusiksi;
 		usleep(LOOP_DELAY_US);
-		if (get_input(&a))
+		get_input(&a);
+		if (a.realstop)
 			break;
 		SDL_RenderPresent(a.p.renderer);
 	}
 
+	Mix_FreeChunk( a.s.new_ship );
+	Mix_FreeChunk( a.s.crash );
+	Mix_FreeChunk( a.s.points );
+	Mix_FreeMusic( a.s.music );
+	Mix_CloseAudio();
+
+out_font:
+	TTF_CloseFont( a.p.font );
+    
 	TTF_Quit();
 	SDL_Quit();
 
