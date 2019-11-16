@@ -1,5 +1,5 @@
 #include <SDL.h>
-#include <SDL/SDL_ttf.h>
+#include <SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -56,8 +56,15 @@ struct alus {
 	void (*piirra) (SDL_Renderer*, struct alus*);
 };
 
+struct piirrin {
+	TTF_Font* font;
+	SDL_Renderer* renderer;
+};
+
 struct areena {
+	struct piirrin p;
 	unsigned pisteet;
+	unsigned valipisteet;
 	int stop;
 	int leveys;
 	int korkeus;
@@ -65,7 +72,7 @@ struct areena {
 	struct seina *seinat;
 	int alusten_maara;
 	struct alus alukset[ALUKSET_MAX];
-	void (*piirra) (SDL_Renderer*, struct areena*);
+	int (*piirra) (struct areena*);
 };
 
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v);
@@ -73,30 +80,35 @@ int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, str
 #define MIN(a,b) ((a)<=(b))?(a):(b)
 #define MAX(a,b) ((a)>=(b))?(a):(b)
 
-void draw_text(SDL_Renderer* renderer, const char *text, struct paikka *p, int w, int h)
+void draw_text(struct piirrin *pr, const char *text, struct paikka *p, int w, int h, struct SDL_Color *v)
 {
-	TTF_Font* Sans = TTF_OpenFont("Sans.ttf", 24); //this opens a font style and sets a size
+	SDL_Surface* surfaceMessage;
+	SDL_Texture* Message;
+	SDL_Rect Message_rect;
+//	SDL_Color White = {255, 255, 255, SDL_ALPHA_OPAQUE };
 
-	SDL_Color White = {255, 255, 255};  // this is the color in rgb format, maxing out all would give you the color white, and it will be your text's color
+	SDL_SetRenderDrawColor(pr->renderer, v->r, v->g, v->b, v->a);
+	surfaceMessage = TTF_RenderText_Blended(pr->font, text, *v);
+	//surfaceMessage = TTF_RenderText_Solid(pr->font, text, *v);
+	if (!surfaceMessage)
+		SDL_Log("Surface ei surffannu %s\n", SDL_GetError());
 
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, text, White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+	Message = SDL_CreateTextureFromSurface(pr->renderer, surfaceMessage);
+	if (!Message)
+		SDL_Log("Viesti ei pullottunu\n");
 
-	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage); //now you can convert it into a texture
+	SDL_FreeSurface(surfaceMessage);
 
-	SDL_Rect Message_rect; //create a rect
+	SDL_SetTextureBlendMode(Message, SDL_BLENDMODE_BLEND);
+	Message_rect.x = p->x;
+	Message_rect.y = p->y;
+	Message_rect.w = w;
+	Message_rect.h = h;
 
-	Message_rect.x = p->x;  //controls the rect's x coordinate 
-	Message_rect.y = p->y; // controls the rect's y coordinte
-	Message_rect.w = w; // controls the width of the rect
-	Message_rect.h = h; // controls the height of the rect
-
-//Mind you that (0,0) is on the top left of the window/screen, think a rect as the text's box, that way it would be very simple to understance
-
-//Now since it's a texture, you have to put RenderCopy in your game loop area, the area where the whole code executes
-
-	SDL_RenderCopy(renderer, Message, NULL, &Message_rect); //you put the renderer's name first, the Message, the crop size(you can ignore this if you don't want to dabble with cropping), and the rect which is the size and coordinate of your texture
-
-//Don't forget too free your surface and texture
+	if (SDL_RenderCopy(pr->renderer, Message, NULL, &Message_rect)) {
+		SDL_Log("Copy ei renderöityny\n");
+	}
+	SDL_DestroyTexture(Message);
 
 }
 
@@ -107,7 +119,8 @@ int orientation(struct paikka *p, struct paikka *q, struct paikka *r)
     int val = (q->y - p->y) * (r->x - q->x) - 
               (q->x - p->x) * (r->y - q->y); 
   
-    if (val == 0) return 0;  // colinear 
+    if (val == 0)
+	return 0;  // colinear 
   
     return (val > 0)? 1: 2; // clock or counterclock wise 
 } 
@@ -204,9 +217,6 @@ void alus_laske_nurkat(struct alus *a)
 
 	float tangle;
 
-	//SDL_Log("Kulma %f rad\n", angle);
-	//SDL_Log("sin(%f) = %f\n", angle, sin(angle));
-	//SDL_Log("cos(%f) = %f\n", angle, cos(angle));
 	/* Paikat ennen kiertoa */
 	pit = a->pituus/2.0;
 	lev = a->leveys/2.0;
@@ -217,9 +227,7 @@ void alus_laske_nurkat(struct alus *a)
 	/* Kierrä suunnan mukaan */
 
 	change_y = sinf(angle) * pit;
-	//SDL_Log("Y change %f, len %f\n", change_y, lev);
 	change_x = cosf(angle) * pit;
-	//SDL_Log("X change %f, len %f\n", change_x, pit);
 
 	a->etunurkka.x = a->p.x + change_x;
 	a->etunurkka.y = a->p.y + change_y;
@@ -317,28 +325,31 @@ int alusta_seinat(struct areena *a)
 	return 0;
 }
 
-void piirra_areena(SDL_Renderer* renderer, struct areena *a)
+int piirra_areena(struct areena *a)
 {
 	int i;
 
 	for (i = 0; i < a->seinien_maara; i++)
-		a->seinat[i].piirra(renderer, &a->seinat[i]);
+		a->seinat[i].piirra(a->p.renderer, &a->seinat[i]);
 
 	for (i = 0; i < a->alusten_maara; i++)
-		a->alukset[i].piirra(renderer, &a->alukset[i]);
-	SDL_RenderPresent(renderer);
+		a->alukset[i].piirra(a->p.renderer, &a->alukset[i]);
 
 	if (a->stop) {
 		char pisteet[255];
+		SDL_Color valk = {255, 255, 255, SDL_ALPHA_OPAQUE/2 };
 		struct paikka p = { .x = a->leveys/2 - 50,
 				    .y = a->korkeus/2 -50, };
 
 		snprintf(pisteet, 255, "%u", a->pisteet);
+		SDL_Log("Pisteita palajo? %s\n", pisteet);
 
-		draw_text(renderer, pisteet, struct paikka *p, int w, int h
+		draw_text(&a->p, pisteet, &p, 200, 200, &valk);
+		SDL_RenderPresent(a->p.renderer);
 		sleep(3);
-		exit(0);	
+		return -1;	
 	}
+	return 0;
 }
 
 int luo_areena(struct areena *a)
@@ -431,8 +442,6 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 	angle = a->suunta * M_PI / 180.0f;
 	nop_y = sinf(angle) * a->nopeus;
 	nop_x = cosf(angle) * a->nopeus;
-	//SDL_Log("Nopeus %d, Suunta %f, nop_x %d, nop_y %d\n",
-	//	a->nopeus, a->suunta, nop_x, nop_y);
 
 	a->p_delta.x += nop_x;
 	while (a->p_delta.x > NOP_MAX) {
@@ -454,8 +463,6 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 		a->p_delta.y += NOP_MAX;
 	}
 
-	//SDL_Log("Raakapaikka %d, %d\n", a->p.x, a->p.y);
-
 	if ( a->p.x <= 0 ) {
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
@@ -466,13 +473,10 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 		a->p_delta.x=0;
 
 		if (a->suunta > 90 && a->suunta < 270) {
-			//SDL_Log("Paikka %d,%d - x<0\n", a->p.x, a->p.y);
-			//SDL_Log("Suunta %f\n", a->suunta);
 			if ( a->suunta <= 180.0)
 				a->suunta = 90.0 - (a->suunta - 90.0);
 			else
 				a->suunta = 270.0 - a->suunta + 270.0;
-			//SDL_Log("Uusi suunta %f\n", a->suunta);
 		}
 	}
 	if ( a->p.x >= ar->leveys ) {
@@ -486,13 +490,10 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 
 		if (a->suunta > 270 || a->suunta < 90) {
 
-			//SDL_Log("Paikka %d,%d - x>%d\n", a->p.x, a->p.y, ar->leveys);
-			//SDL_Log("Suunta %f\n", a->suunta);
 			if( a->suunta <= 90.0)
 				a->suunta = 90.0 - a->suunta + 90.0;
 			else
 				a->suunta = 270.0 - (a->suunta - 270);
-			//SDL_Log("Uusi suunta %f\n", a->suunta);
 		}
 	}
 	if ( a->p.y >= ar->korkeus || a->p.y <= 0 ) {
@@ -510,11 +511,8 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 			a->p_delta.y = 0;
 		}
 
-		//SDL_Log("Paikka %d,%d - y<0 || y>%d\n", a->p.x, a->p.y, ar->korkeus);
-		//SDL_Log("Suunta %f\n", a->suunta);
 		if (a->suunta >= 270 || a->suunta <= 90)
 			a->suunta = 360.0 - a->suunta;
-		//SDL_Log("Uusi suunta %f\n", a->suunta);
 	}
 
 	alus_laske_nurkat(a);
@@ -544,7 +542,6 @@ int luo_alukset(struct areena *a)
 {
 	int i;
 
-//	a->alusten_maara = 100;
 	a->alusten_maara = 20;
 
 	alusta_oma_alus(a);
@@ -654,8 +651,29 @@ int get_input(struct areena *a)
 	if (oma->suunta < 0)
 		oma->suunta += 360;
 	SDL_Log("OmaSuunta %f\n", oma->suunta);
-//	SDL_Log("Oma suunta muutettu, uusi suunta %f\n", oma->suunta);
 	return 0;
+}
+
+void valipisteet(struct areena *ar)
+{
+	struct SDL_Color v = { 255, 255, 255, SDL_ALPHA_OPAQUE };
+	char pisteet[255];
+	struct paikka p = { .x = ar->leveys/2 - 50, .y = ar->korkeus/2 -50, };
+	static int loop = 0;
+
+	snprintf(pisteet, 255, "%u", ar->pisteet);
+
+	if (ar->valipisteet == 0) {
+		ar->valipisteet = 150;
+		loop = 0;
+	} else {
+		if (!((loop++)%5))
+			ar->valipisteet -= 10;
+	}
+
+	v.a -= ar->valipisteet;
+
+	draw_text(&ar->p, pisteet, &p, 200-ar->valipisteet, 200-ar->valipisteet, &v);	
 }
 
 int main(int arc, char *argv[])
@@ -663,7 +681,6 @@ int main(int arc, char *argv[])
 	int ok, i;
 	struct areena a;
 	SDL_Window* window = NULL;
-	SDL_Renderer* renderer = NULL;
 
 	srand(time(NULL));
 
@@ -671,13 +688,15 @@ int main(int arc, char *argv[])
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return 1;
 	}
-	if (SDL_CreateWindowAndRenderer(WINDOW_X, WINDOW_Y, 0, &window, &renderer)) {
-//	if (SDL_CreateWindowAndRenderer(WINDOW_X, WINDOW_Y, SDL_WINDOWPOS_CENTERED, &window, &renderer)) {
+	if (TTF_Init()) {
+		SDL_Log("Unable to initialize TTF: %s", SDL_GetError());
+		return 1;
+	}
+	if (SDL_CreateWindowAndRenderer(WINDOW_X, WINDOW_Y, 0, &window, &a.p.renderer)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		goto err_out;
 	}
-
-	//_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	SDL_SetRenderDrawBlendMode(a.p.renderer, SDL_BLENDMODE_BLEND);
 
 	ok = luo_areena(&a);
 	if (ok)
@@ -687,26 +706,34 @@ int main(int arc, char *argv[])
 	if (ok)
 		return -1;
 
-	//togglefullscreen(&a, window, renderer);
-//	test_display(&a, window, renderer);
-//	SDL_PumpEvents();
+	a.p.font = TTF_OpenFont("/usr/share/fonts/liberation/LiberationMono-Regular.ttf", 24);
+	if (!a.p.font) {
+		SDL_Log("Fontti ei auennu %s\n",SDL_GetError());
+		return -1;
+	}
+
 
 	for (i = 0; 1 ; i++) {
-	//	hae_napinpainallukset();
-	//	laske_alusten_paikat();
-		
-		a->pisteet = i;
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderClear(renderer);
+		a.pisteet = i;
+		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(a.p.renderer);
 		uudet_paikat(&a);
-		if (!(i%100))
+		if (!(i%100)) {
 			lisaa_alus(&a);
-		a.piirra(renderer, &a);
+		}
+		if (!(i%500))
+			valipisteet(&a);
+		if (a.valipisteet)
+			valipisteet(&a);
+		if (a.piirra(&a))
+			break;
 		usleep(LOOP_DELAY_US);
 		if (get_input(&a))
 			break;
+		SDL_RenderPresent(a.p.renderer);
 	}
 
+	TTF_Quit();
 	SDL_Quit();
 
 	return 0;
