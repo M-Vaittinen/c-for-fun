@@ -9,84 +9,21 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "paikka.h"
+#include "seina.h"
+#include "alus.h"
+#include "media.h"
+#include "areena.h"
+#include "common.h"
 
 #define WINDOW_X (640*2)
 #define WINDOW_Y (480*2)
 #define MOVE_THRESH 10
 #define MOVE_JUMP_THRESH 6000
 
-#define ALUKSET_MAX 255
 //5 ms
 #define LOOP_DELAY_US 5000
 #define NOP_MAX 36000*2
-
-struct paikka {
-	int x;
-	int y;
-};
-
-struct vari {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char alpha;
-};
-
-struct seina {
-	struct paikka alku;
-	struct paikka loppu;
-	int flags;
-	struct vari vri;
-	void (*piirra) (SDL_Renderer*, struct seina*);
-};
-
-struct alus {
-	int oma;
-	struct paikka p;
-	struct paikka coll_min;
-	struct paikka coll_max;
-	struct paikka p_delta;
-	struct paikka vas_takanurkka;
-	struct paikka oik_takanurkka;
-	struct paikka etunurkka;
-	float suunta;
-	int nopeus;
-	float pituus;
-	float leveys;
-	struct vari vri;
-	void (*piirra) (SDL_Renderer*, struct alus*);
-};
-
-struct sounds {
-	//The music that will be played
-	Mix_Music *music;
-
-	//The sound effects that will be used
-	Mix_Chunk *new_ship;
-	Mix_Chunk *crash;
-	Mix_Chunk *points;
-};
-
-struct piirrin {
-	TTF_Font* font;
-	SDL_Renderer* renderer;
-};
-
-struct areena {
-	struct piirrin p;
-	struct sounds s;
-	unsigned pisteet;
-	unsigned valipisteet;
-	int stop;
-	int realstop;
-	int leveys;
-	int korkeus;
-	int seinien_maara;
-	struct seina *seinat;
-	int alusten_maara;
-	struct alus alukset[ALUKSET_MAX];
-	int (*piirra) (struct areena*);
-};
 
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v);
 
