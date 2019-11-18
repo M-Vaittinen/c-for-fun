@@ -589,11 +589,11 @@ void togglefullscreen(struct areena *a, SDL_Window* window, SDL_Renderer* render
 
 void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)
 {
-	SDL_DisplayMode m;
-
-	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-	SDL_GetCurrentDisplayMode(0, &m);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
+//	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+//	SDL_GetCurrentDisplayMode(0, &m);
+//	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	SDL_RenderSetLogicalSize(renderer, a->leveys, a->korkeus);
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
@@ -692,14 +692,23 @@ void valipisteet(struct areena *ar)
 
 void alkuruutu(struct areena *a)
 {
-	struct paikka p = { .x = a->leveys/2 - 500, .y = a->korkeus/4 -100, };
-	static struct SDL_Color v = { 0, 255, 0, SDL_ALPHA_OPAQUE };
+	struct paikka p = {
+       .x = a->leveys/2 -305,
+       // .x = 250, 
+        .y = a->korkeus/4 -5,         
+    };
+//    struct paikka p = { .x = a->leveys/2 - 500, .y = a->korkeus/4 -100, };
+    struct SDL_Color v = { 51, 221, 255, SDL_ALPHA_OPAQUE };
 	uint32_t state;
 
-	draw_text(&a->p, "Aletaanko?", &p, 500, 100, &v);
-	p.x = a->leveys/2 - 500;
+ //   draw_text(&a->p, "Start Game", &p, 500, 100, &v);
+	draw_text(&a->p, "Aloita Peli", &p, 500, 100, &v);
+	p.x = a->leveys/2 - 305;
 	p.y = (a->korkeus/4)*3 -100;
-	draw_text(&a->p, "Hiirta klikkaa.", &p, 500, 100, &v);
+    v.r = 225;
+    v.g = 255;
+    v.b = 255;
+	draw_text(&a->p, "Paina Nayttoa", &p, 500, 100, &v);
 	SDL_RenderPresent(a->p.renderer);
 
 	for (;;) {
@@ -730,10 +739,12 @@ int main(int arc, char *argv[])
 		SDL_Log("Unable to initialize TTF: %s", SDL_GetError());
 		return 1;
 	}
-	if (SDL_CreateWindowAndRenderer(WINDOW_X, WINDOW_Y, 0, &window, &a.p.renderer)) {
+	//if (SDL_CreateWindowAndRenderer(WINDOW_X, WINDOW_Y, 0, &window, &a.p.renderer)) {
+	if (SDL_CreateWindowAndRenderer(WINDOW_X, WINDOW_Y, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &a.p.renderer)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		goto err_out;
 	}
+	test_display(&a, window, a.p.renderer);
 	SDL_SetRenderDrawBlendMode(a.p.renderer, SDL_BLENDMODE_BLEND);
 
 	ok = luo_areena(&a);
