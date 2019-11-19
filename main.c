@@ -38,9 +38,13 @@ int music_init(struct sounds *s)
 	if( (ret = Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ))
 		return ret;    
 
-	s->music = Mix_LoadMUS( "/home/mvaittin/.kolomiosnd/MoodyLoop.wav" );
-	s->points = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/glass_breaking_2.wav" );
-	s->crash = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/firework-explosion-1.wav" );
+    /* Taustamusiikki */
+	s->music = Mix_LoadMUS( "/home/mvaittin/.kolomiosnd/Blazer Rail.wav" );
+    /* pisteet 500 */
+    s->points = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/glass_breaking_2.wav" );
+    /* törmäys */
+	s->crash = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/kolmiopelihavio.wav" );
+    /* Spawnaus */
 	s->new_ship = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/bottle_pop_2.wav" );
 	
 	return !(s->music && s->new_ship && s->crash && s->points);
