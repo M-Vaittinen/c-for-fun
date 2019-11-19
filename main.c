@@ -401,9 +401,9 @@ uus:
 		goto uus;
 }
 
-#define ALUS_OLETUS_PITUUS 30
-#define ALUS_OLETUS_LEVEYS 15
-#define ALUS_OLETUS_VARI { 51, 255, 255, SDL_ALPHA_OPAQUE }
+#define ALUS_OLETUS_PITUUS 40
+#define ALUS_OLETUS_LEVEYS 25
+#define ALUS_OLETUS_VARI { 51, 245, 255, SDL_ALPHA_OPAQUE }
 #define ALUS_OLETUS_SUUNTA 0
 #define ALUS_OLETUS_NOPEUS NOP_MAX
 
@@ -693,7 +693,7 @@ void valipisteet(struct areena *ar)
 void alkuruutu(struct areena *a)
 {
 	struct paikka p = {
-       .x = a->leveys/2 -305,
+       .x = a->leveys/2 -300,
        // .x = 250, 
         .y = a->korkeus/4 -5,         
     };
@@ -703,7 +703,7 @@ void alkuruutu(struct areena *a)
 
  //   draw_text(&a->p, "Start Game", &p, 500, 100, &v);
 	draw_text(&a->p, "Aloita Peli", &p, 500, 100, &v);
-	p.x = a->leveys/2 - 305;
+	p.x = a->leveys/2 - 300;
 	p.y = (a->korkeus/4)*3 -100;
     v.r = 225;
     v.g = 255;
