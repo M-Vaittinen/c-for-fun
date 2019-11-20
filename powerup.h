@@ -2,6 +2,17 @@
 #define _POWERUP_H_
 
 #include "paikka.h" 
+#define 
+#define PUPS_KOKO 5
+
+enum pup_tyypit {
+	PUP_SPEED = 0,
+	PUP_IMMORTAL,
+	PUP_DESTROY,
+	PUP_FREEZE,
+	PUP_PASS_WALLS,
+	PUP_TYYPIT,
+};
 
 struct powerup {
 	int koko;

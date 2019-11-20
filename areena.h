@@ -5,6 +5,7 @@
 #include "seina.h"
 #include "alus.h"
 #include "common.h"
+#include "powerup.h"
 
 struct areena {
 	struct piirrin p;
@@ -19,6 +20,8 @@ struct areena {
 	struct seina *seinat;
 	int alusten_maara;
 	struct alus alukset[ALUKSET_MAX];
+	int active_pups;
+	struct powerup *pups[MAX_PUPS];
 	int (*piirra) (struct areena*);
 };
 

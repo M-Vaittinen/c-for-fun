@@ -727,6 +727,69 @@ void alkuruutu(struct areena *a)
 	}
 }
 
+static void DrawCircle(SDL_Renderer * renderer, struct piste *centre, int32_t radius)
+{
+   const int32_t diameter = (radius * 2);
+
+   int32_t x = (radius - 1);
+   int32_t y = 0;
+   int32_t tx = 1;
+   int32_t ty = 1;
+   int32_t error = (tx - diameter);
+
+   while (x >= y)
+   {
+      //  Each of the following renders an octant of the circle
+      SDL_RenderDrawPoint(renderer, centre->x + x, centre->y - y);
+      SDL_RenderDrawPoint(renderer, centre->x + x, centre->y + y);
+      SDL_RenderDrawPoint(renderer, centre->x - x, centre->y - y);
+      SDL_RenderDrawPoint(renderer, centre->x - x, centre->y + y);
+      SDL_RenderDrawPoint(renderer, centre->x + y, centre->y - x);
+      SDL_RenderDrawPoint(renderer, centre->x + y, centre->y + x);
+      SDL_RenderDrawPoint(renderer, centre->x - y, centre->y - x);
+      SDL_RenderDrawPoint(renderer, centre->x - y, centre->y + x);
+
+      if (error <= 0)
+      {
+         ++y;
+         error += ty;
+         ty += 2;
+      }
+
+      if (error > 0)
+      {
+         --x;
+         tx += 2;
+         error += (tx - diameter);
+      }
+   }
+}
+void piirra_pup(SDL_Renderer* renderer, struct powerup* pup)
+{
+	/* TODO: lisaa vari */
+	DrawCircle(renderer, &pup->p, &pup->koko);
+}
+static struct g_pup active_pups[MAX_PUPS];
+
+int arvo_powerup(struct areena *ar)
+{
+	if (active_pups < MAX_PUPS) {
+		unsigned long long chance = rand() %UUDEN_PUPIN_TSAANNSSI;
+
+		if (chance == 1) {
+			int i = ar->active_pups;
+
+			ar->active_pups++;
+			/* Arpa suosi, tehdään uus poweruppi */
+			ar->pups[i].koko = PUPS_KOKO;
+			ar->pups[i].tyyppi = rand() % PUP_TYYPIT;
+			ar->pups[i].vri = {0, 255, 0, SDL_ALPHA_OPAQUE};
+			ar->pups[i].piirra = piirra_pup,
+		}
+	}
+	return 0;
+}
+
 int main(int arc, char *argv[])
 {
 	int ok, i;
