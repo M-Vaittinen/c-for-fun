@@ -3,6 +3,22 @@
 
 #include "paikka.h"
 
+#define MAX_ACTIVE_PUPS 255
+/* kauanko poweruppi vaikuttaa sekunteina */
+#define POWERUP_VAIKUTUSAIKA 5
+
+struct puppi {
+	int tyyppi;
+	time_t expire;
+};
+
+struct puppipuskuri {
+	uint8_t first;
+	uint8_t last;
+
+	struct puppi pbuf[MAX_ACTIVE_PUPS];
+};
+
 struct alus {
 	int oma;
 	struct paikka p;
@@ -17,6 +33,9 @@ struct alus {
 	float pituus;
 	float leveys;
 	struct vari vri;
+
+	struct puppipuskuri pups;
+	
 	void (*piirra) (SDL_Renderer*, struct alus*);
 };
 

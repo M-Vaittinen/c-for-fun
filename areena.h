@@ -21,7 +21,7 @@ struct areena {
 	int alusten_maara;
 	struct alus alukset[ALUKSET_MAX];
 	int active_pups;
-	struct powerup *pups[MAX_PUPS];
+	struct powerup pups[MAX_PUPS];
 	int (*piirra) (struct areena*);
 };
 

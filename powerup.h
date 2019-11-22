@@ -2,11 +2,11 @@
 #define _POWERUP_H_
 
 #include "paikka.h" 
-#define 
 #define PUPS_KOKO 5
 
 enum pup_tyypit {
 	PUP_SPEED = 0,
+	PUP_COOL,
 	PUP_IMMORTAL,
 	PUP_DESTROY,
 	PUP_FREEZE,
@@ -20,6 +20,7 @@ struct powerup {
 	int tyyppi;
 	struct vari vri;
 	void (*piirra) (SDL_Renderer*, struct powerup*);
+	time_t expire;
 };
 
 #endif
