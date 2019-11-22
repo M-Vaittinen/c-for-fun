@@ -397,6 +397,15 @@ void piirra_pup(SDL_Renderer* renderer, struct powerup* pup)
 	DrawCircle(renderer, &pup->p, pup->koko, &pup->vri);
 }
 
+static void putsaa_pupit(struct areena *ar)
+{
+	int i;
+
+	for (i = 0; i < MAX_PUPS; i++)
+		ar->pups[i].expire = 0;
+	ar->active_pups = 0;
+}
+
 static void hanskaa_pupit(struct areena *ar)
 {
 	int i;
@@ -412,8 +421,6 @@ static void hanskaa_pupit(struct areena *ar)
 			ar->pups[i].expire = 0;
 			continue;
 		}
-		//SDL_Log("Piirran pupini, (%d,%d), koko %d\n", ar->pups[i].p.x,
-		//	ar->pups[i].p.y, ar->pups[i].koko);
 		ar->pups[i].piirra(ar->p.renderer, &ar->pups[i]);
 	}
 }
@@ -595,8 +602,6 @@ void lisaa_puptieto(struct alus *a, struct powerup *pup)
 
 	uusi->tyyppi = pup->tyyppi;
 	uusi->expire = time(NULL) + POWERUP_VAIKUTUSAIKA;
-	SDL_Log("Lisaan pupin, tyyppi %d, expire %lu, first = %d, last = %d\n",
-		uusi->tyyppi, uusi->expire, a->pups.first, a->pups.last);
 }
 
 void poista_vanhat_pupit(struct alus *a)
@@ -605,11 +610,8 @@ void poista_vanhat_pupit(struct alus *a)
 	uint8_t i;
 
 	for (i = a->pups.first; i != a->pups.last; i++) {
-		if (a->pups.pbuf[i].expire < aika) {
+		if (a->pups.pbuf[i].expire < aika)
 			a->pups.first++;
-			SDL_Log("Poistan vanhan pupin, aika %lu, exp %lu, first %d, last %d\n",
-				aika, a->pups.pbuf[i].expire, a->pups.first, a->pups.last);
-		}
 		else
 			break;
 	}
@@ -1015,7 +1017,6 @@ static int arvo_powerup(struct areena *ar)
 			struct vari v = {255, 0, 200, SDL_ALPHA_OPAQUE};
 			struct powerup *p = &ar->pups[0];
 
-			SDL_Log("Arvotaan Puppi\n");
 			for (i = 0; i < MAX_PUPS && p->expire; i++, p++);
 
 			if (i == MAX_PUPS) {
@@ -1032,7 +1033,6 @@ static int arvo_powerup(struct areena *ar)
 			p->vri = v;
 			p->piirra = piirra_pup,
 			p->expire = time(NULL) + 5;
-			SDL_Log("Pup Arvottu\n");
 		}
 	}
 	return 0;
@@ -1075,7 +1075,7 @@ int main(int arc, char *argv[])
 
 	Mix_PlayMusic( a.s.music, -1 );
 uusiksi:
-
+	putsaa_pupit(&a);
 	ok = luo_alukset(&a);
 	a.stop = 0;
 	a.valipisteet_kierros = 0;
