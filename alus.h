@@ -15,6 +15,7 @@ struct puppi {
 	time_t expire;
 	int piirretty;
 	int lisapisteet;
+	const char *teksti_alustava;
 	char teksti[PUPPITXT_MAX];
 	struct paikka p;
 	struct vari vri;

@@ -2,7 +2,7 @@
 #define _POWERUP_H_
 
 #include "paikka.h" 
-#define PUPS_KOKO 5
+#define PUPS_KOKO 8
 
 enum pup_tyypit {
 	PUP_SPEED = 0,
@@ -21,6 +21,15 @@ int nappauspisteet[PUP_TYYPIT] = {
 	[PUP_DESTROY] = 10,
 	[PUP_FREEZE] = 500,
 	[PUP_PASS_WALLS] = 10,
+};
+
+static const char *puppi_txt_arr[PUP_TYYPIT] = {
+	[PUP_SPEED] = "Kiire!",
+	[PUP_COOL] = "Rahaa!",
+	[PUP_IMMORTAL] = "Haamu",
+	[PUP_DESTROY] = "+Powers!",
+	[PUP_FREEZE] = "Paikka!",
+	[PUP_PASS_WALLS] = "Rajaton",
 };
 
 struct powerup {

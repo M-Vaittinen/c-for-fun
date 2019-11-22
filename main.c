@@ -20,7 +20,7 @@
 #define WINDOW_Y (480*2)
 #define MOVE_THRESH 10
 #define MOVE_JUMP_THRESH 6000
-#define LOOPS_TO_SHOW_PUP_TEXT 100
+#define LOOPS_TO_SHOW_PUP_TEXT 150
 
 #define PISTEET_NAKYY_KIERROSTA 75
 #define PISTEKOON_PIENENNYS_ALUSSA 150
@@ -53,13 +53,13 @@ int music_init(struct sounds *s)
 	if( (ret = Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ))
 		return ret;    
 
-    /* Taustamusiikki */
+	/* Taustamusiikki */
 	s->music = Mix_LoadMUS( "/home/mvaittin/.kolomiosnd/Blazer Rail.wav" );
-    /* pisteet 500 */
-    s->points = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/glass_breaking_2.wav" );
-    /* törmäys */
+	/* pisteet 500 */
+	s->points = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/glass_breaking_2.wav" );
+	/* törmäys */
 	s->crash = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/kolmiopelihavio.wav" );
-    /* Spawnaus */
+	/* Spawnaus */
 	s->new_ship = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/bottle_pop_2.wav" );
 	
 	return !(s->music && s->new_ship && s->crash && s->points);
@@ -118,57 +118,57 @@ void draw_text(struct piirrin *pr, const char *text, struct paikka *p, int w, in
 
 int orientation(struct paikka *p, struct paikka *q, struct paikka *r) 
 { 
-    // See https://www.geeksforgeeks.org/orientation-3-ordered-points/ 
-    // for details of below formula. 
-    int val = (q->y - p->y) * (r->x - q->x) - 
-              (q->x - p->x) * (r->y - q->y); 
+	// See https://www.geeksforgeeks.org/orientation-3-ordered-points/ 
+	// for details of below formula. 
+	int val = (q->y - p->y) * (r->x - q->x) - 
+		      (q->x - p->x) * (r->y - q->y); 
   
-    if (val == 0)
+	if (val == 0)
 	return 0;  // colinear 
   
-    return (val > 0)? 1: 2; // clock or counterclock wise 
+	return (val > 0)? 1: 2; // clock or counterclock wise 
 } 
  
 // Given three colinear points p, q, r, the function checks if 
 // point q lies on line segment 'pr' 
 bool onSegment(struct paikka *p, struct paikka *q, struct paikka *r) 
 { 
-    if (q->x <= MAX(p->x, r->x) && q->x >= MIN(p->x, r->x) && 
-        q->y <= MAX(p->y, r->y) && q->y >= MIN(p->y, r->y)) 
-       return true; 
+	if (q->x <= MAX(p->x, r->x) && q->x >= MIN(p->x, r->x) && 
+		q->y <= MAX(p->y, r->y) && q->y >= MIN(p->y, r->y)) 
+	   return true; 
   
-    return false; 
+	return false; 
 } 
  
 // The main function that returns true if line segment 'p1q1' 
 // and 'p2q2' intersect. 
 bool doIntersect(struct paikka *p1, struct paikka *q1, struct paikka *p2, struct paikka *q2) 
 { 
-    // Find the four orientations needed for general and 
-    // special cases 
-    int o1 = orientation(p1, q1, p2); 
-    int o2 = orientation(p1, q1, q2); 
-    int o3 = orientation(p2, q2, p1); 
-    int o4 = orientation(p2, q2, q1); 
+	// Find the four orientations needed for general and 
+	// special cases 
+	int o1 = orientation(p1, q1, p2); 
+	int o2 = orientation(p1, q1, q2); 
+	int o3 = orientation(p2, q2, p1); 
+	int o4 = orientation(p2, q2, q1); 
   
-    // General case 
-    if (o1 != o2 && o3 != o4) 
-        return true; 
+	// General case 
+	if (o1 != o2 && o3 != o4) 
+		return true; 
   
-    // Special Cases 
-    // p1, q1 and p2 are colinear and p2 lies on segment p1q1 
-    if (o1 == 0 && onSegment(p1, p2, q1)) return true; 
+	// Special Cases 
+	// p1, q1 and p2 are colinear and p2 lies on segment p1q1 
+	if (o1 == 0 && onSegment(p1, p2, q1)) return true; 
   
-    // p1, q1 and q2 are colinear and q2 lies on segment p1q1 
-    if (o2 == 0 && onSegment(p1, q2, q1)) return true; 
+	// p1, q1 and q2 are colinear and q2 lies on segment p1q1 
+	if (o2 == 0 && onSegment(p1, q2, q1)) return true; 
   
-    // p2, q2 and p1 are colinear and p1 lies on segment p2q2 
-    if (o3 == 0 && onSegment(p2, p1, q2)) return true; 
+	// p2, q2 and p1 are colinear and p1 lies on segment p2q2 
+	if (o3 == 0 && onSegment(p2, p1, q2)) return true; 
   
-     // p2, q2 and q1 are colinear and q1 lies on segment p2q2 
-    if (o4 == 0 && onSegment(p2, q1, q2)) return true; 
+	 // p2, q2 and q1 are colinear and q1 lies on segment p2q2 
+	if (o4 == 0 && onSegment(p2, q1, q2)) return true; 
   
-    return false; // Doesn't fall in any of the above cases 
+	return false; // Doesn't fall in any of the above cases 
 } 
 
 int o_iholla(struct alus *a, struct alus *a2)
@@ -265,19 +265,24 @@ void piirra_alus(SDL_Renderer* renderer, struct alus *a)
 	struct vari v_kuolematon = VARI_KUOLEMATON;
 	struct vari v_haamu = VARI_HAAMU;
 	struct vari v_rikkova = VARI_RIKKOVA;
+	struct vari v_jaassa = VARI_JAASSA;
+
 
 	v = &a->vri;
 
-        if (oonko_noppee(a))
-                v = &v_nopee;
-        if (oonko_uppee(a))
-                v = &v_upee;
-        if (oonko_kuolematon(a))
-                v = &v_kuolematon;
-        if (oonko_haamu(a))
-                v = &v_haamu;
+	if (oonko_uppee(a))
+		v = &v_upee;
+	if (oonko_noppee(a))
+ 		v = &v_nopee;
+	if (oonko_haamu(a))
+		v = &v_haamu;
 	if (oonko_rikkova(a))
 		v = &v_rikkova;
+	if (oonko_kuolematon(a))
+		v = &v_kuolematon;
+	if (oonko_jaassa(a))
+		v = &v_jaassa;
+
 
 	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v /* &v */);
 	s.piirra(renderer, &s);
@@ -300,8 +305,8 @@ void piirra_seina(SDL_Renderer* renderer, struct seina *s)
 {
 	SDL_SetRenderDrawColor(renderer, s->vri.r, s->vri.g, s->vri.b, s->vri.alpha);
 	if (SDL_RenderDrawLine(renderer, s->alku.x, s->alku.y, s->loppu.x, s->loppu.y)) {
-                        SDL_Log("Unable to draw line: %s", SDL_GetError()); 
-        }                                                                        
+		SDL_Log("Unable to draw line: %s", SDL_GetError()); 
+	}
 }
 
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v)
@@ -361,29 +366,29 @@ static void DrawCircle(SDL_Renderer * renderer, struct paikka *centre, int32_t r
 
    while (x >= y)
    {
-      //  Each of the following renders an octant of the circle
-      SDL_RenderDrawPoint(renderer, centre->x + x, centre->y - y);
-      SDL_RenderDrawPoint(renderer, centre->x + x, centre->y + y);
-      SDL_RenderDrawPoint(renderer, centre->x - x, centre->y - y);
-      SDL_RenderDrawPoint(renderer, centre->x - x, centre->y + y);
-      SDL_RenderDrawPoint(renderer, centre->x + y, centre->y - x);
-      SDL_RenderDrawPoint(renderer, centre->x + y, centre->y + x);
-      SDL_RenderDrawPoint(renderer, centre->x - y, centre->y - x);
-      SDL_RenderDrawPoint(renderer, centre->x - y, centre->y + x);
+	  //  Each of the following renders an octant of the circle
+	  SDL_RenderDrawPoint(renderer, centre->x + x, centre->y - y);
+	  SDL_RenderDrawPoint(renderer, centre->x + x, centre->y + y);
+	  SDL_RenderDrawPoint(renderer, centre->x - x, centre->y - y);
+	  SDL_RenderDrawPoint(renderer, centre->x - x, centre->y + y);
+	  SDL_RenderDrawPoint(renderer, centre->x + y, centre->y - x);
+	  SDL_RenderDrawPoint(renderer, centre->x + y, centre->y + x);
+	  SDL_RenderDrawPoint(renderer, centre->x - y, centre->y - x);
+	  SDL_RenderDrawPoint(renderer, centre->x - y, centre->y + x);
 
-      if (error <= 0)
-      {
-         ++y;
-         error += ty;
-         ty += 2;
-      }
+	  if (error <= 0)
+	  {
+		 ++y;
+		 error += ty;
+		 ty += 2;
+	  }
 
-      if (error > 0)
-      {
-         --x;
-         tx += 2;
-         error += (tx - diameter);
-      }
+	  if (error > 0)
+	  {
+		 --x;
+		 tx += 2;
+		 error += (tx - diameter);
+	  }
    }
 }
 void piirra_pup(SDL_Renderer* renderer, struct powerup* pup)
@@ -418,15 +423,18 @@ void piirra_puppiteksti(struct areena *ar, struct puppi *p)
 	struct SDL_Color v;
 
 	if (p->piirretty) {
+		int kokokerroin = LOOPS_TO_SHOW_PUP_TEXT;
 		if (p->piirretty == LOOPS_TO_SHOW_PUP_TEXT) {
-			snprintf(p->teksti, PUPPITXT_MAX, "+%u", p->lisapisteet);
+			snprintf(p->teksti, PUPPITXT_MAX, "+%u %s", p->lisapisteet, p->teksti_alustava);
 			p->teksti[PUPPITXT_MAX-1] = 0;
 		}
 		v.r = p->vri.r;
 		v.g = p->vri.g;
 		v.b = p->vri.b;
 		v.a = p->vri.alpha;
-		draw_text(&ar->p, p->teksti, &p->p, 50 + (150/p->piirretty), 50 + (150/p->piirretty), &v);
+
+		kokokerroin -= (p->piirretty /5 * 5);
+		draw_text(&ar->p, p->teksti, &p->p, 120 + kokokerroin, 50 + kokokerroin, &v);
 		p->piirretty--;
 	}
 }
@@ -547,7 +555,7 @@ uus:
 void loppu_punaa(struct areena *ar)
 {
 	struct alus *oma = &ar->alukset[0];
-	oma->vri.r = 255;
+	oma->vri.r = 150;
 	oma->vri.g = 0;
 	oma->vri.b = 0;
 	ar->stop = 1;
@@ -580,6 +588,7 @@ void lisaa_puptieto(struct alus *a, struct powerup *pup)
 	uusi->piirra = piirra_puppiteksti;
 	uusi->piirretty = LOOPS_TO_SHOW_PUP_TEXT;
 	uusi->lisapisteet = pup->nappauspisteet;
+	uusi->teksti_alustava = puppi_txt_arr[pup->tyyppi];
 	uusi->p = pup->p;
 	uusi->vri = pup->vri;
 	a->pups.last++;
@@ -657,10 +666,10 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 	int noppeus;
 	struct alus *oma = &ar->alukset[0];
 
-	if (oonko_noppee(a))
-		noppeus = NOP_MAX;
-	else if (oonko_jaassa(a))
+	if (oonko_jaassa(a))
 		noppeus = 0;
+	else if (oonko_noppee(a))
+		noppeus = NOP_MAX;
 	else
 		noppeus = a->nopeus;
 
@@ -851,27 +860,23 @@ void togglefullscreen(struct areena *a, SDL_Window* window, SDL_Renderer* render
 {
 	Uint32 flags = SDL_GetWindowFlags(window);
 
-        flags ^= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        SDL_SetWindowFullscreen(window, flags | SDL_WINDOWPOS_CENTERED);
+	flags ^= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	SDL_SetWindowFullscreen(window, flags | SDL_WINDOWPOS_CENTERED);
 
-        if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
-        {
-                SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-                SDL_RenderSetLogicalSize(renderer, a->leveys, a->korkeus);
-        }
-        else
-        {
-                SDL_SetWindowSize(window, a->leveys, a->korkeus);
-        }
+	if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
+	{
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+		SDL_RenderSetLogicalSize(renderer, a->leveys, a->korkeus);
+	}
+	else
+	{
+		SDL_SetWindowSize(window, a->leveys, a->korkeus);
+	}
 }
 
 void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)
 {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-
-//	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-//	SDL_GetCurrentDisplayMode(0, &m);
-//	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	SDL_RenderSetLogicalSize(renderer, a->leveys, a->korkeus);
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
@@ -904,8 +909,8 @@ void get_input(struct areena *a)
 		return;
 	}
 
-	if ( (!oonko_kuolematon(oma)) && isin_kolmio(&oma->vas_takanurkka, &oma->oik_takanurkka,
-			 &oma->etunurkka, &hiiri)) {
+	if ((!oonko_kuolematon(oma)) && isin_kolmio(&oma->vas_takanurkka, &oma->oik_takanurkka,
+	    &oma->etunurkka, &hiiri)) {
 		SDL_Log("Törmäsit hiireen!\n");
 		loppu_punaa(a);
 	}
@@ -924,10 +929,10 @@ void get_input(struct areena *a)
 		else
 			oma->suunta = 0;
 	} else if (!hiiri.x) {
-			if (hiiri.y<0)
-				oma->suunta = 90;
-			else
-				oma->suunta = 270;
+		if (hiiri.y<0)
+			oma->suunta = 90;
+		else
+			oma->suunta = 270;
 	} else
 		oma->suunta = 180.0/M_PI * atan((float)-hiiri.y/(float)-hiiri.x);
 	oma->suunta += fix;
@@ -973,21 +978,18 @@ void valipisteet(struct areena *ar)
 void alkuruutu(struct areena *a)
 {
 	struct paikka p = {
-       .x = a->leveys/2 -300,
-       // .x = 250, 
-        .y = a->korkeus/4 -5,         
-    };
-//    struct paikka p = { .x = a->leveys/2 - 500, .y = a->korkeus/4 -100, };
-    struct SDL_Color v = { 51, 221, 255, SDL_ALPHA_OPAQUE };
+		.x = a->leveys/2 -300,
+		.y = a->korkeus/4 -5,		 
+	};
+	struct SDL_Color v = { 51, 221, 255, SDL_ALPHA_OPAQUE };
 	uint32_t state;
 
- //   draw_text(&a->p, "Start Game", &p, 500, 100, &v);
 	draw_text(&a->p, "Aloita Peli", &p, 500, 100, &v);
 	p.x = a->leveys/2 - 300;
 	p.y = (a->korkeus/4)*3 -100;
-    v.r = 225;
-    v.g = 255;
-    v.b = 255;
+	v.r = 225;
+	v.g = 255;
+	v.b = 255;
 	draw_text(&a->p, "Paina Nayttoa", &p, 500, 100, &v);
 	SDL_RenderPresent(a->p.renderer);
 
@@ -1010,7 +1012,7 @@ static int arvo_powerup(struct areena *ar)
 
 		if (!chance) {
 			int i;
-			struct vari v = {0, 255, 0, SDL_ALPHA_OPAQUE};
+			struct vari v = {255, 0, 200, SDL_ALPHA_OPAQUE};
 			struct powerup *p = &ar->pups[0];
 
 			SDL_Log("Arvotaan Puppi\n");
@@ -1112,8 +1114,7 @@ uusiksi:
 	Mix_CloseAudio();
 
 out_font:
-	TTF_CloseFont( a.p.font );
-    
+	TTF_CloseFont( a.p.font );	
 	TTF_Quit();
 	SDL_Quit();
 
