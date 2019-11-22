@@ -20,12 +20,27 @@
 #define WINDOW_Y (480*2)
 #define MOVE_THRESH 10
 #define MOVE_JUMP_THRESH 6000
+#define LOOPS_TO_SHOW_PUP_TEXT 100
+
+#define PISTEET_NAKYY_KIERROSTA 75
+#define PISTEKOON_PIENENNYS_ALUSSA 150
+#define PISTEKOON_MUUTOS_STEPPI 10
+#define PISTEKOKO_SAMANA_LOOPIT 5
 
 //5 ms
 #define LOOP_DELAY_US 5000
 #define NOP_MAX 36000*2
 
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v);
+
+bool mun_pupit(struct alus *a, int tyyppi);
+
+#define oonko_noppee(a) mun_pupit((a), PUP_SPEED)
+#define oonko_uppee(a) mun_pupit((a), PUP_COOL)
+#define oonko_kuolematon(a) mun_pupit((a), PUP_IMMORTAL)
+#define oonko_rikkova(a) mun_pupit((a), PUP_DESTROY)
+#define oonko_jaassa(a) mun_pupit((a), PUP_FREEZE)
+#define oonko_haamu(a) mun_pupit((a), PUP_PASS_WALLS)
 
 #define MIN(a,b) ((a)<=(b))?(a):(b)
 #define MAX(a,b) ((a)>=(b))?(a):(b)
@@ -244,13 +259,31 @@ void alus_laske_nurkat(struct alus *a)
 void piirra_alus(SDL_Renderer* renderer, struct alus *a)
 {
 	struct seina s;
-//	struct vari v = {255, 0, 0, SDL_ALPHA_OPAQUE};
+	struct vari *v;
+	struct vari v_nopee = VARI_NOPPEE;
+	struct vari v_upee = VARI_UPPEE;
+	struct vari v_kuolematon = VARI_KUOLEMATON;
+	struct vari v_haamu = VARI_HAAMU;
+	struct vari v_rikkova = VARI_RIKKOVA;
 
-	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, &a->vri /* &v */);
+	v = &a->vri;
+
+        if (oonko_noppee(a))
+                v = &v_nopee;
+        if (oonko_uppee(a))
+                v = &v_upee;
+        if (oonko_kuolematon(a))
+                v = &v_kuolematon;
+        if (oonko_haamu(a))
+                v = &v_haamu;
+	if (oonko_rikkova(a))
+		v = &v_rikkova;
+
+	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v /* &v */);
 	s.piirra(renderer, &s);
-	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, &a->vri);
+	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, v);
 	s.piirra(renderer, &s);
-	alusta_seina(&s, &a->etunurkka, &a->vas_takanurkka, &a->vri);
+	alusta_seina(&s, &a->etunurkka, &a->vas_takanurkka, v);
 	s.piirra(renderer, &s);
 /*
 	SDL_SetRenderDrawColor(renderer, 0,255,0,SDL_ALPHA_OPAQUE);
@@ -374,18 +407,46 @@ static void hanskaa_pupit(struct areena *ar)
 			ar->pups[i].expire = 0;
 			continue;
 		}
-		SDL_Log("Piirran pupini, (%d,%d), koko %d\n", ar->pups[i].p.x,
-			ar->pups[i].p.y, ar->pups[i].koko);
+		//SDL_Log("Piirran pupini, (%d,%d), koko %d\n", ar->pups[i].p.x,
+		//	ar->pups[i].p.y, ar->pups[i].koko);
 		ar->pups[i].piirra(ar->p.renderer, &ar->pups[i]);
 	}
 }
 
+void piirra_puppiteksti(struct areena *ar, struct puppi *p)
+{
+	struct SDL_Color v;
+
+	if (p->piirretty) {
+		if (p->piirretty == LOOPS_TO_SHOW_PUP_TEXT) {
+			snprintf(p->teksti, PUPPITXT_MAX, "+%u", p->lisapisteet);
+			p->teksti[PUPPITXT_MAX-1] = 0;
+		}
+		v.r = p->vri.r;
+		v.g = p->vri.g;
+		v.b = p->vri.b;
+		v.a = p->vri.alpha;
+		draw_text(&ar->p, p->teksti, &p->p, 50 + (150/p->piirretty), 50 + (150/p->piirretty), &v);
+		p->piirretty--;
+	}
+}
+
+/* Tää ei toimi jos puskuri on täys */
+#define jokaselle_saadulle_powerupille(a,p) \
+for ((p) = &(a)->pups.pbuf[(a)->pups.first]; (a)->pups.first != (a)->pups.last && (p) != &(a)->pups.pbuf[(a)->pups.last + 1]; (p)++)
+
 int piirra_areena(struct areena *a)
 {
 	int i;
+	struct puppi *p;
 
 	for (i = 0; i < a->seinien_maara; i++)
 		a->seinat[i].piirra(a->p.renderer, &a->seinat[i]);
+
+	jokaselle_saadulle_powerupille(&a->alukset[0], p)
+		if (p->piirretty) {
+			p->piirra(a, p);
+		}
 
 	for (i = 0; i < a->alusten_maara; i++)
 		a->alukset[i].piirra(a->p.renderer, &a->alukset[i]);
@@ -437,6 +498,7 @@ int luo_areena(struct areena *a)
 void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *p,
 	      float suunta, int nopeus, struct vari *v)
 {
+	memset(a, 0, sizeof(*a));
 	a->oma = 0;
 	a->leveys = leveys;
 	a->pituus = pituus;
@@ -515,10 +577,17 @@ void lisaa_puptieto(struct alus *a, struct powerup *pup)
 		return;
 	}
 	uusi = &a->pups.pbuf[a->pups.last];
+	uusi->piirra = piirra_puppiteksti;
+	uusi->piirretty = LOOPS_TO_SHOW_PUP_TEXT;
+	uusi->lisapisteet = pup->nappauspisteet;
+	uusi->p = pup->p;
+	uusi->vri = pup->vri;
 	a->pups.last++;
 
 	uusi->tyyppi = pup->tyyppi;
 	uusi->expire = time(NULL) + POWERUP_VAIKUTUSAIKA;
+	SDL_Log("Lisaan pupin, tyyppi %d, expire %lu, first = %d, last = %d\n",
+		uusi->tyyppi, uusi->expire, a->pups.first, a->pups.last);
 }
 
 void poista_vanhat_pupit(struct alus *a)
@@ -527,11 +596,19 @@ void poista_vanhat_pupit(struct alus *a)
 	uint8_t i;
 
 	for (i = a->pups.first; i != a->pups.last; i++) {
-		if (a->pups.pbuf[i].expire < aika)
+		if (a->pups.pbuf[i].expire < aika) {
 			a->pups.first++;
+			SDL_Log("Poistan vanhan pupin, aika %lu, exp %lu, first %d, last %d\n",
+				aika, a->pups.pbuf[i].expire, a->pups.first, a->pups.last);
+		}
 		else
 			break;
 	}
+}
+
+void pup_pisteet(struct areena *ar, struct powerup *pup)
+{
+	ar->pisteet += pup->nappauspisteet;
 }
 
 void kato_pupit(struct areena *ar, struct alus *a)
@@ -543,8 +620,12 @@ void kato_pupit(struct areena *ar, struct alus *a)
 
 	for (i = 0; i < MAX_PUPS; i++)
 		if (ar->pups[i].expire)
-			if (pup_napattu(a, &ar->pups[i]))
+			if (pup_napattu(a, &ar->pups[i])) {
 				lisaa_puptieto(a, &ar->pups[i]);
+				ar->pups[i].expire = 0;
+				ar->active_pups--;
+				pup_pisteet(ar, &ar->pups[i]);
+			}
 
 	return;
 }
@@ -561,12 +642,13 @@ bool mun_pupit(struct alus *a, int tyyppi)
 	return false;
 }
 
-#define oonko_noppee(a) mun_pupit((a), PUP_SPEED)
-#define oonko_uppee(a) mun_pupit((a), PUP_COOL)
-#define oonko_kuolematon(a) mun_pupit((a), PUP_IMMORTAL)
-#define oonko_rikkova(a) mun_pupit((a), PUP_DESTROY)
-#define oonko_jaassa(a) mun_pupit((a), PUP_FREEZE)
-#define oonko_haamu(a) mun_pupit((a), PUP_PASS_WALLS)
+void pysayta_alus(struct alus *a)
+{
+	a->vri.r = 255;
+	a->vri.g = 0;
+	a->vri.b = 0;
+	a->nopeus = 0;
+}
 
 void uusi_paikka(struct areena *ar, struct alus *a)
 {
@@ -583,7 +665,7 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 		noppeus = a->nopeus;
 
 	if (!noppeus)
-		return;
+		goto paikka_paivitetty;
 
 	angle = a->suunta * M_PI / 180.0f;
 	nop_y = sinf(angle) * noppeus;
@@ -711,9 +793,14 @@ paikka_paivitetty:
 	if (a->oma)
 		return;
 
-	if ( o_iholla(oma,a))
-		if ( tormasi(oma, a))
-			loppu_punaa(ar);	
+	if (!oonko_kuolematon(oma))
+		if ( o_iholla(oma,a))
+			if ( tormasi(oma, a)) {
+				if (oonko_rikkova(oma))
+						pysayta_alus(a);
+					else
+					loppu_punaa(ar);
+			}
 }
 
 void alusta_oma_alus(struct areena *a)
@@ -847,7 +934,6 @@ void get_input(struct areena *a)
 	if (oma->suunta < 0)
 		oma->suunta += 360;
 }
-
 void valipisteet(struct areena *ar)
 {
 	static struct SDL_Color v = { 255, 255, 255, SDL_ALPHA_OPAQUE };
@@ -865,20 +951,23 @@ void valipisteet(struct areena *ar)
 		{ 0, 255, 0, SDL_ALPHA_OPAQUE },
 	};
 
-	if (ar->valipisteet == 0) {
+	if (ar->valipisteet_kierros == 0) {
 		snprintf(pisteet, 255, "%u", ar->pisteet);
-		ar->valipisteet = 150;
+		ar->valipisteet_kierros = PISTEET_NAKYY_KIERROSTA;
+		ar->valipisteet_kokomuutos = PISTEKOON_PIENENNYS_ALUSSA;
+		
 		loop = 0;
 		v = v_table[((ar->pisteet/50)-1)%7];
 		Mix_PlayChannel( -1, ar->s.points, 0 );
 	} else {
-		if (!((loop++)%5))
-			ar->valipisteet -= 10;
+		ar->valipisteet_kierros--;
+		if (!((loop++)%PISTEKOKO_SAMANA_LOOPIT))
+			ar->valipisteet_kokomuutos -= PISTEKOON_MUUTOS_STEPPI;
 	}
 
-	v.a -= ar->valipisteet;
+	v.a -= 100;
 
-	draw_text(&ar->p, pisteet, &p, 200-ar->valipisteet, 200-ar->valipisteet, &v);	
+	draw_text(&ar->p, pisteet, &p, 200-ar->valipisteet_kokomuutos, 200-ar->valipisteet_kokomuutos, &v);	
 }
 
 void alkuruutu(struct areena *a)
@@ -937,6 +1026,7 @@ static int arvo_powerup(struct areena *ar)
 			p->p.x = p->koko + (rand() % ar->leveys) - 2*p->koko;
 			p->p.y = p->koko + (rand() % ar->korkeus) - 2*p->koko;
 			p->tyyppi = rand() % PUP_TYYPIT;
+			p->nappauspisteet = nappauspisteet[p->tyyppi];
 			p->vri = v;
 			p->piirra = piirra_pup,
 			p->expire = time(NULL) + 5;
@@ -949,7 +1039,7 @@ static int arvo_powerup(struct areena *ar)
 int main(int arc, char *argv[])
 {
 	int ok, i;
-	struct areena a;
+	static struct areena a;
 	SDL_Window* window = NULL;
 
 	srand(time(NULL));
@@ -986,7 +1076,7 @@ uusiksi:
 
 	ok = luo_alukset(&a);
 	a.stop = 0;
-	a.valipisteet = 0;
+	a.valipisteet_kierros = 0;
 	if (ok)
 		goto out_font;
 
@@ -1004,7 +1094,7 @@ uusiksi:
 		}
 		if (i && !(i%500))
 			valipisteet(&a);
-		if (a.valipisteet)
+		else if (a.valipisteet_kierros)
 			valipisteet(&a);
 		if (a.piirra(&a))
 			goto uusiksi;

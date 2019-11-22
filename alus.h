@@ -6,10 +6,19 @@
 #define MAX_ACTIVE_PUPS 255
 /* kauanko poweruppi vaikuttaa sekunteina */
 #define POWERUP_VAIKUTUSAIKA 5
+#define PUPPITXT_MAX 255
+struct puppi;
+struct areena;
 
 struct puppi {
 	int tyyppi;
 	time_t expire;
+	int piirretty;
+	int lisapisteet;
+	char teksti[PUPPITXT_MAX];
+	struct paikka p;
+	struct vari vri;
+	void (*piirra) (struct areena *a, struct puppi *p);
 };
 
 struct puppipuskuri {
