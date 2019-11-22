@@ -464,7 +464,7 @@ int piirra_areena(struct areena *a)
 
 		draw_text(&a->p, pisteet, &p, 200, 200, &valk);
 		SDL_RenderPresent(a->p.renderer);
-		sleep(3);
+		//sleep(3);
 		return -1;	
 	}
 	return 0;
