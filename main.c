@@ -49,6 +49,8 @@ int music_init(struct sounds *s)
 {
 	int ret;
 
+	memset(s,0,sizeof(*s));
+
 	//Initialize SDL_mixer
 	if( (ret = Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ))
 		return ret;    
@@ -61,6 +63,12 @@ int music_init(struct sounds *s)
 	s->crash = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/kolmiopelihavio.wav" );
 	/* Spawnaus */
 	s->new_ship = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/bottle_pop_2.wav" );
+	s->pupaanet[PUP_SPEED] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/NOPEUS.wav");
+	s->pupaanet[PUP_COOL] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/UPPEE.wav");
+	s->pupaanet[PUP_IMMORTAL] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/tiktok.wav");
+	s->pupaanet[PUP_DESTROY] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/nauru.wav");
+	s->pupaanet[PUP_FREEZE] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/");
+	s->pupaanet[PUP_PASS_WALLS] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/WARP.wav");
 	
 	return !(s->music && s->new_ship && s->crash && s->points);
 }
@@ -591,6 +599,12 @@ void lisaa_puptieto(struct alus *a, struct powerup *pup)
 			a->pups.first, a->pups.last);
 		return;
 	}
+	if (a->pups.last == 255)
+		SDL_Log("Puppipuskuri ympari\n");
+
+	if (a->pups.first == 255)
+		SDL_Log("Puppipuskuri ympari 2\n");
+
 	uusi = &a->pups.pbuf[a->pups.last];
 	uusi->piirra = piirra_puppiteksti;
 	uusi->piirretty = LOOPS_TO_SHOW_PUP_TEXT;
@@ -622,6 +636,14 @@ void pup_pisteet(struct areena *ar, struct powerup *pup)
 	ar->pisteet += pup->nappauspisteet;
 }
 
+void soita_puppinappaus(struct areena *ar, struct powerup *pup)
+{
+	Mix_Chunk * snd = ar->s.pupaanet[pup->tyyppi];
+
+	if (snd)
+		Mix_PlayChannel( -1, snd, 0 );
+}
+
 void kato_pupit(struct areena *ar, struct alus *a)
 {
 	int i;
@@ -636,6 +658,7 @@ void kato_pupit(struct areena *ar, struct alus *a)
 				ar->pups[i].expire = 0;
 				ar->active_pups--;
 				pup_pisteet(ar, &ar->pups[i]);
+				soita_puppinappaus(ar, &ar->pups[i]);
 			}
 
 	return;
@@ -1075,6 +1098,7 @@ int main(int arc, char *argv[])
 
 	Mix_PlayMusic( a.s.music, -1 );
 uusiksi:
+	a.pisteet = 0;
 	putsaa_pupit(&a);
 	ok = luo_alukset(&a);
 	a.stop = 0;
@@ -1086,7 +1110,7 @@ uusiksi:
 
 
 	for (i = 0; 1 ; i++) {
-		a.pisteet = i;
+		a.pisteet ++;
 		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(a.p.renderer);
 		uudet_paikat(&a);

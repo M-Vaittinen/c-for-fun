@@ -1,6 +1,7 @@
 #ifndef _MEDIA_H_
 #define _MEDIA_H_
 
+
 #define VARI_NOPPEE { 255, 10, 10, SDL_ALPHA_OPAQUE }
 #define VARI_UPPEE { 0, 255, 100, SDL_ALPHA_OPAQUE }
 #define VARI_KUOLEMATON { 0, 0, 255 }
@@ -15,6 +16,8 @@ struct vari {
 	unsigned char alpha;
 };
 
+#include "powerup.h"
+
 struct sounds {
 	//The music that will be played
 	Mix_Music *music;
@@ -23,6 +26,7 @@ struct sounds {
 	Mix_Chunk *new_ship;
 	Mix_Chunk *crash;
 	Mix_Chunk *points;
+	Mix_Chunk *pupaanet[PUP_TYYPIT];
 };
 
 struct piirrin {
