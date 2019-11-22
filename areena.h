@@ -1,6 +1,7 @@
 #ifndef _AREENA_H_
 #define _AREENA_H_
 
+#include <SDL.h>
 #include "media.h"
 #include "seina.h"
 #include "alus.h"

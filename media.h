@@ -1,6 +1,8 @@
 #ifndef _MEDIA_H_
 #define _MEDIA_H_
 
+#include <SDL_mixer.h>
+#include <SDL_ttf.h>
 
 #define VARI_NOPPEE { 255, 10, 10, SDL_ALPHA_OPAQUE }
 #define VARI_UPPEE { 0, 255, 100, SDL_ALPHA_OPAQUE }

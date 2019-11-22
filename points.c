@@ -12,6 +12,7 @@
 //#include <fcntl.h>
 //#include <sys/ioctl.h>
 //#include <linux/kd.h>
+#include "areena.h"
 
 
 #define YLOS_NUOLI 0x415b1b
@@ -104,14 +105,14 @@ int write_scores()
     return 0;
 }
 
-void update_fivebests(peliinfo *pi,char *name)
+void update_fivebests(struct areena *ar, char *name)
 {
     int i;
 //    printf("Vanhat Huippupisteet:\n");
 //    print_fivebests();
     for(i=0;i<5&&fivebests[i].used;i++)
     {
-        if(fivebests[i].points<pi->pisteet)
+        if(fivebests[i].points<ar->pisteet)
             break;
     }
     if(i==5)
@@ -123,12 +124,12 @@ void update_fivebests(peliinfo *pi,char *name)
     if(i<5)
     {
         strcpy(fivebests[i].name,name);
-        fivebests[i].max_speed=pi->nopeus;
-        fivebests[i].points=pi->pisteet;
+//        fivebests[i].max_speed=pi->nopeus;
+        fivebests[i].points=ar->pisteet;
         fivebests[i].used=1;
-        fivebests[i].stats.este=pi->stats.este;
-        fivebests[i].stats.nopeus=pi->stats.nopeus;
-        fivebests[i].stats.piste=pi->stats.piste;
+//        fivebests[i].stats.este=pi->stats.este;
+//        fivebests[i].stats.nopeus=pi->stats.nopeus;
+//        fivebests[i].stats.piste=pi->stats.piste;
     }
     write_scores();
 }

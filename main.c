@@ -15,6 +15,7 @@
 #include "media.h"
 #include "areena.h"
 #include "common.h"
+#include "hiscore.h"
 
 #define WINDOW_X (640*2)
 #define WINDOW_Y (480*2)
@@ -1000,7 +1001,9 @@ void valipisteet(struct areena *ar)
 	draw_text(&ar->p, pisteet, &p, 200-ar->valipisteet_kokomuutos, 200-ar->valipisteet_kokomuutos, &v);	
 }
 
-void alkuruutu(struct areena *a)
+static const char *nimi[] = { "Muru", "Jasper", "Joona", "Iivari", "Mestari-Isi" };
+
+char * alkuruutu(struct areena *a)
 {
 	struct paikka p = {
 		.x = a->leveys/2 -300,
@@ -1064,6 +1067,7 @@ static int arvo_powerup(struct areena *ar)
 int main(int arc, char *argv[])
 {
 	int ok, i;
+	char *nimi;
 	static struct areena a;
 	SDL_Window* window = NULL;
 
@@ -1106,7 +1110,7 @@ uusiksi:
 	if (ok)
 		goto out_font;
 
-	alkuruutu(&a);
+	nimi = alkuruutu(&a);
 
 
 	for (i = 0; 1 ; i++) {
@@ -1118,12 +1122,16 @@ uusiksi:
 			lisaa_alus(&a);
 			arvo_powerup(&a);
 		}
-		if (i && !(i%500))
+		//if (i && !(i%500))
+		if (a.pisteet && !(a.pisteet%500) && !a.valipisteet_kierros)
 			valipisteet(&a);
 		else if (a.valipisteet_kierros)
 			valipisteet(&a);
 		if (a.piirra(&a))
+		{
+			update_fivebests(&a, nimi);
 			goto uusiksi;
+		}
 		usleep(LOOP_DELAY_US);
 		get_input(&a);
 		if (a.realstop)

@@ -21,6 +21,13 @@ int nappauspisteet[PUP_TYYPIT] = {
 	[PUP_DESTROY] = 10,
 	[PUP_FREEZE] = 500,
 	[PUP_PASS_WALLS] = 10,
+/*	[PUP_SPEED] = 20000,
+	[PUP_COOL] = 500000,
+	[PUP_IMMORTAL] = 1000000,
+	[PUP_DESTROY] = 100000,
+	[PUP_FREEZE] = 5000000,
+	[PUP_PASS_WALLS] = 100000,
+*/
 };
 
 static const char *puppi_txt_arr[PUP_TYYPIT] = {
