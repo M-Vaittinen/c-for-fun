@@ -1000,34 +1000,58 @@ void valipisteet(struct areena *ar)
 
 	draw_text(&ar->p, pisteet, &p, 200-ar->valipisteet_kokomuutos, 200-ar->valipisteet_kokomuutos, &v);	
 }
+#define PELAAJIA 5
+static const char *nimi[PELAAJIA] = { "Muru", "Jasper", "Joona", "Iivari", "Mestari-Isi" };
 
-static const char *nimi[] = { "Muru", "Jasper", "Joona", "Iivari", "Mestari-Isi" };
-
-char * alkuruutu(struct areena *a)
+const char * alkuruutu(struct areena *a)
 {
-	struct paikka p = {
-		.x = a->leveys/2 -300,
-		.y = a->korkeus/4 -5,		 
+	struct paikka p[PELAAJIA] = {
 	};
 	struct SDL_Color v = { 51, 221, 255, SDL_ALPHA_OPAQUE };
 	uint32_t state;
+	int korkeus = a->korkeus/PELAAJIA;
+	int y,i;
 
-	draw_text(&a->p, "Aloita Peli", &p, 500, 100, &v);
-	p.x = a->leveys/2 - 300;
-	p.y = (a->korkeus/4)*3 -100;
+	p[0].x = a->leveys/2 -300,
+	p[0].y = a->korkeus/4 -5,		 
+
+	draw_text(&a->p, "Aloita Peli", &p[0], 500, 100, &v);
+	p[0].x = a->leveys/2 - 300;
+	p[0].y = (a->korkeus/4)*3 -100;
 	v.r = 225;
 	v.g = 255;
 	v.b = 255;
-	draw_text(&a->p, "Paina Nayttoa", &p, 500, 100, &v);
+
+	draw_text(&a->p, "Paina Nayttoa", &p[0], 500, 100, &v);
+
+	v.r = 0;
+	v.g = 225;
+	v.b = 0;
+	v.a = SDL_ALPHA_OPAQUE/2;
+
+	for (i = 0; i < PELAAJIA; i++) {
+		p[i].x = a->leveys/2 -300,
+		p[i].y = i*korkeus + korkeus/2;
+
+		draw_text(&a->p, nimi[i], &p[i], 500, korkeus, &v);
+		SDL_RenderDrawLine(a->p.renderer, 0, p[i].y + korkeus/2, a->leveys, p[i].y + korkeus/2);
+	}
+
 	SDL_RenderPresent(a->p.renderer);
+
 
 	for (;;) {
 		SDL_PumpEvents();
-		if ((state = SDL_GetMouseState(NULL,NULL)) & SDL_BUTTON(SDL_BUTTON_LEFT))
-			return;
+		if ((state = SDL_GetMouseState(NULL,&y)) & SDL_BUTTON(SDL_BUTTON_LEFT))
+		{
+			for (i = 0; i < PELAAJIA; i++) 
+				if (y < (i+1)*korkeus)
+					return nimi[i];
+			continue;
+		}
 		if (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
 			a->realstop = 1;
-			return;
+			return NULL;
 		}
 		usleep(10000);
 	}
@@ -1067,7 +1091,7 @@ static int arvo_powerup(struct areena *ar)
 int main(int arc, char *argv[])
 {
 	int ok, i;
-	char *nimi;
+	const char *nimi;
 	static struct areena a;
 	SDL_Window* window = NULL;
 

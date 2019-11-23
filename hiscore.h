@@ -3,6 +3,6 @@
 
 #include "areena.h"
 
-void update_fivebests(struct areena *ar, char *name);
+void update_fivebests(struct areena *ar, const char *name);
 
 #endif

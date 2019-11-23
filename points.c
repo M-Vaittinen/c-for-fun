@@ -105,7 +105,7 @@ int write_scores()
     return 0;
 }
 
-void update_fivebests(struct areena *ar, char *name)
+void update_fivebests(struct areena *ar, const char *name)
 {
     int i;
 //    printf("Vanhat Huippupisteet:\n");
