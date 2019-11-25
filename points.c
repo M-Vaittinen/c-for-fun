@@ -9,128 +9,153 @@
 #include <sgtty.h>
 #include <sys/select.h>
 #include <sys/types.h>
-//#include <fcntl.h>
-//#include <sys/ioctl.h>
-//#include <linux/kd.h>
 #include "areena.h"
+#include "hiscore.h"
 
+#define TALL_TIEDOSTO "kolmiopisteet.txt"
 
-#define YLOS_NUOLI 0x415b1b
-#define ALAS_NUOLI 0x425b1b
-#define VAS_NUOLI 0x445b1b
-#define OIK_NUOLI 0x435b1b
-#define SUUNTA_OIKEA 1
-#define SUUNTA_VASEN -1
-#define AUTOMERKKI 'H'
-#define TIEMERKKI_VAS '#'
-#define TIEMERKKI_OIK '#'
+static struct hiscore *hchead = NULL;
 
-#define NAME_MAX 1024
-#define TALL_TIEDOSTO "scores.txt"
-#define HISCORE_AMNT 5
-
-
-typedef struct estestats
+struct hiscore * lisaa_hiscore(struct hiscore *h, const char *nimi, unsigned int pisteet)
 {
-    int nopeus;
-    int piste;
-    int este;
-}estestats;
+	struct hiscore *head, *new;
 
+	if (!h) {
+		head = calloc(sizeof(*head),1);
+		if (!head) {
+			SDL_Log("Alloc Failed\n");
+			return NULL;
+		}
+		head->head = head;
+		head->prev = NULL;
+		head->next = NULL;
+		head->name[0] = 0;
+		hchead = head;
+	}
+	else 
+		head = h->head;
 
-typedef struct hiscore
+	if (!head) {
+		SDL_Log("NULL HEAD\n");
+		return NULL;
+	}
+	new = calloc(sizeof(*new),1);
+	if (!new)
+		return NULL;
+	new->head = head;
+	new->prev = head;
+	new->next = head->next;
+	head->next = new;
+	strncpy(new->name, nimi, NAME_MAX);
+	new->name[NAME_MAX-1] = 0;
+	new->points = pisteet;
+	return new;
+}
+
+struct hiscore * etsi_nimella(struct hiscore *head, const char *name)
 {
-    int used;
-    char name[NAME_MAX];
-    unsigned int max_speed;
-    unsigned int points;
-    estestats stats;
-}hiscore;
+	struct hiscore *h;
 
+	if (!head || !name)
+		return NULL;
+
+	joka_huippupisteelle(head, h) {
+		SDL_Log("%s: Comparing '%s' to '%s'\n", __func__, h->name, name);
+		if (!strcmp(h->name, name)) {
+			SDL_Log("MATCH\n");
+			break;
+		}
+		SDL_Log("Nomatch\n");
+	}
+
+	return h;
+}
+
+unsigned int hae_pisteet(const char *name)
+{
+	struct hiscore *hc;
+
+	hc = etsi_nimella(hchead, name);
+	if (!hc)
+		return 0;
+
+	return hc->points;
+}
+
+void paivita_pisteet(const char *name, unsigned int pisteet)
+{
+	struct hiscore *hc;
+
+	if (!name)
+		return;
+
+	hc = etsi_nimella(hchead, name);
+	if (!hc) {
+		hc = lisaa_hiscore(hchead, name, pisteet);
+		SDL_Log("NULL hc - add new entry\n");
+	}
+	else
+	{
+		SDL_Log("Old entry for '%s' found, old pts %u, new pts %u\n",
+			name, hc->points, pisteet);
+		if (hc->points < pisteet) {
+			SDL_Log("Updating pts for %s\n", name);
+			hc->points = pisteet;
+		}
+	}
+}
 
 void read_scores()
 {
-    FILE *rf;
-    int ptmp,stmp,st_etmp,st_ntmp,st_ptmp,rval;
-    //char name[1024];
-    char *name;
-    memset(fivebests,0,sizeof(fivebests));
-    rf=fopen(TALL_TIEDOSTO,"r");
-    if(rf)
-    {
-        int i=0;
-        for(i=0; i< HISCORE_AMNT &&6==(rval=fscanf(rf,"%m[^!]!%u!%u!%d!%d!%d\n",&name,&stmp,&ptmp,&st_etmp,&st_ntmp,&st_ptmp));i++)
-        {
-        //    printf("Scanf returned %d, name=%s\n",rval,name);
-            strncpy(fivebests[i].name,name,1024);
-            fivebests[i].name[sizeof(fivebests[i].name)-1]='\0';
-            fivebests[i].max_speed=stmp;
-            fivebests[i].points=ptmp;
-            fivebests[i].stats.este=st_etmp;
-            fivebests[i].stats.nopeus=st_ntmp;
-            fivebests[i].stats.piste=st_ptmp;
-            fivebests[i].used=1;
-            free(name);
-        }
-        //printf("Scanf returned %d, name=%s\n",rval,name);
-        fclose(rf);
-    }
+	FILE *rf;
+	unsigned int pisteet;
+	char *name;
+	static struct hiscore *hc = NULL;
+
+	rf=fopen(TALL_TIEDOSTO,"r");
+	if(rf)
+	{
+		while( 2 == fscanf(rf,"%m[^!]!%u!\n",&name,&pisteet))
+		{
+			printf("Found hiscore %u for %s from file\n", pisteet, name);
+			hc = lisaa_hiscore(hc, name, pisteet);
+			if (!hc) {
+				SDL_Log("jokin meni mönkään\n");
+			}
+			free(name);
+		}
+		fclose(rf);
+	}
 }
 
 int write_scores()
 {
-    FILE *wf;
-    wf=fopen(TALL_TIEDOSTO,"w");
-    if(wf)
-    {
-        int i=0;
-       for(i=0; i<HISCORE_AMNT && fivebests[i].used; i++)
-        {
-            fprintf
-            (
-                wf,
-                "%s!%u!%u!%d!%d!%d\n",
-                fivebests[i].name,
-                fivebests[i].max_speed,
-                fivebests[i].points,
-                fivebests[i].stats.este,
-                fivebests[i].stats.nopeus,
-                fivebests[i].stats.piste
-            );
-        }
-       fclose(wf);
-    }
-    else
-        return errno;
-    return 0;
+	FILE *wf;
+	struct hiscore *hc;
+
+	if (!hchead) {
+		SDL_Log("Ei pistehiä\n");
+		return 0;
+	}
+
+	wf=fopen(TALL_TIEDOSTO,"w");
+	if(wf)
+	{
+		for(hc = hchead->next; hc; hc=hc->next) {
+			SDL_Log("Writing to file: %s pts %u\n", hc->name, hc->points);
+			fprintf(wf, "%s!%u\n", hc->name, hc->points);
+		}
+
+		fclose(wf);
+	}
+	else
+		return errno;
+	return 0;
 }
 
-void update_fivebests(struct areena *ar, const char *name)
+void talleta_pisteet(struct areena *ar, const char *name)
 {
-    int i;
-//    printf("Vanhat Huippupisteet:\n");
-//    print_fivebests();
-    for(i=0;i<5&&fivebests[i].used;i++)
-    {
-        if(fivebests[i].points<ar->pisteet)
-            break;
-    }
-    if(i==5)
-        return;
-    if(i<4)
-    {
-        memmove(&(fivebests[i+1]),&(fivebests[i]),sizeof(fivebests[i])*(4-i));
-    }
-    if(i<5)
-    {
-        strcpy(fivebests[i].name,name);
-//        fivebests[i].max_speed=pi->nopeus;
-        fivebests[i].points=ar->pisteet;
-        fivebests[i].used=1;
-//        fivebests[i].stats.este=pi->stats.este;
-//        fivebests[i].stats.nopeus=pi->stats.nopeus;
-//        fivebests[i].stats.piste=pi->stats.piste;
-    }
-    write_scores();
+	paivita_pisteet(name, ar->pisteet);
+	write_scores();
 }
 

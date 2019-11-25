@@ -1012,11 +1012,11 @@ const char * alkuruutu(struct areena *a)
 	int korkeus = a->korkeus/PELAAJIA;
 	int y,i;
 
-	p[0].x = a->leveys/2 -300,
+	p[0].x = 100,
 	p[0].y = a->korkeus/4 -5,		 
 
 	draw_text(&a->p, "Aloita Peli", &p[0], 500, 100, &v);
-	p[0].x = a->leveys/2 - 300;
+	p[0].x = 100;
 	p[0].y = (a->korkeus/4)*3 -100;
 	v.r = 225;
 	v.g = 255;
@@ -1030,11 +1030,19 @@ const char * alkuruutu(struct areena *a)
 	v.a = SDL_ALPHA_OPAQUE/2;
 
 	for (i = 0; i < PELAAJIA; i++) {
-		p[i].x = a->leveys/2 -300,
-		p[i].y = i*korkeus + korkeus/2;
+		char tmp[255];
+		unsigned int pisteet;
 
-		draw_text(&a->p, nimi[i], &p[i], 500, korkeus, &v);
-		SDL_RenderDrawLine(a->p.renderer, 0, p[i].y + korkeus/2, a->leveys, p[i].y + korkeus/2);
+		pisteet = hae_pisteet(nimi[i]);
+
+		p[i].x = a->leveys - a->leveys/4,
+		p[i].y = i*korkeus;
+
+		snprintf(tmp, 255, "%s %u", nimi[i], pisteet);
+		tmp[254] = 0;
+
+		draw_text(&a->p, tmp, &p[i], a->leveys/4, korkeus, &v);
+		SDL_RenderDrawLine(a->p.renderer, 0, p[i].y + korkeus, a->leveys, p[i].y + korkeus);
 	}
 
 	SDL_RenderPresent(a->p.renderer);
@@ -1116,6 +1124,8 @@ int main(int arc, char *argv[])
 	if (ok)
 		 goto err_out;
 
+	read_scores();
+
 	a.p.font = TTF_OpenFont("/usr/share/fonts/liberation/LiberationMono-Regular.ttf", 24);
 	if (!a.p.font) {
 		SDL_Log("Fontti ei auennu %s\n",SDL_GetError());
@@ -1153,13 +1163,15 @@ uusiksi:
 			valipisteet(&a);
 		if (a.piirra(&a))
 		{
-			update_fivebests(&a, nimi);
+			talleta_pisteet(&a, nimi);
 			goto uusiksi;
 		}
 		usleep(LOOP_DELAY_US);
 		get_input(&a);
-		if (a.realstop)
+		if (a.realstop) {
+			talleta_pisteet(&a, nimi);
 			break;
+		}
 		SDL_RenderPresent(a.p.renderer);
 	}
 

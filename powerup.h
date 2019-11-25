@@ -14,7 +14,7 @@ enum pup_tyypit {
 	PUP_TYYPIT,
 };
 
-int nappauspisteet[PUP_TYYPIT] = {
+static int nappauspisteet[PUP_TYYPIT] __attribute__((unused)) = {
 	[PUP_SPEED] = 200,
 	[PUP_COOL] = 50,
 	[PUP_IMMORTAL] = 10,
@@ -30,7 +30,7 @@ int nappauspisteet[PUP_TYYPIT] = {
 */
 };
 
-static const char *puppi_txt_arr[PUP_TYYPIT] = {
+static const char *puppi_txt_arr[PUP_TYYPIT] __attribute__((unused)) = {
 	[PUP_SPEED] = "Kiire!",
 	[PUP_COOL] = "Rahaa!",
 	[PUP_IMMORTAL] = "Haamu",
