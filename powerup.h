@@ -4,6 +4,8 @@
 #include "paikka.h" 
 #define PUPS_KOKO 8
 
+struct areena;
+
 enum pup_tyypit {
 	PUP_SPEED = 0,
 	PUP_COOL,
@@ -45,7 +47,7 @@ struct powerup {
 	int tyyppi;
 	int nappauspisteet;
 	struct vari vri;
-	void (*piirra) (SDL_Renderer*, struct powerup*);
+	void (*piirra) (struct areena *, struct powerup*);
 	time_t expire;
 };
 

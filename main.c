@@ -95,30 +95,30 @@ bool isin_kolmio(struct paikka *a, struct paikka *b, struct paikka *c,
 
 
 
-void draw_text(struct piirrin *pr, const char *text, struct paikka *p, int w, int h, struct SDL_Color *v)
+void draw_text(struct areena *a, const char *text, struct paikka *p, int w, int h, struct SDL_Color *v)
 {
 	SDL_Surface* surfaceMessage;
 	SDL_Texture* Message;
 	SDL_Rect Message_rect;
 
-	SDL_SetRenderDrawColor(pr->renderer, v->r, v->g, v->b, v->a);
-	surfaceMessage = TTF_RenderText_Blended(pr->font, text, *v);
+	SDL_SetRenderDrawColor(a->p.renderer, v->r, v->g, v->b, v->a);
+	surfaceMessage = TTF_RenderText_Blended(a->p.font, text, *v);
 	if (!surfaceMessage)
 		SDL_Log("Surface ei surffannu %s\n", SDL_GetError());
 
-	Message = SDL_CreateTextureFromSurface(pr->renderer, surfaceMessage);
+	Message = SDL_CreateTextureFromSurface(a->p.renderer, surfaceMessage);
 	if (!Message)
 		SDL_Log("Viesti ei pullottunu\n");
 
 	SDL_FreeSurface(surfaceMessage);
 
 	SDL_SetTextureBlendMode(Message, SDL_BLENDMODE_BLEND);
-	Message_rect.x = p->x;
-	Message_rect.y = p->y;
+	Message_rect.x = p->x + a->leveys_offset;
+	Message_rect.y = p->y + a->korkeus_offset;
 	Message_rect.w = w;
 	Message_rect.h = h;
 
-	if (SDL_RenderCopy(pr->renderer, Message, NULL, &Message_rect)) {
+	if (SDL_RenderCopy(a->p.renderer, Message, NULL, &Message_rect)) {
 		SDL_Log("Copy ei renderöityny\n");
 	}
 	SDL_DestroyTexture(Message);
@@ -265,7 +265,7 @@ void alus_laske_nurkat(struct alus *a)
 	coll_update(a, &a->vas_takanurkka);
 }
 
-void piirra_alus(SDL_Renderer* renderer, struct alus *a)
+void piirra_alus(struct areena *ar, struct alus *a)
 {
 	struct seina s;
 	struct vari *v;
@@ -294,11 +294,11 @@ void piirra_alus(SDL_Renderer* renderer, struct alus *a)
 
 
 	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v /* &v */);
-	s.piirra(renderer, &s);
+	s.piirra(ar, &s);
 	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, v);
-	s.piirra(renderer, &s);
+	s.piirra(ar, &s);
 	alusta_seina(&s, &a->etunurkka, &a->vas_takanurkka, v);
-	s.piirra(renderer, &s);
+	s.piirra(ar, &s);
 /*
 	SDL_SetRenderDrawColor(renderer, 0,255,0,SDL_ALPHA_OPAQUE);
 	SDL_RenderDrawPoint(renderer, a->p.x+1, a->p.y+1);
@@ -310,10 +310,10 @@ void piirra_alus(SDL_Renderer* renderer, struct alus *a)
 */
 }
 
-void piirra_seina(SDL_Renderer* renderer, struct seina *s)
+void piirra_seina(struct areena *a, struct seina *s)
 {
-	SDL_SetRenderDrawColor(renderer, s->vri.r, s->vri.g, s->vri.b, s->vri.alpha);
-	if (SDL_RenderDrawLine(renderer, s->alku.x, s->alku.y, s->loppu.x, s->loppu.y)) {
+	SDL_SetRenderDrawColor(a->p.renderer, s->vri.r, s->vri.g, s->vri.b, s->vri.alpha);
+	if (SDL_RenderDrawLine(a->p.renderer, s->alku.x + a->leveys_offset, s->alku.y + a->korkeus_offset, s->loppu.x + a->leveys_offset, s->loppu.y + a->korkeus_offset)) {
 		SDL_Log("Unable to draw line: %s", SDL_GetError()); 
 	}
 }
@@ -400,10 +400,14 @@ static void DrawCircle(SDL_Renderer * renderer, struct paikka *centre, int32_t r
 	  }
    }
 }
-void piirra_pup(SDL_Renderer* renderer, struct powerup* pup)
+void piirra_pup(struct areena *a, struct powerup* pup)
 {
+	struct paikka p;
+
+	p.x = pup->p.x + a->leveys_offset;
+	p.y = pup->p.y + a->korkeus_offset;
 	/* TODO: lisaa vari */
-	DrawCircle(renderer, &pup->p, pup->koko, &pup->vri);
+	DrawCircle(a->p.renderer, &p, pup->koko, &pup->vri);
 }
 
 static void putsaa_pupit(struct areena *ar)
@@ -430,7 +434,7 @@ static void hanskaa_pupit(struct areena *ar)
 			ar->pups[i].expire = 0;
 			continue;
 		}
-		ar->pups[i].piirra(ar->p.renderer, &ar->pups[i]);
+		ar->pups[i].piirra(ar, &ar->pups[i]);
 	}
 }
 
@@ -450,7 +454,7 @@ void piirra_puppiteksti(struct areena *ar, struct puppi *p)
 		v.a = p->vri.alpha;
 
 		kokokerroin -= (p->piirretty /5 * 5);
-		draw_text(&ar->p, p->teksti, &p->p, 120 + kokokerroin, 50 + kokokerroin, &v);
+		draw_text(ar, p->teksti, &p->p, 120 + kokokerroin, 50 + kokokerroin, &v);
 		p->piirretty--;
 	}
 }
@@ -465,7 +469,7 @@ int piirra_areena(struct areena *a)
 	struct puppi *p;
 
 	for (i = 0; i < a->seinien_maara; i++)
-		a->seinat[i].piirra(a->p.renderer, &a->seinat[i]);
+		a->seinat[i].piirra(a, &a->seinat[i]);
 
 	jokaselle_saadulle_powerupille(&a->alukset[0], p)
 		if (p->piirretty) {
@@ -473,7 +477,7 @@ int piirra_areena(struct areena *a)
 		}
 
 	for (i = 0; i < a->alusten_maara; i++)
-		a->alukset[i].piirra(a->p.renderer, &a->alukset[i]);
+		a->alukset[i].piirra(a, &a->alukset[i]);
 
 	hanskaa_pupit(a);
 
@@ -486,7 +490,7 @@ int piirra_areena(struct areena *a)
 		snprintf(pisteet, 255, "%u", a->pisteet);
 		SDL_Log("Pisteita palajo? %s\n", pisteet);
 
-		draw_text(&a->p, pisteet, &p, 200, 200, &valk);
+		draw_text(a, pisteet, &p, 200, 200, &valk);
 		SDL_RenderPresent(a->p.renderer);
 		//sleep(3);
 		return -1;	
@@ -502,8 +506,8 @@ int luo_areena(struct areena *a)
 	a->active_pups = 0;
 	a->stop = 0;
 	a->realstop = 0;
-	a->leveys = WINDOW_X-2;
-	a->korkeus = WINDOW_Y-2;
+//	a->leveys = WINDOW_X-2;
+//	a->korkeus = WINDOW_Y-2;
 	a->seinien_maara = 4;
 	a->seinat = calloc(a->seinien_maara, sizeof(*a->seinat));
 	if (!a->seinat) {
@@ -903,8 +907,17 @@ void togglefullscreen(struct areena *a, SDL_Window* window, SDL_Renderer* render
 void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)
 {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	SDL_RenderSetLogicalSize(renderer, a->leveys, a->korkeus);
+	SDL_RenderSetLogicalSize(renderer, a->leveys + a->leveys_offset,
+				 a->korkeus + a->korkeus_offset);
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+//	SDL_GetWindowSize(window,&a->leveys_offset,&a->korkeus_offset);
+//	a->leveys_offset -= a->leveys;
+//	a->leveys_offset >>= 2;
+//	a->korkeus_offset -= a->korkeus;
+//	a->korkeus_offset >>= 2;
+//	SDL_Log("leveys_offset =%um korkeus_offset = %u\n", a->leveys_offset, a->korkeus_offset);
+//	a->leveys_offset = 0;
+//	a->korkeus_offset = 0;
 }
 
 void get_input(struct areena *a)
@@ -935,14 +948,20 @@ void get_input(struct areena *a)
 		return;
 	}
 
+	hiiri.x -= a->leveys_offset;
+	hiiri.y -= a->korkeus_offset;
+
 	if ((!oonko_kuolematon(oma)) && isin_kolmio(&oma->vas_takanurkka, &oma->oik_takanurkka,
 	    &oma->etunurkka, &hiiri)) {
 		SDL_Log("Törmäsit hiireen!\n");
 		loppu_punaa(a);
 	}
 
-	hiiri.x-=oma->p.x;
-	hiiri.y-=oma->p.y;
+//	hiiri.x += a->leveys_offset;
+//	hiiri.y+= a->korkeus_offset;
+
+	hiiri.x -= oma->p.x;
+	hiiri.y -= oma->p.y;
 
 	if (hiiri.x < 0)
 		fix = -180.0;
@@ -998,7 +1017,7 @@ void valipisteet(struct areena *ar)
 
 	v.a -= 100;
 
-	draw_text(&ar->p, pisteet, &p, 200-ar->valipisteet_kokomuutos, 200-ar->valipisteet_kokomuutos, &v);	
+	draw_text(ar, pisteet, &p, 200-ar->valipisteet_kokomuutos, 200-ar->valipisteet_kokomuutos, &v);	
 }
 #define PELAAJIA 5
 static const char *nimi[PELAAJIA] = { "Muru", "Jasper", "Joona", "Iivari", "Mestari-Isi" };
@@ -1015,14 +1034,14 @@ const char * alkuruutu(struct areena *a)
 	p[0].x = 100,
 	p[0].y = a->korkeus/4 -5,		 
 
-	draw_text(&a->p, "Aloita Peli", &p[0], 500, 100, &v);
+	draw_text(a, "Aloita Peli", &p[0], 500, 100, &v);
 	p[0].x = 100;
 	p[0].y = (a->korkeus/4)*3 -100;
 	v.r = 225;
 	v.g = 255;
 	v.b = 255;
 
-	draw_text(&a->p, "Paina Nayttoa", &p[0], 500, 100, &v);
+	draw_text(a, "Paina Nayttoa", &p[0], 500, 100, &v);
 
 	v.r = 0;
 	v.g = 225;
@@ -1041,8 +1060,8 @@ const char * alkuruutu(struct areena *a)
 		snprintf(tmp, 255, "%s %u", nimi[i], pisteet);
 		tmp[254] = 0;
 
-		draw_text(&a->p, tmp, &p[i], a->leveys/4, korkeus, &v);
-		SDL_RenderDrawLine(a->p.renderer, 0, p[i].y + korkeus, a->leveys, p[i].y + korkeus);
+		draw_text(a, tmp, &p[i], a->leveys/4, korkeus, &v);
+		SDL_RenderDrawLine(a->p.renderer, a->leveys_offset, p[i].y + korkeus + a->korkeus_offset, a->leveys + a->leveys_offset, p[i].y + korkeus + a->korkeus_offset);
 	}
 
 	SDL_RenderPresent(a->p.renderer);
@@ -1053,7 +1072,7 @@ const char * alkuruutu(struct areena *a)
 		if ((state = SDL_GetMouseState(NULL,&y)) & SDL_BUTTON(SDL_BUTTON_LEFT))
 		{
 			for (i = 0; i < PELAAJIA; i++) 
-				if (y < (i+1)*korkeus)
+				if (y < (i+1)*korkeus + a->korkeus_offset)
 					return nimi[i];
 			continue;
 		}
@@ -1113,11 +1132,37 @@ int main(int arc, char *argv[])
 		SDL_Log("Unable to initialize TTF: %s", SDL_GetError());
 		return 1;
 	}
-	if (SDL_CreateWindowAndRenderer(WINDOW_X, WINDOW_Y, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &a.p.renderer)) {
+	if (SDL_CreateWindowAndRenderer(0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &a.p.renderer)) {
+//	if (SDL_CreateWindowAndRenderer(WINDOW_X + 20, WINDOW_Y + 20, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &a.p.renderer)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		goto err_out;
 	}
-	test_display(&a, window, a.p.renderer);
+
+	SDL_GetWindowSize(window, &a.leveys, &a.korkeus);
+
+	SDL_Log("leveys %u, korkeus %u\n",a.leveys, a.korkeus);
+
+/*
+	window = SDL_CreateWindow(
+        "Ampuikkuna",                  // window title
+        SDL_WINDOWPOS_CENTERED,           // initial x position
+        SDL_WINDOWPOS_CENTERED,           // initial y position
+        ,                               // width, in pixels
+        480,                               // height, in pixels
+        SDL_WINDOW_OPENGL                  // flags - see below
+    );
+*/
+	//SDL_GetWindowSize(window, &a.leveys, &a.korkeus);
+
+//	a.leveys = WINDOW_X - 2;
+//	a.korkeus = WINDOW_Y - 2;
+	a.leveys_offset = (a.leveys - WINDOW_X)/2;
+	a.korkeus_offset = (a.korkeus - WINDOW_Y)/2;
+
+	a.leveys = WINDOW_X;
+	a.korkeus = WINDOW_Y;
+
+//	test_display(&a, window, a.p.renderer);
 	SDL_SetRenderDrawBlendMode(a.p.renderer, SDL_BLENDMODE_BLEND);
 
 	ok = luo_areena(&a);

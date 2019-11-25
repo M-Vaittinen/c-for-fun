@@ -17,7 +17,9 @@ struct areena {
 	int stop;
 	int realstop;
 	int leveys;
+	int leveys_offset;
 	int korkeus;
+	int korkeus_offset;
 	int seinien_maara;
 	struct seina *seinat;
 	int alusten_maara;

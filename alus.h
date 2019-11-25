@@ -46,7 +46,7 @@ struct alus {
 
 	struct puppipuskuri pups;
 	
-	void (*piirra) (SDL_Renderer*, struct alus*);
+	void (*piirra) (struct areena*, struct alus*);
 };
 
 

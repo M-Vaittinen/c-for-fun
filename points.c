@@ -115,7 +115,7 @@ void read_scores()
 	rf=fopen(TALL_TIEDOSTO,"r");
 	if(rf)
 	{
-		while( 2 == fscanf(rf,"%m[^!]!%u!\n",&name,&pisteet))
+		while( 2 == fscanf(rf,"%m[^!]!%u\n",&name,&pisteet))
 		{
 			printf("Found hiscore %u for %s from file\n", pisteet, name);
 			hc = lisaa_hiscore(hc, name, pisteet);
@@ -142,6 +142,8 @@ int write_scores()
 	if(wf)
 	{
 		for(hc = hchead->next; hc; hc=hc->next) {
+			if (!hc->name || hc->name[0] == 0)
+				continue;
 			SDL_Log("Writing to file: %s pts %u\n", hc->name, hc->points);
 			fprintf(wf, "%s!%u\n", hc->name, hc->points);
 		}

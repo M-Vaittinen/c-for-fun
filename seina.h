@@ -4,12 +4,14 @@
 #include "paikka.h"
 #include "media.h"
 
+struct areena;
+
 struct seina {
 	struct paikka alku;
 	struct paikka loppu;
 	int flags;
 	struct vari vri;
-	void (*piirra) (SDL_Renderer*, struct seina*);
+	void (*piirra) (struct areena*, struct seina*);
 };
 
 
