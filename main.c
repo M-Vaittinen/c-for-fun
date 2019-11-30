@@ -35,6 +35,7 @@
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v);
 
 bool mun_pupit(struct alus *a, int tyyppi);
+void piirra_tekstit(struct areena *a);
 
 #define oonko_noppee(a) mun_pupit((a), PUP_SPEED)
 #define oonko_uppee(a) mun_pupit((a), PUP_COOL)
@@ -480,6 +481,7 @@ int piirra_areena(struct areena *a)
 		a->alukset[i].piirra(a, &a->alukset[i]);
 
 	hanskaa_pupit(a);
+	piirra_tekstit(a);
 
 	if (a->stop) {
 		char pisteet[255];
@@ -689,6 +691,105 @@ void pysayta_alus(struct alus *a)
 	a->nopeus = 0;
 }
 
+struct pirrettava_teksti {
+	/* If we need dynamic text we can add here arrauy later */
+	const char *teksti;
+	struct paikka p;
+	int nakyvilla_kierros;
+	int leveys;
+	int korkeus;
+	int kokomuutos_kierroksia;
+	int kokomuutos_x_kierros;
+	int kokomuutos_y_kierros;
+	struct SDL_Color v;
+};
+
+static struct pirrettava_teksti g_pt[255] = {};
+uint64_t g_vapaat[4] = { 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+			 0xffffffffffffffffULL, 0xffffffffffffffffULL };
+
+static struct pirrettava_teksti *varaa_piirrospaikka()
+{
+	int i, j;
+
+	for (i = 0; i < 4; i++) {
+		if (!g_vapaat[i])
+			continue;
+		for (j = 0; j < 64; j++)
+			if ((g_vapaat[i] & (1LLU << j))) {
+				g_vapaat[i] &= ~(1LLU << j);
+				return &g_pt[i*64+j];
+			}
+		break;
+	}
+	return NULL;
+}
+
+void vapauta_piirrospaikka(struct pirrettava_teksti *paikka)
+{
+	int indeksi, kerroin;
+
+	indeksi = ((unsigned long)paikka) - ((unsigned long)&g_pt[0]);
+	kerroin = indeksi/64;
+	indeksi -= kerroin * 64;
+
+	g_vapaat[kerroin] |= (1LLU << indeksi);
+}
+
+static const char *rikkopts_str = "100";
+
+void lisaa_rikkopisteet(struct areena *ar, struct alus *oma)
+{
+	struct pirrettava_teksti *pt = varaa_piirrospaikka();
+
+	ar->pisteet += 100;
+	if (!pt) {
+		SDL_Log("Piirrospooli täys\n");
+		return;
+	}
+	else
+		SDL_Log("Lisataan rikkopts\n");
+	pt->teksti = rikkopts_str;
+	pt->nakyvilla_kierros = 20;
+	pt->p = oma->p;
+	pt->leveys = ar->leveys/20;
+	pt->korkeus=ar->korkeus/20;
+	pt->kokomuutos_kierroksia = 20;
+	pt->kokomuutos_x_kierros = 0;
+	pt->kokomuutos_y_kierros = 0;
+	pt->v.r = 255;
+	pt->v.g = 255;
+	pt->v.b = 255;
+	pt->v.a = 255;
+}
+
+void piirra_tekstit(struct areena *a)
+{
+	uint64_t varatut;
+	int i,j;
+
+	SDL_Log("Piirretaan tekstit\n");
+
+	for (i = 0; i < 4; i++) {
+		varatut = (~g_vapaat[i]);
+		for(j=0; varatut; j++)
+			if (varatut & (1LLU<<j)) {
+				struct pirrettava_teksti *pt = &g_pt[i*64+j];
+
+				if (!(pt->nakyvilla_kierros % pt->kokomuutos_kierroksia)){
+					pt->leveys = pt->leveys + pt->kokomuutos_x_kierros;
+					pt->korkeus = pt->korkeus + pt->kokomuutos_y_kierros;
+				}
+
+				varatut &= (~(1LLU << j));
+				draw_text(a, pt->teksti, &pt->p, pt->leveys, pt->korkeus, &pt->v);
+				pt->nakyvilla_kierros--;
+				if (!pt->nakyvilla_kierros)
+					vapauta_piirrospaikka(pt);
+			}
+	}
+}
+
 void uusi_paikka(struct areena *ar, struct alus *a)
 {
 	int nop_x, nop_y;
@@ -832,14 +933,21 @@ paikka_paivitetty:
 	if (a->oma)
 		return;
 
-	if (!oonko_kuolematon(oma))
-		if ( o_iholla(oma,a))
+	if (!oonko_kuolematon(oma)) {
+		if ( o_iholla(oma,a)) {
 			if ( tormasi(oma, a)) {
-				if (oonko_rikkova(oma))
+				if (oonko_rikkova(oma)) {
+					if (!a->rikki) {
+						lisaa_rikkopisteet(ar, oma);
 						pysayta_alus(a);
-					else
+						a->rikki = 1;
+					}
+				}
+				else
 					loppu_punaa(ar);
 			}
+		}
+	}
 }
 
 void alusta_oma_alus(struct areena *a)

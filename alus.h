@@ -43,6 +43,7 @@ struct alus {
 	float pituus;
 	float leveys;
 	struct vari vri;
+	bool rikki;
 
 	struct puppipuskuri pups;
 	

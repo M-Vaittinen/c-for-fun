@@ -2,6 +2,7 @@
 #define _AREENA_H_
 
 #include <SDL.h>
+#include <stdbool.h>
 #include "media.h"
 #include "seina.h"
 #include "alus.h"
