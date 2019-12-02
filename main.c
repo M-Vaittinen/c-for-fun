@@ -776,6 +776,12 @@ void piirra_tekstit(struct areena *a)
 			if (varatut & (1LLU<<j)) {
 				struct pirrettava_teksti *pt = &g_pt[i*64+j];
 
+				if (!pt->nakyvilla_kierros) {
+					varatut &= (~(1LLU << j));
+					vapauta_piirrospaikka(pt);
+					continue;
+				}
+
 				if (!(pt->nakyvilla_kierros % pt->kokomuutos_kierroksia)){
 					pt->leveys = pt->leveys + pt->kokomuutos_x_kierros;
 					pt->korkeus = pt->korkeus + pt->kokomuutos_y_kierros;
