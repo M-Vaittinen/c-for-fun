@@ -33,12 +33,12 @@ static int nappauspisteet[PUP_TYYPIT] __attribute__((unused)) = {
 };
 
 static const char *puppi_txt_arr[PUP_TYYPIT] __attribute__((unused)) = {
-	[PUP_SPEED] = "Kiire!",
-	[PUP_COOL] = "Rahaa!",
-	[PUP_IMMORTAL] = "Haamu",
-	[PUP_DESTROY] = "+Powers!",
-	[PUP_FREEZE] = "Paikka!",
-	[PUP_PASS_WALLS] = "Rajaton",
+	[PUP_SPEED] = "+200 Kiire!",
+	[PUP_COOL] = "+50 Rahaa!",
+	[PUP_IMMORTAL] = "+10 Haamu",
+	[PUP_DESTROY] = "+10 +Powers!",
+	[PUP_FREEZE] = "+500 Paikka!",
+	[PUP_PASS_WALLS] = "+10 Rajaton",
 };
 
 struct powerup {
@@ -46,7 +46,7 @@ struct powerup {
 	struct paikka p;
 	int tyyppi;
 	int nappauspisteet;
-	struct vari vri;
+	struct SDL_Color vri;
 	void (*piirra) (struct areena *, struct powerup*);
 	time_t expire;
 };

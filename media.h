@@ -11,13 +11,6 @@
 #define VARI_RIKKOVA { 255, 220, 0, SDL_ALPHA_OPAQUE }
 #define VARI_JAASSA { 0, 20, 255, SDL_ALPHA_OPAQUE }
 
-struct vari {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char alpha;
-};
-
 #include "powerup.h"
 
 struct sounds {

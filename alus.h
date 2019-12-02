@@ -1,6 +1,7 @@
 #ifndef _ALUS_H_
 #define _ALUS_H_
 
+#include <SDL.h>
 #include "paikka.h"
 
 #define MAX_ACTIVE_PUPS 255
@@ -13,13 +14,6 @@ struct areena;
 struct puppi {
 	int tyyppi;
 	time_t expire;
-	int piirretty;
-	int lisapisteet;
-	const char *teksti_alustava;
-	char teksti[PUPPITXT_MAX];
-	struct paikka p;
-	struct vari vri;
-	void (*piirra) (struct areena *a, struct puppi *p);
 };
 
 struct puppipuskuri {
@@ -42,7 +36,7 @@ struct alus {
 	int nopeus;
 	float pituus;
 	float leveys;
-	struct vari vri;
+	struct SDL_Color vri;
 	bool rikki;
 
 	struct puppipuskuri pups;

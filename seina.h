@@ -10,7 +10,7 @@ struct seina {
 	struct paikka alku;
 	struct paikka loppu;
 	int flags;
-	struct vari vri;
+	struct SDL_Color vri;
 	void (*piirra) (struct areena*, struct seina*);
 };
 

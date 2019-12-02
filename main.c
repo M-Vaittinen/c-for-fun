@@ -16,6 +16,7 @@
 #include "areena.h"
 #include "common.h"
 #include "hiscore.h"
+#include "piirrettavat_tekstit.h"
 
 #define WINDOW_X (640*2)
 #define WINDOW_Y (480*2)
@@ -32,9 +33,10 @@
 #define LOOP_DELAY_US 5000
 #define NOP_MAX 36000*2
 
-int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v);
+int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct SDL_Color *v);
 
 bool mun_pupit(struct alus *a, int tyyppi);
+static struct pirrettava_teksti *varaa_piirrospaikka();
 void piirra_tekstit(struct areena *a);
 
 #define oonko_noppee(a) mun_pupit((a), PUP_SPEED)
@@ -269,13 +271,13 @@ void alus_laske_nurkat(struct alus *a)
 void piirra_alus(struct areena *ar, struct alus *a)
 {
 	struct seina s;
-	struct vari *v;
-	struct vari v_nopee = VARI_NOPPEE;
-	struct vari v_upee = VARI_UPPEE;
-	struct vari v_kuolematon = VARI_KUOLEMATON;
-	struct vari v_haamu = VARI_HAAMU;
-	struct vari v_rikkova = VARI_RIKKOVA;
-	struct vari v_jaassa = VARI_JAASSA;
+	struct SDL_Color *v;
+	struct SDL_Color v_nopee = VARI_NOPPEE;
+	struct SDL_Color v_upee = VARI_UPPEE;
+	struct SDL_Color v_kuolematon = VARI_KUOLEMATON;
+	struct SDL_Color v_haamu = VARI_HAAMU;
+	struct SDL_Color v_rikkova = VARI_RIKKOVA;
+	struct SDL_Color v_jaassa = VARI_JAASSA;
 
 
 	v = &a->vri;
@@ -294,7 +296,7 @@ void piirra_alus(struct areena *ar, struct alus *a)
 		v = &v_jaassa;
 
 
-	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v /* &v */);
+	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v);
 	s.piirra(ar, &s);
 	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, v);
 	s.piirra(ar, &s);
@@ -313,13 +315,13 @@ void piirra_alus(struct areena *ar, struct alus *a)
 
 void piirra_seina(struct areena *a, struct seina *s)
 {
-	SDL_SetRenderDrawColor(a->p.renderer, s->vri.r, s->vri.g, s->vri.b, s->vri.alpha);
+	SDL_SetRenderDrawColor(a->p.renderer, s->vri.r, s->vri.g, s->vri.b, s->vri.a);
 	if (SDL_RenderDrawLine(a->p.renderer, s->alku.x + a->leveys_offset, s->alku.y + a->korkeus_offset, s->loppu.x + a->leveys_offset, s->loppu.y + a->korkeus_offset)) {
 		SDL_Log("Unable to draw line: %s", SDL_GetError()); 
 	}
 }
 
-int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct vari *v)
+int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct SDL_Color *v)
 {
 	s->alku = *alku;
 	s->loppu = *loppu;
@@ -332,11 +334,11 @@ int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, str
 int alusta_seinat(struct areena *a)
 {
 	int i;
-	struct vari v = {
+	struct SDL_Color v = {
 		.r = 255,
 		.g = 255,
 		.b = 255,
-		.alpha = SDL_ALPHA_OPAQUE,
+		.a = SDL_ALPHA_OPAQUE,
 	};
 	struct paikka alut[] = { 
 		{ .x = 0, .y =  0},
@@ -362,7 +364,7 @@ int alusta_seinat(struct areena *a)
 	return 0;
 }
 
-static void DrawCircle(SDL_Renderer * renderer, struct paikka *centre, int32_t radius, struct vari *v)
+static void DrawCircle(SDL_Renderer * renderer, struct paikka *centre, int32_t radius, struct SDL_Color *v)
 {
    const int32_t diameter = (radius * 2);
 
@@ -372,7 +374,7 @@ static void DrawCircle(SDL_Renderer * renderer, struct paikka *centre, int32_t r
    int32_t ty = 1;
    int32_t error = (tx - diameter);
 
-	SDL_SetRenderDrawColor(renderer, v->r, v->g, v->b, v->alpha);
+	SDL_SetRenderDrawColor(renderer, v->r, v->g, v->b, v->a);
 
    while (x >= y)
    {
@@ -407,7 +409,6 @@ void piirra_pup(struct areena *a, struct powerup* pup)
 
 	p.x = pup->p.x + a->leveys_offset;
 	p.y = pup->p.y + a->korkeus_offset;
-	/* TODO: lisaa vari */
 	DrawCircle(a->p.renderer, &p, pup->koko, &pup->vri);
 }
 
@@ -438,28 +439,6 @@ static void hanskaa_pupit(struct areena *ar)
 		ar->pups[i].piirra(ar, &ar->pups[i]);
 	}
 }
-
-void piirra_puppiteksti(struct areena *ar, struct puppi *p)
-{
-	struct SDL_Color v;
-
-	if (p->piirretty) {
-		int kokokerroin = LOOPS_TO_SHOW_PUP_TEXT;
-		if (p->piirretty == LOOPS_TO_SHOW_PUP_TEXT) {
-			snprintf(p->teksti, PUPPITXT_MAX, "+%u %s", p->lisapisteet, p->teksti_alustava);
-			p->teksti[PUPPITXT_MAX-1] = 0;
-		}
-		v.r = p->vri.r;
-		v.g = p->vri.g;
-		v.b = p->vri.b;
-		v.a = p->vri.alpha;
-
-		kokokerroin -= (p->piirretty /5 * 5);
-		draw_text(ar, p->teksti, &p->p, 120 + kokokerroin, 50 + kokokerroin, &v);
-		p->piirretty--;
-	}
-}
-
 /* Tää ei toimi jos puskuri on täys */
 #define jokaselle_saadulle_powerupille(a,p) \
 for ((p) = &(a)->pups.pbuf[(a)->pups.first]; (a)->pups.first != (a)->pups.last && (p) != &(a)->pups.pbuf[(a)->pups.last + 1]; (p)++)
@@ -467,15 +446,9 @@ for ((p) = &(a)->pups.pbuf[(a)->pups.first]; (a)->pups.first != (a)->pups.last &
 int piirra_areena(struct areena *a)
 {
 	int i;
-	struct puppi *p;
 
 	for (i = 0; i < a->seinien_maara; i++)
 		a->seinat[i].piirra(a, &a->seinat[i]);
-
-	jokaselle_saadulle_powerupille(&a->alukset[0], p)
-		if (p->piirretty) {
-			p->piirra(a, p);
-		}
 
 	for (i = 0; i < a->alusten_maara; i++)
 		a->alukset[i].piirra(a, &a->alukset[i]);
@@ -494,7 +467,6 @@ int piirra_areena(struct areena *a)
 
 		draw_text(a, pisteet, &p, 200, 200, &valk);
 		SDL_RenderPresent(a->p.renderer);
-		//sleep(3);
 		return -1;	
 	}
 	return 0;
@@ -508,8 +480,6 @@ int luo_areena(struct areena *a)
 	a->active_pups = 0;
 	a->stop = 0;
 	a->realstop = 0;
-//	a->leveys = WINDOW_X-2;
-//	a->korkeus = WINDOW_Y-2;
 	a->seinien_maara = 4;
 	a->seinat = calloc(a->seinien_maara, sizeof(*a->seinat));
 	if (!a->seinat) {
@@ -526,7 +496,7 @@ int luo_areena(struct areena *a)
 }
 
 void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *p,
-	      float suunta, int nopeus, struct vari *v)
+	      float suunta, int nopeus, struct SDL_Color *v)
 {
 	memset(a, 0, sizeof(*a));
 	a->oma = 0;
@@ -542,7 +512,7 @@ void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *p,
 
 void arvo_alus(struct areena *a, int index)
 {
-	struct vari v = { 255, 255, 255, SDL_ALPHA_OPAQUE };
+	struct SDL_Color v = { 255, 255, 255, SDL_ALPHA_OPAQUE };
 	struct paikka p;
 	float lev, pit, suunta;
 	int nop;
@@ -569,7 +539,6 @@ uus:
 
 #define ALUS_OLETUS_PITUUS 40
 #define ALUS_OLETUS_LEVEYS 25
-//#define ALUS_OLETUS_VARI { 51, 245, 255, SDL_ALPHA_OPAQUE }
 #define ALUS_OLETUS_VARI { 61, 245, 255, SDL_ALPHA_OPAQUE }
 #define ALUS_OLETUS_SUUNTA 0
 #define ALUS_OLETUS_NOPEUS NOP_MAX
@@ -597,6 +566,28 @@ bool pup_napattu(struct alus *a, struct powerup *pup)
 		nurkka_ympyrassa(&a->oik_takanurkka, &pup->p, pup->koko));
 }
 
+void lisaa_puptxt_piirtoon(struct powerup *pup)
+{
+	struct pirrettava_teksti *pt = varaa_piirrospaikka();
+
+	if (!pt) {
+		SDL_Log("Piirrospooli täys\n");
+		return;
+	}
+	else
+		SDL_Log("Lisataan puptxt\n");
+
+	pt->teksti = puppi_txt_arr[pup->tyyppi];
+	pt->nakyvilla_kierros = LOOPS_TO_SHOW_PUP_TEXT;
+	pt->p = pup->p;
+	pt->leveys = 120;
+	pt->korkeus = 50;
+	pt->kokomuutos_kierroksia = 5;
+	pt->kokomuutos_x_kierros = 6;
+	pt->kokomuutos_y_kierros = 3;
+	pt->v = pup->vri;
+}
+
 void lisaa_puptieto(struct alus *a, struct powerup *pup)
 {
 	struct puppi *uusi;
@@ -613,12 +604,6 @@ void lisaa_puptieto(struct alus *a, struct powerup *pup)
 		SDL_Log("Puppipuskuri ympari 2\n");
 
 	uusi = &a->pups.pbuf[a->pups.last];
-	uusi->piirra = piirra_puppiteksti;
-	uusi->piirretty = LOOPS_TO_SHOW_PUP_TEXT;
-	uusi->lisapisteet = pup->nappauspisteet;
-	uusi->teksti_alustava = puppi_txt_arr[pup->tyyppi];
-	uusi->p = pup->p;
-	uusi->vri = pup->vri;
 	a->pups.last++;
 
 	uusi->tyyppi = pup->tyyppi;
@@ -662,6 +647,7 @@ void kato_pupit(struct areena *ar, struct alus *a)
 		if (ar->pups[i].expire)
 			if (pup_napattu(a, &ar->pups[i])) {
 				lisaa_puptieto(a, &ar->pups[i]);
+				lisaa_puptxt_piirtoon(&ar->pups[i]);
 				ar->pups[i].expire = 0;
 				ar->active_pups--;
 				pup_pisteet(ar, &ar->pups[i]);
@@ -690,19 +676,6 @@ void pysayta_alus(struct alus *a)
 	a->vri.b = 0;
 	a->nopeus = 0;
 }
-
-struct pirrettava_teksti {
-	/* If we need dynamic text we can add here arrauy later */
-	const char *teksti;
-	struct paikka p;
-	int nakyvilla_kierros;
-	int leveys;
-	int korkeus;
-	int kokomuutos_kierroksia;
-	int kokomuutos_x_kierros;
-	int kokomuutos_y_kierros;
-	struct SDL_Color v;
-};
 
 static struct pirrettava_teksti g_pt[255] = {};
 uint64_t g_vapaat[4] = { 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -958,7 +931,7 @@ paikka_paivitetty:
 
 void alusta_oma_alus(struct areena *a)
 {
-	struct vari v = ALUS_OLETUS_VARI;
+	struct SDL_Color v = ALUS_OLETUS_VARI;
 	struct paikka p;
 
 	p.x = a->leveys/2;
@@ -1024,14 +997,6 @@ void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)
 	SDL_RenderSetLogicalSize(renderer, a->leveys + a->leveys_offset,
 				 a->korkeus + a->korkeus_offset);
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-//	SDL_GetWindowSize(window,&a->leveys_offset,&a->korkeus_offset);
-//	a->leveys_offset -= a->leveys;
-//	a->leveys_offset >>= 2;
-//	a->korkeus_offset -= a->korkeus;
-//	a->korkeus_offset >>= 2;
-//	SDL_Log("leveys_offset =%um korkeus_offset = %u\n", a->leveys_offset, a->korkeus_offset);
-//	a->leveys_offset = 0;
-//	a->korkeus_offset = 0;
 }
 
 void get_input(struct areena *a)
@@ -1070,9 +1035,6 @@ void get_input(struct areena *a)
 		SDL_Log("Törmäsit hiireen!\n");
 		loppu_punaa(a);
 	}
-
-//	hiiri.x += a->leveys_offset;
-//	hiiri.y+= a->korkeus_offset;
 
 	hiiri.x -= oma->p.x;
 	hiiri.y -= oma->p.y;
@@ -1205,7 +1167,7 @@ static int arvo_powerup(struct areena *ar)
 
 		if (!chance) {
 			int i;
-			struct vari v = {255, 0, 200, SDL_ALPHA_OPAQUE};
+			struct SDL_Color v = {255, 0, 200, SDL_ALPHA_OPAQUE};
 			struct powerup *p = &ar->pups[0];
 
 			for (i = 0; i < MAX_PUPS && p->expire; i++, p++);
@@ -1247,7 +1209,6 @@ int main(int arc, char *argv[])
 		return 1;
 	}
 	if (SDL_CreateWindowAndRenderer(0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &a.p.renderer)) {
-//	if (SDL_CreateWindowAndRenderer(WINDOW_X + 20, WINDOW_Y + 20, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &a.p.renderer)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		goto err_out;
 	}
@@ -1256,27 +1217,11 @@ int main(int arc, char *argv[])
 
 	SDL_Log("leveys %u, korkeus %u\n",a.leveys, a.korkeus);
 
-/*
-	window = SDL_CreateWindow(
-        "Ampuikkuna",                  // window title
-        SDL_WINDOWPOS_CENTERED,           // initial x position
-        SDL_WINDOWPOS_CENTERED,           // initial y position
-        ,                               // width, in pixels
-        480,                               // height, in pixels
-        SDL_WINDOW_OPENGL                  // flags - see below
-    );
-*/
-	//SDL_GetWindowSize(window, &a.leveys, &a.korkeus);
-
-//	a.leveys = WINDOW_X - 2;
-//	a.korkeus = WINDOW_Y - 2;
 	a.leveys_offset = (a.leveys - WINDOW_X)/2;
 	a.korkeus_offset = (a.korkeus - WINDOW_Y)/2;
 
 	a.leveys = WINDOW_X;
 	a.korkeus = WINDOW_Y;
-
-//	test_display(&a, window, a.p.renderer);
 	SDL_SetRenderDrawBlendMode(a.p.renderer, SDL_BLENDMODE_BLEND);
 
 	ok = luo_areena(&a);
@@ -1315,7 +1260,6 @@ uusiksi:
 			lisaa_alus(&a);
 			arvo_powerup(&a);
 		}
-		//if (i && !(i%500))
 		if (a.pisteet && !(a.pisteet%500) && !a.valipisteet_kierros)
 			valipisteet(&a);
 		else if (a.valipisteet_kierros)
