@@ -6,7 +6,9 @@
 #include <time.h>
 #include <unistd.h>
 #include <termio.h>
-#include <sgtty.h>
+#ifndef  __CYGWIN__
+	#include <sgtty.h>
+#endif
 #include <sys/select.h>
 #include <sys/types.h>
 
