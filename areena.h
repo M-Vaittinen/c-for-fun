@@ -13,8 +13,6 @@ struct areena {
 	struct piirrin p;
 	struct sounds s;
 	unsigned pisteet;
-	unsigned valipisteet_kierros;
-	unsigned valipisteet_kokomuutos;
 	int stop;
 	int realstop;
 	int leveys;

@@ -702,7 +702,7 @@ void vapauta_piirrospaikka(struct pirrettava_teksti *paikka)
 {
 	int indeksi, kerroin;
 
-	indeksi = ((unsigned long)paikka) - ((unsigned long)&g_pt[0]);
+	indeksi = ((unsigned long)paikka) - ((unsigned long)&g_pt[0]) / sizeof(*paikka);
 	kerroin = indeksi/64;
 	indeksi -= kerroin * 64;
 
@@ -721,8 +721,10 @@ void lisaa_rikkopisteet(struct areena *ar, struct alus *oma)
 		return;
 	}
 	else
-		SDL_Log("Lisataan rikkopts\n");
+		SDL_Log("Lisataan rikkopts %p\n", rikkopts_str );
+
 	pt->teksti = rikkopts_str;
+	SDL_Log("Added str %s %p\n",pt->teksti, pt->teksti);
 	pt->nakyvilla_kierros = 20;
 	pt->p = oma->p;
 	pt->leveys = ar->leveys/20;
@@ -740,8 +742,6 @@ void piirra_tekstit(struct areena *a)
 {
 	uint64_t varatut;
 	int i,j;
-
-	SDL_Log("Piirretaan tekstit\n");
 
 	for (i = 0; i < 4; i++) {
 		varatut = (~g_vapaat[i]);
@@ -1062,10 +1062,13 @@ void get_input(struct areena *a)
 }
 void valipisteet(struct areena *ar)
 {
-	static struct SDL_Color v = { 255, 255, 255, SDL_ALPHA_OPAQUE };
+	static int i = 0, j = 0;
 	static char pisteet[255];
+	struct pirrettava_teksti *pt = varaa_piirrospaikka();
+
+	static char *ptsptr;
+
 	struct paikka p = { .x = ar->leveys/2 - 100, .y = ar->korkeus/2 -100, };
-	static int loop = 0;
 
 	struct SDL_Color v_table[] = {
 		{ 255, 255, 255, SDL_ALPHA_OPAQUE },
@@ -1077,24 +1080,36 @@ void valipisteet(struct areena *ar)
 		{ 0, 255, 0, SDL_ALPHA_OPAQUE },
 	};
 
-	if (ar->valipisteet_kierros == 0) {
-		snprintf(pisteet, 255, "%u", ar->pisteet);
-		ar->valipisteet_kierros = PISTEET_NAKYY_KIERROSTA;
-		ar->valipisteet_kokomuutos = PISTEKOON_PIENENNYS_ALUSSA;
-		
-		loop = 0;
-		v = v_table[((ar->pisteet/50)-1)%7];
-		Mix_PlayChannel( -1, ar->s.points, 0 );
-	} else {
-		ar->valipisteet_kierros--;
-		if (!((loop++)%PISTEKOKO_SAMANA_LOOPIT))
-			ar->valipisteet_kokomuutos -= PISTEKOON_MUUTOS_STEPPI;
+ 	ptsptr = &pisteet[i*10];
+
+	i = (i+1)%10;
+
+	snprintf(ptsptr, 10, "%u", ar->pisteet);
+	ptsptr[9] = 0;
+
+	if (!pt) {
+		SDL_Log("Piirrospooli täys\n");
+		return;
 	}
+	else
+		SDL_Log("Lisataan valipiste\n");
 
-	v.a -= 100;
+	pt->teksti = ptsptr;
+	pt->nakyvilla_kierros = PISTEET_NAKYY_KIERROSTA;
+	pt->p = p;
+	pt->leveys = 120;
+	pt->korkeus = 60;
+	pt->kokomuutos_kierroksia = PISTEKOKO_SAMANA_LOOPIT;
+	pt->kokomuutos_x_kierros = PISTEKOON_MUUTOS_STEPPI;
+	pt->kokomuutos_y_kierros = PISTEKOON_MUUTOS_STEPPI/2;
+	pt->v = v_table[j];
+	j++;
+	j %= 7;
 
-	draw_text(ar, pisteet, &p, 200-ar->valipisteet_kokomuutos, 200-ar->valipisteet_kokomuutos, &v);	
+
+	Mix_PlayChannel( -1, ar->s.points, 0 );
 }
+
 #define PELAAJIA 5
 static const char *nimi[PELAAJIA] = { "Muru", "Jasper", "Joona", "Iivari", "Mestari-Isi" };
 
@@ -1244,7 +1259,6 @@ uusiksi:
 	putsaa_pupit(&a);
 	ok = luo_alukset(&a);
 	a.stop = 0;
-	a.valipisteet_kierros = 0;
 	if (ok)
 		goto out_font;
 
@@ -1260,10 +1274,9 @@ uusiksi:
 			lisaa_alus(&a);
 			arvo_powerup(&a);
 		}
-		if (a.pisteet && !(a.pisteet%500) && !a.valipisteet_kierros)
+		if (a.pisteet && !(a.pisteet%500))
 			valipisteet(&a);
-		else if (a.valipisteet_kierros)
-			valipisteet(&a);
+
 		if (a.piirra(&a))
 		{
 			talleta_pisteet(&a, nimi);
