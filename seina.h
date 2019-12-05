@@ -14,6 +14,7 @@ struct seina {
 	void (*piirra) (struct areena*, struct seina*);
 };
 
+int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct SDL_Color *v);
 
 
 #endif

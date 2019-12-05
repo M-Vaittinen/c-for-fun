@@ -28,6 +28,10 @@ struct areena {
 	int (*piirra) (struct areena*);
 };
 
-
+int piirra_areena(struct areena *a);
+int luo_areena(struct areena *a);
+int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct SDL_Color *v);
+void lisaa_rikkopisteet(struct areena *ar, struct alus *oma);
+int arvo_powerup(struct areena *ar);
 
 #endif

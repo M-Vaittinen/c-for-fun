@@ -2,13 +2,20 @@
 #define _ALUS_H_
 
 #include <SDL.h>
+#include <stdbool.h>
 #include "paikka.h"
 
 #define MAX_ACTIVE_PUPS 255
 /* kauanko poweruppi vaikuttaa sekunteina */
 #define POWERUP_VAIKUTUSAIKA 5
 #define PUPPITXT_MAX 255
-struct puppi;
+
+#define ALUS_OLETUS_PITUUS 40
+#define ALUS_OLETUS_LEVEYS 25
+#define ALUS_OLETUS_VARI { 61, 245, 255, SDL_ALPHA_OPAQUE }
+#define ALUS_OLETUS_SUUNTA 0
+#define ALUS_OLETUS_NOPEUS NOP_MAX
+
 struct areena;
 
 struct puppi {
@@ -44,5 +51,10 @@ struct alus {
 	void (*piirra) (struct areena*, struct alus*);
 };
 
+int luo_alukset(struct areena *a);
+void loppu_punaa(struct areena *ar);
+void pysayta_alus(struct alus *a);
+void lisaa_alus(struct areena *a);
+void alus_laske_nurkat(struct alus *a);
 
 #endif

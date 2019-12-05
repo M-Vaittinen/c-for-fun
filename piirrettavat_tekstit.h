@@ -1,5 +1,8 @@
 #ifndef _PIIRRETTAVAT_TEKSTIT_H
 #define _PIIRRETTAVAT_TEKSTIT_H
+#include <SDL.h>
+#include "paikka.h"
+#include "areena.h"
 
 struct pirrettava_teksti {
 	/* If we need dynamic text we can add here arrauy later */
@@ -14,5 +17,7 @@ struct pirrettava_teksti {
 	struct SDL_Color v;
 };
 
+struct pirrettava_teksti *varaa_piirrospaikka();
+void piirra_tekstit(struct areena *a);
 
 #endif
