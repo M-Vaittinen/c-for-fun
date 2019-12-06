@@ -71,12 +71,166 @@ int piirra_areena(struct areena *a)
 	return 0;
 }
 
-int luo_areena(struct areena *a)
+void update_client_arena(struct areena *a, struct areena_update *au)
+{
+	
+}
+
+int get_current_arena(struct areena *a)
+{
+	struct areena_update au;
+	int ret;
+
+	ret = a->connection.send_update_req(&a->connection);
+	if (!ret)
+		return ret;
+
+	ret = a->connection.get_update_resp(&a->connection, &au);
+	update_client_arena(a, &au);
+	return ret;
+}
+
+int client_register(struct areena *a)
+{
+	struct client_register_msg msg = {
+		.cmd = CLIENT_REGISTER;
+	};
+	struct client_register_resp resp;
+	int ret, size;
+
+	size = sizeof(msg);
+	ret = a->connection.b_tx->send(a->connection.b_tx, (char *)&msg, &size);
+	if (ret || size != sizeof(msg)) {
+		printf("SEND returned %d\n", ret);
+		return ret;
+	}
+
+	size = sizeof(resp);
+	ret = a->connection.b_tx->receive(a->connection.b_tx, (char *)&resp, &size);
+	if (ret)
+		return ret;
+
+	/* Don't care about endianess - we don't convert ID when sending */
+	a->connection.id = resp.id;
+	printf("%s: Connection ID %d\n", a->connection.id);
+	return 0;
+}
+
+int connect_to_server(struct connection *connection, struct connect_info *ci)
+{
+	int ret;
+	struct babbler_init_udp init = {
+		.bs = {
+			.b = {
+				.bab = babbler_socket,
+				.label = "rxtx",
+				.mode_flag = O_RDWR,
+			},
+			.protocol = IPPROTO_UDP,
+		},
+		.txport = ci->port,
+	};
+
+	strcpy(init.bs.myip, ci->ip);
+	a->connection.b_tx = create_babbler(&u.bs.b, sizeof(u));
+	if (!a->connection.b_tx)
+		return -1;
+
+	a->connection.b_tx->open(a->connection.b_tx);
+
+	return 0;
+}
+
+int client_register_to_server(struct areena *a, struct connect_info *ci)
+{
+	int ret;
+
+	ret = connect_to_server(a->connection, ci);
+	if (ret)
+		return ret;
+
+	ret = client_register(a);
+
+	return ret;
+}
+
+int clien_get_initial_areena(struct areena *a, struct connect_info *ci)
+{
+	int ret;
+
+	ret = client_register_to_server(a, ci);
+	if (ret)
+		return ret;
+
+	ret = get_current_arena(a);
+	if (ret)
+		return ret;
+}
+
+int create_server_babbler(struct areena *a, struct connect_info *ci)
+{
+	struct babbler_init_udp init = {
+		.bs = {
+			.b = {
+				.bab = babbler_socket,
+				.label = "rx",
+				.mode_flag = O_RDONLY,
+			},
+			.protocol = IPPROTO_UDP,
+		},
+		.rxport = ci->port,
+	};
+
+	strcpy(init.bs.myip, ci->ip);
+	a->connection.b_rx = create_babbler(&u.bs.b, sizeof(u));
+	if (!a->connection.b_rx)
+		return -1;
+
+	a->connection.b_rx->open(a->connection.b_rx);
+
+	return 0;
+}
+int wait_for_client(struct areena *a, int clientno)
+{
+	struct babbler_set bs;
+	struct timeval tmo;
+	struct client_register_msg msg;
+	int size, ret;
+	struct client_register_resp resp;
+	struct babbler *b;
+	struct socket_babbler_udp *ub;
+	struct sockaddr_in client;
+
+	resp.id = clientno;
+
+	retry:
+	b = a->connection.b_rx;
+	ub = (struct socket_babbler_udp *)a->connection.b_rx;
+	tmo = {1,1};
+	init_bs(&bs);
+	b->add_to_poll(b, &bs);
+
+	while (!bs.block(&bs, &tmo)) {
+		printf("Server waiting for connections...\n");
+	}
+	size = sizeof(msg);
+	ret = ub->raw_recv(b, &client,  &msg, &size);
+//	ret = rx->receive(a->connection.b_rx, &msg, &size);
+	if (size != sizeof(msg) || ret) {
+		printf("Strange stuff received, size %d, ret %d\n", size, ret);
+		goto retry;
+	}
+	if (clientno == 1)
+		b = a->connection.b_tx;
+	else
+		b = a->connection.b_tx2;
+
+	server_create_tx_babbler(b, &client);
+}
+int luo_areena(struct areena *a, struct connect_info *ci, bool serveri)
 {
 	int ok;
 
-	memset(&a->pups[0], 0, sizeof(a->pups));
-	a->active_pups = 0;
 	a->stop = 0;
 	a->realstop = 0;
 	a->seinien_maara = 4;
@@ -90,7 +244,24 @@ int luo_areena(struct areena *a)
 		printf("Seinen alustus män mönkään\n");
 		return -1;
 	}
-	a->piirra = piirra_areena;
+	if (serveri) {
+		ok = create_server_babbler(a, ci);
+		if (ok)
+			return ok;
+
+		ok = wait_for_client(a, 1);
+		/*
+			wait_for_2nd_client(a);
+		*/
+
+		memset(&a->pups[0], 0, sizeof(a->pups));
+		a->active_pups = 0;
+
+	} else {
+		clien_get_initial_areena(&a, ci);
+		a->piirra = piirra_areena;
+	}
+
 	return 0;
 }
 

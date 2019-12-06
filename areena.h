@@ -8,8 +8,10 @@
 #include "alus.h"
 #include "common.h"
 #include "powerup.h"
+#include "connection.h"
 
 struct areena {
+	struct connection connection;
 	struct piirrin p;
 	struct sounds s;
 	unsigned pisteet;
@@ -29,7 +31,7 @@ struct areena {
 };
 
 int piirra_areena(struct areena *a);
-int luo_areena(struct areena *a);
+int luo_areena(struct areena *a, bool serveri);
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct SDL_Color *v);
 void lisaa_rikkopisteet(struct areena *ar, struct alus *oma);
 int arvo_powerup(struct areena *ar);
