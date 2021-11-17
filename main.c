@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <arpa/inet.h>
+#include <getopt.h>
 #include "paikka.h"
 #include "seina.h"
 #include "alus.h"
@@ -264,6 +266,73 @@ const char * alkuruutu(struct areena *a)
 		usleep(10000);
 	}
 }
+#define OPTSTRING "hs:v?"
+
+static struct option long_options[] =
+{
+    {"server" , required_argument, 0, 's'},
+    {"version",  no_argument, 0, 'v'},
+    {"help",  no_argument, 0, 'h'},
+    {0,0,0,0}
+};
+
+struct server {
+	char ip[33];
+    	struct sockaddr_in ad;
+	short int port;
+};
+
+static int parse_args(int argc, char *argv[], struct server *s)
+{
+	int index;
+	int c;
+	bool ip_given = false;
+
+	memset(s, 0, sizeof(*s));
+
+	while(-1 != (c = getopt_long(argc, argv, OPTSTRING, long_options,
+				     &index))) {
+		switch(c)
+		{
+		case ':':
+			return -1;
+		case '?':
+			printf("Usage: ./ampu [-s server-ip ]\n");
+			return -1;
+        	case 's':
+		{
+			int str_len;
+		/* server IP */
+
+			if (!optarg) {
+				printf ("-s missing IP\n");
+				return -1;
+			}
+			str_len=strlen(optarg);
+			if(str_len >= 32) {
+				printf("Liika pitka IP. max 32 tavua\n");
+				return -1;;
+			} else {
+				memcpy(s->ip, optarg, str_len+1);
+				ip_given = true;
+			}
+			break;
+		}
+		}
+	}
+
+	if (ip_given) {
+		printf("IP given as '%s', validate and convert to binary\n",
+			s->ip);
+		memset(&s->ad, 0, sizeof(s->ad));
+		if(1 != inet_pton(AF_INET,s->ip, &s->ad.sin_addr)) {
+			printf("Failed to convert ip %s", s->ip);
+			return -1;
+		}
+	}
+
+	return 0;
+}
 
 int main(int arc, char *argv[])
 {
@@ -271,8 +340,18 @@ int main(int arc, char *argv[])
 	const char *nimi;
 	static struct areena a;
 	SDL_Window* window = NULL;
+	struct server s;
 
 	srand(time(NULL));
+
+	ok = parse_args(arc, argv, &s);
+	if (ok)
+		return ok;
+
+	if (s.ip[0] != 0)
+		printf("Server given as '%s'\n", s.ip);
+	else
+		printf("No server\n");
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
