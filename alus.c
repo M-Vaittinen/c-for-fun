@@ -85,7 +85,7 @@ void lisaa_alus(struct areena *a)
 	if (a->alusten_maara == ALUKSET_MAX)
 		return;
 	arvo_alus(a,a->alusten_maara);
-	a->alusten_maara++;
+	a->as.alusten_maara++;
 	Mix_PlayChannel( -1, a->s.new_ship, 0 );
 }
 
@@ -134,51 +134,6 @@ void alus_laske_nurkat(struct alus *a)
 	coll_update(a, &a->vas_takanurkka);
 }
 
-void piirra_alus(struct areena *ar, struct alus *a)
-{
-	struct seina s;
-	struct SDL_Color *v;
-	struct SDL_Color v_nopee = VARI_NOPPEE;
-	struct SDL_Color v_upee = VARI_UPPEE;
-	struct SDL_Color v_kuolematon = VARI_KUOLEMATON;
-	struct SDL_Color v_haamu = VARI_HAAMU;
-	struct SDL_Color v_rikkova = VARI_RIKKOVA;
-	struct SDL_Color v_jaassa = VARI_JAASSA;
-
-
-	v = &a->vri;
-
-	if (oonko_uppee(a))
-		v = &v_upee;
-	if (oonko_noppee(a))
- 		v = &v_nopee;
-	if (oonko_haamu(a))
-		v = &v_haamu;
-	if (oonko_rikkova(a))
-		v = &v_rikkova;
-	if (oonko_kuolematon(a))
-		v = &v_kuolematon;
-	if (oonko_jaassa(a))
-		v = &v_jaassa;
-
-
-	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v);
-	s.piirra(ar, &s);
-	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, v);
-	s.piirra(ar, &s);
-	alusta_seina(&s, &a->etunurkka, &a->vas_takanurkka, v);
-	s.piirra(ar, &s);
-/*
-	SDL_SetRenderDrawColor(renderer, 0,255,0,SDL_ALPHA_OPAQUE);
-	SDL_RenderDrawPoint(renderer, a->p.x+1, a->p.y+1);
-	SDL_RenderDrawPoint(renderer, a->p.x+1, a->p.y);
-	SDL_RenderDrawPoint(renderer, a->p.x+1, a->p.y-1);
-	SDL_RenderDrawPoint(renderer, a->p.x-1, a->p.y);
-	SDL_RenderDrawPoint(renderer, a->p.x-1, a->p.y+1);
-	SDL_RenderDrawPoint(renderer, a->p.x-1, a->p.y-1);
-*/
-}
-
 static void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *p,
 	      float suunta, int nopeus, struct SDL_Color *v)
 {
@@ -190,7 +145,7 @@ static void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *
 	a->p = *p;
 	a->nopeus = nopeus;
 	a->vri = *v;
-	a->piirra = piirra_alus;
+//	a->piirra = piirra_alus;
 	alus_laske_nurkat(a);
 }
 

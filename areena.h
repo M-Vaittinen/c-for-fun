@@ -9,25 +9,30 @@
 #include "common.h"
 #include "powerup.h"
 #include "connection.h"
-
-struct areena {
-	struct connection connection;
-	struct piirrin p;
-	struct sounds s;
+struct areena_server {
 	unsigned pisteet;
 	int stop;
-	int realstop;
 	int leveys;
-	int leveys_offset;
 	int korkeus;
-	int korkeus_offset;
-	int seinien_maara;
-	struct seina *seinat;
 	int alusten_maara;
 	struct alus alukset[ALUKSET_MAX];
 	int active_pups;
 	struct powerup pups[MAX_PUPS];
+};
+
+
+struct areena {
+	struct connection connection;
+	struct areena_server as;
+	struct piirrin p;
+	struct sounds s;
+	int realstop;
+	int leveys_offset;
+	int korkeus_offset;
+	int seinien_maara;
+	struct seina *seinat;
 	int (*piirra) (struct areena*);
+	void (*piirra_alus) (struct areena*, struct alus*);
 };
 
 int piirra_areena(struct areena *a);

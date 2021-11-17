@@ -19,14 +19,14 @@ static int alusta_seinat(struct areena *a)
 	};
 	struct paikka alut[] = { 
 		{ .x = 0, .y =  0},
-		{ .x = a->leveys, .y =  0 },
-		{ .x = a->leveys, .y = a->korkeus },
-		{ .x = 0, .y = a->korkeus },
+		{ .x = a->as.leveys, .y =  0 },
+		{ .x = a->as.leveys, .y = a->as.korkeus },
+		{ .x = 0, .y = a->as.korkeus },
 	};
 	struct paikka loput[] = {
-		{ .x = a->leveys, .y = 0 },
-		{ .x = a->leveys, .y = a->korkeus },
-		{ .x = 0, .y = a->korkeus },
+		{ .x = a->as.leveys, .y = 0 },
+		{ .x = a->as.leveys, .y = a->as.korkeus },
+		{ .x = 0, .y = a->as.korkeus },
 		{ .x = 0, .y = 0 },
 	};
 
@@ -50,18 +50,18 @@ int piirra_areena(struct areena *a)
 		a->seinat[i].piirra(a, &a->seinat[i]);
 
 	for (i = 0; i < a->alusten_maara; i++)
-		a->alukset[i].piirra(a, &a->alukset[i]);
+		a->piirra_alus(a, &a->alukset[i]);
 
 	hanskaa_pupit(a);
 	piirra_tekstit(a);
 
-	if (a->stop) {
+	if (a->as.stop) {
 		char pisteet[255];
 		SDL_Color valk = {255, 255, 255, SDL_ALPHA_OPAQUE/2 };
-		struct paikka p = { .x = a->leveys/2 - 50,
-				    .y = a->korkeus/2 -50, };
+		struct paikka p = { .x = a->as.leveys/2 - 50,
+				    .y = a->as.korkeus/2 -50, };
 
-		snprintf(pisteet, 255, "%u", a->pisteet);
+		snprintf(pisteet, 255, "%u", a->as.pisteet);
 		SDL_Log("Pisteita palajo? %s\n", pisteet);
 
 		draw_text(a, pisteet, &p, 200, 200, &valk);
@@ -71,22 +71,22 @@ int piirra_areena(struct areena *a)
 	return 0;
 }
 
-void update_client_arena(struct areena *a, struct areena_update *au)
+void update_client_arena(struct areena *a, struct areena_server *as)
 {
-	
+	a->as = *as;
 }
 
 int get_current_arena(struct areena *a)
 {
-	struct areena_update au;
+	struct areena_server as;
 	int ret;
 
 	ret = a->connection.send_update_req(&a->connection);
 	if (!ret)
 		return ret;
 
-	ret = a->connection.get_update_resp(&a->connection, &au);
-	update_client_arena(a, &au);
+	ret = a->connection.get_update_resp(&a->connection, &as);
+	update_client_arena(a, &as);
 	return ret;
 }
 
@@ -231,7 +231,7 @@ int luo_areena(struct areena *a, struct connect_info *ci, bool serveri)
 {
 	int ok;
 
-	a->stop = 0;
+	a->as.stop = 0;
 	a->realstop = 0;
 	a->seinien_maara = 4;
 	a->seinat = calloc(a->seinien_maara, sizeof(*a->seinat));
@@ -260,17 +260,64 @@ int luo_areena(struct areena *a, struct connect_info *ci, bool serveri)
 	} else {
 		clien_get_initial_areena(&a, ci);
 		a->piirra = piirra_areena;
+		a->piirra_alus = piirra_alus;
 	}
 
 	return 0;
 }
+
+void piirra_alus(struct areena *ar, struct alus *a)
+{
+	struct seina s;
+	struct SDL_Color *v;
+	struct SDL_Color v_nopee = VARI_NOPPEE;
+	struct SDL_Color v_upee = VARI_UPPEE;
+	struct SDL_Color v_kuolematon = VARI_KUOLEMATON;
+	struct SDL_Color v_haamu = VARI_HAAMU;
+	struct SDL_Color v_rikkova = VARI_RIKKOVA;
+	struct SDL_Color v_jaassa = VARI_JAASSA;
+
+
+	v = &a->vri;
+
+	if (oonko_uppee(a))
+		v = &v_upee;
+	if (oonko_noppee(a))
+ 		v = &v_nopee;
+	if (oonko_haamu(a))
+		v = &v_haamu;
+	if (oonko_rikkova(a))
+		v = &v_rikkova;
+	if (oonko_kuolematon(a))
+		v = &v_kuolematon;
+	if (oonko_jaassa(a))
+		v = &v_jaassa;
+
+
+	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v);
+	s.piirra(ar, &s);
+	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, v);
+	s.piirra(ar, &s);
+	alusta_seina(&s, &a->etunurkka, &a->vas_takanurkka, v);
+	s.piirra(ar, &s);
+/*
+	SDL_SetRenderDrawColor(renderer, 0,255,0,SDL_ALPHA_OPAQUE);
+	SDL_RenderDrawPoint(renderer, a->p.x+1, a->p.y+1);
+	SDL_RenderDrawPoint(renderer, a->p.x+1, a->p.y);
+	SDL_RenderDrawPoint(renderer, a->p.x+1, a->p.y-1);
+	SDL_RenderDrawPoint(renderer, a->p.x-1, a->p.y);
+	SDL_RenderDrawPoint(renderer, a->p.x-1, a->p.y+1);
+	SDL_RenderDrawPoint(renderer, a->p.x-1, a->p.y-1);
+*/
+}
+
 
 
 void lisaa_rikkopisteet(struct areena *ar, struct alus *oma)
 {
 	struct pirrettava_teksti *pt = varaa_piirrospaikka();
 
-	ar->pisteet += 100;
+	ar->as.pisteet += 100;
 	if (!pt) {
 		SDL_Log("Piirrospooli täys\n");
 		return;
@@ -295,14 +342,14 @@ void lisaa_rikkopisteet(struct areena *ar, struct alus *oma)
 
 int arvo_powerup(struct areena *ar)
 {
-	if (ar->active_pups < MAX_PUPS) {
+	if (ar->as.active_pups < MAX_PUPS) {
 		unsigned long long chance = rand() %UUDEN_PUPIN_TSAANNSSI;
 
 		if (!chance) {
 			/* Arpa suosi, tehdään uus poweruppi */
 
 			int i;
-			struct powerup *p = &ar->pups[0];
+			struct powerup *p = &ar->as.pups[0];
 			struct paikka pa;
 
 			for (i = 0; i < MAX_PUPS && p->expire; i++, p++);
@@ -311,9 +358,9 @@ int arvo_powerup(struct areena *ar)
 				SDL_Log("Viiiirrhheita Koodissa\n");
 				return -1;
 			}
-			ar->active_pups++;
-			pa.x = PUPS_KOKO + (rand() % ar->leveys) - 2*PUPS_KOKO;
-			pa.y = PUPS_KOKO + (rand() % ar->korkeus) - 2*PUPS_KOKO;
+			ar->as.active_pups++;
+			pa.x = PUPS_KOKO + (rand() % ar->as.leveys) - 2*PUPS_KOKO;
+			pa.y = PUPS_KOKO + (rand() % ar->as.korkeus) - 2*PUPS_KOKO;
 			create_random_powerup_to_place(p, PUPS_KOKO, &pa);
 		}
 	}

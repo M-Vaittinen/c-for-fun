@@ -38,7 +38,7 @@ int music_init(struct sounds *s)
 
 	//Initialize SDL_mixer
 	if( (ret = Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ))
-		return ret;    
+		return ret;
 
 	/* Taustamusiikki */
 	s->music = Mix_LoadMUS( "/home/mvaittin/.kolomiosnd/Blazer Rail.wav" );
@@ -54,7 +54,7 @@ int music_init(struct sounds *s)
 	s->pupaanet[PUP_DESTROY] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/nauru.wav");
 	s->pupaanet[PUP_FREEZE] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/");
 	s->pupaanet[PUP_PASS_WALLS] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/WARP.wav");
-	
+
 	return !(s->music && s->new_ship && s->crash && s->points);
 }
 
@@ -73,25 +73,25 @@ void togglefullscreen(struct areena *a, SDL_Window* window, SDL_Renderer* render
 	if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
 	{
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-		SDL_RenderSetLogicalSize(renderer, a->leveys, a->korkeus);
+		SDL_RenderSetLogicalSize(renderer, a->as.leveys, a->as.korkeus);
 	}
 	else
 	{
-		SDL_SetWindowSize(window, a->leveys, a->korkeus);
+		SDL_SetWindowSize(window, a->as.leveys, a->as.korkeus);
 	}
 }
 
 void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)
 {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	SDL_RenderSetLogicalSize(renderer, a->leveys + a->leveys_offset,
-				 a->korkeus + a->korkeus_offset);
+	SDL_RenderSetLogicalSize(renderer, a->as.leveys + a->leveys_offset,
+				 a->as.korkeus + a->korkeus_offset);
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
 void get_input(struct areena *a)
 {
-	struct alus *oma = &a->alukset[0];
+	struct alus *oma = &a->as.alukset[0];
 	float fix = 0;
 	const Uint8 *state;
 	struct paikka hiiri = {0,0};;
@@ -110,7 +110,7 @@ void get_input(struct areena *a)
 	if (oma->nopeus < 0)
 		oma->nopeus = 0;
 	if (oma->nopeus > NOP_MAX)
-		oma->nopeus = NOP_MAX; 
+		oma->nopeus = NOP_MAX;
 
 	if (SDL_GetMouseState(&hiiri.x,&hiiri.y) & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
 		a->realstop = 1;
@@ -158,7 +158,7 @@ void valipisteet(struct areena *ar)
 
 	static char *ptsptr;
 
-	struct paikka p = { .x = ar->leveys/2 - 100, .y = ar->korkeus/2 -100, };
+	struct paikka p = { .x = ar->as.leveys/2 - 100, .y = ar->as.korkeus/2 -100, };
 
 	struct SDL_Color v_table[] = {
 		{ 255, 255, 255, SDL_ALPHA_OPAQUE },
@@ -174,7 +174,7 @@ void valipisteet(struct areena *ar)
 
 	i = (i+1)%10;
 
-	snprintf(ptsptr, 10, "%u", ar->pisteet);
+	snprintf(ptsptr, 10, "%u", ar->as.pisteet);
 	ptsptr[9] = 0;
 
 	if (!pt) {
@@ -209,15 +209,15 @@ const char * alkuruutu(struct areena *a)
 	};
 	struct SDL_Color v = { 51, 221, 255, SDL_ALPHA_OPAQUE };
 	uint32_t state;
-	int korkeus = a->korkeus/PELAAJIA;
+	int korkeus = a->as.korkeus/PELAAJIA;
 	int y,i;
 
 	p[0].x = 100,
-	p[0].y = a->korkeus/4 -5,		 
+	p[0].y = a->as.korkeus/4 -5,
 
 	draw_text(a, "Aloita Peli", &p[0], 500, 100, &v);
 	p[0].x = 100;
-	p[0].y = (a->korkeus/4)*3 -100;
+	p[0].y = (a->as.korkeus/4)*3 -100;
 	v.r = 225;
 	v.g = 255;
 	v.b = 255;
@@ -235,14 +235,14 @@ const char * alkuruutu(struct areena *a)
 
 		pisteet = hae_pisteet(nimi[i]);
 
-		p[i].x = a->leveys - a->leveys/4,
+		p[i].x = a->as.leveys - a->as.leveys/4,
 		p[i].y = i*korkeus;
 
 		snprintf(tmp, 255, "%s %u", nimi[i], pisteet);
 		tmp[254] = 0;
 
-		draw_text(a, tmp, &p[i], a->leveys/4, korkeus, &v);
-		SDL_RenderDrawLine(a->p.renderer, a->leveys_offset, p[i].y + korkeus + a->korkeus_offset, a->leveys + a->leveys_offset, p[i].y + korkeus + a->korkeus_offset);
+		draw_text(a, tmp, &p[i], a->as.leveys/4, korkeus, &v);
+		SDL_RenderDrawLine(a->p.renderer, a->leveys_offset, p[i].y + korkeus + a->korkeus_offset, a->as.leveys + a->leveys_offset, p[i].y + korkeus + a->korkeus_offset);
 	}
 
 	SDL_RenderPresent(a->p.renderer);
@@ -271,6 +271,10 @@ int main(int arc, char *argv[])
 	const char *nimi;
 	static struct areena a;
 	SDL_Window* window = NULL;
+	struct connect_info ci;
+
+	/* Fill connect info */
+	ci.remote_ip = "127.0.0.1";
 
 	srand(time(NULL));
 
@@ -286,16 +290,16 @@ int main(int arc, char *argv[])
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		goto err_out;
 	}
+/* TO DO: Think think think */
+	SDL_GetWindowSize(window, &a.as.leveys, &a.as.korkeus);
 
-	SDL_GetWindowSize(window, &a.leveys, &a.korkeus);
+	SDL_Log("leveys %u, korkeus %u\n",a.as.leveys, a.as.korkeus);
 
-	SDL_Log("leveys %u, korkeus %u\n",a.leveys, a.korkeus);
+	a.leveys_offset = (a.as.leveys - WINDOW_X)/2;
+	a.korkeus_offset = (a.as.korkeus - WINDOW_Y)/2;
 
-	a.leveys_offset = (a.leveys - WINDOW_X)/2;
-	a.korkeus_offset = (a.korkeus - WINDOW_Y)/2;
-
-	a.leveys = WINDOW_X;
-	a.korkeus = WINDOW_Y;
+	a.as.leveys = WINDOW_X;
+	a.as.korkeus = WINDOW_Y;
 	SDL_SetRenderDrawBlendMode(a.p.renderer, SDL_BLENDMODE_BLEND);
 
 	ok = luo_areena(&a);
@@ -314,7 +318,7 @@ int main(int arc, char *argv[])
 
 	Mix_PlayMusic( a.s.music, -1 );
 uusiksi:
-	a.pisteet = 0;
+	a.as.pisteet = 0;
 	putsaa_pupit(&a);
 	ok = luo_alukset(&a);
 	a.stop = 0;
@@ -325,7 +329,7 @@ uusiksi:
 
 
 	for (i = 0; 1 ; i++) {
-		a.pisteet ++;
+		a.as.pisteet ++;
 		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(a.p.renderer);
 		uudet_paikat(&a);
@@ -333,7 +337,7 @@ uusiksi:
 			lisaa_alus(&a);
 			arvo_powerup(&a);
 		}
-		if (a.pisteet && !(a.pisteet%500))
+		if (a.as.pisteet && !(a.as.pisteet%500))
 			valipisteet(&a);
 
 		if (a.piirra(&a))

@@ -1,12 +1,6 @@
 #include <stdbool.h>
 #include "babbler/babbler.h"
-
-struct connect_info {
-	const char *remote_ip;
-	short remote_port;
-	const char *own_ip;
-	short own_port;
-};
+#include "connection.h"
 
 int main(int arc, char *argv[])
 {

@@ -3,6 +3,13 @@
 
 #include "babbler/babbler.h"
 
+struct connect_info {
+	const char *remote_ip;
+	short remote_port;
+	const char *own_ip;
+	short own_port;
+};
+
 struct connection {
 	struct babbler *b_rx;
 	struct babbler *b_tx;
