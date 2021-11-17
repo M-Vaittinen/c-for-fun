@@ -18,7 +18,7 @@
  *	Basically you want to fill initialization information for
  *	your UDP (or file) babbler by filling the struct babbler_init_udp
  *	or struct babbler_init_file.
- *	
+ *
  *	Then you allocate babbler object by calling create_babbler() and
  *	by passing the init data to this call.
  *
@@ -142,7 +142,7 @@ struct babbler_init_udp {
  * 	struct babbler_init_file f;
  *	create_babbler(&f.b, sizeof(f));
  *	for file
- */		 
+ */
 struct babbler * create_babbler(struct babbler_init *binit, size_t init_size);
 
 #endif
