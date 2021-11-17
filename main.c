@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <arpa/inet.h>
 #include <getopt.h>
 #include "paikka.h"
 #include "seina.h"
@@ -20,6 +19,7 @@
 #include "hiscore.h"
 #include "piirrettavat_tekstit.h"
 #include "helpers.h"
+#include "server.h"
 
 #define WINDOW_X (640*2)
 #define WINDOW_Y (480*2)
@@ -40,7 +40,7 @@ int music_init(struct sounds *s)
 
 	//Initialize SDL_mixer
 	if( (ret = Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ))
-		return ret;    
+		return ret;
 
 	/* Taustamusiikki */
 	s->music = Mix_LoadMUS( "/home/mvaittin/.kolomiosnd/Blazer Rail.wav" );
@@ -56,7 +56,7 @@ int music_init(struct sounds *s)
 	s->pupaanet[PUP_DESTROY] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/nauru.wav");
 	s->pupaanet[PUP_FREEZE] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/");
 	s->pupaanet[PUP_PASS_WALLS] = Mix_LoadWAV( "/home/mvaittin/.kolomiosnd/WARP.wav");
-	
+
 	return !(s->music && s->new_ship && s->crash && s->points);
 }
 
@@ -112,7 +112,7 @@ void get_input(struct areena *a)
 	if (oma->nopeus < 0)
 		oma->nopeus = 0;
 	if (oma->nopeus > NOP_MAX)
-		oma->nopeus = NOP_MAX; 
+		oma->nopeus = NOP_MAX;
 
 	if (SDL_GetMouseState(&hiiri.x,&hiiri.y) & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
 		a->realstop = 1;
@@ -275,13 +275,6 @@ static struct option long_options[] =
     {"help",  no_argument, 0, 'h'},
     {0,0,0,0}
 };
-
-struct server {
-	char ip[33];
-    	struct sockaddr_in ad;
-	short int port;
-};
-
 static int parse_args(int argc, char *argv[], struct server *s)
 {
 	int index;
@@ -348,10 +341,12 @@ int main(int arc, char *argv[])
 	if (ok)
 		return ok;
 
-	if (s.ip[0] != 0)
+	if (s.ip[0] != 0) {
 		printf("Server given as '%s'\n", s.ip);
-	else
+		server_start(&s);
+	} else {
 		printf("No server\n");
+	}
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
