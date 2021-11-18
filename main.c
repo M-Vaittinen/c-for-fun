@@ -266,10 +266,11 @@ const char * alkuruutu(struct areena *a)
 		usleep(10000);
 	}
 }
-#define OPTSTRING "hs:v?"
+#define OPTSTRING "Shs:v?"
 
 static struct option long_options[] =
 {
+    {"start-server", no_argument, 0, 'S'},
     {"server" , required_argument, 0, 's'},
     {"version",  no_argument, 0, 'v'},
     {"help",  no_argument, 0, 'h'},
@@ -311,7 +312,15 @@ static int parse_args(int argc, char *argv[], struct server *s)
 			}
 			break;
 		}
+		case 'S':
+			s->start = true;
+
+			break;
 		}
+	}
+	if (s->start && !ip_given) {
+		printf("Server start requested, no IP goven\n");
+		return -1;
 	}
 
 	if (ip_given) {
@@ -329,7 +338,7 @@ static int parse_args(int argc, char *argv[], struct server *s)
 
 int main(int arc, char *argv[])
 {
-	int ok, i;
+	int ok, i, ret;
 	const char *nimi;
 	static struct areena a;
 	SDL_Window* window = NULL;
@@ -343,10 +352,14 @@ int main(int arc, char *argv[])
 
 	if (s.ip[0] != 0) {
 		printf("Server given as '%s'\n", s.ip);
-		server_start(&s);
 	} else {
 		printf("No server\n");
 	}
+	if (s.start)
+		ret = server_start(&s);
+
+	if (ret)
+		return ret;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
