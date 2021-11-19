@@ -20,6 +20,8 @@
 #include "piirrettavat_tekstit.h"
 #include "helpers.h"
 #include "server.h"
+#include "client.h"
+#include "client_arena.h"
 
 #define WINDOW_X (640*2)
 #define WINDOW_Y (480*2)
@@ -31,6 +33,10 @@
 #define PISTEKOON_MUUTOS_STEPPI 10
 #define PISTEKOKO_SAMANA_LOOPIT 5
 
+pthread_mutex_t g_ugly_solution = PTHREAD_MUTEX_INITIALIZER;
+int g_server_state = 0;
+
+/* Should use cond variable or some nicer solution */
 
 int music_init(struct sounds *s)
 {
@@ -59,7 +65,6 @@ int music_init(struct sounds *s)
 
 	return !(s->music && s->new_ship && s->crash && s->points);
 }
-
 
 /* Tää ei toimi jos puskuri on täys */
 #define jokaselle_saadulle_powerupille(a,p) \
@@ -343,6 +348,8 @@ int main(int arc, char *argv[])
 	static struct areena a;
 	SDL_Window* window = NULL;
 	struct server s;
+	struct client c;
+	bool use_server = false;
 
 	srand(time(NULL));
 
@@ -352,14 +359,32 @@ int main(int arc, char *argv[])
 
 	if (s.ip[0] != 0) {
 		printf("Server given as '%s'\n", s.ip);
+		use_server = true;
 	} else {
 		printf("No server\n");
 	}
-	if (s.start)
-		ret = server_start(&s);
 
-	if (ret)
-		return ret;
+	if (s.start) {
+		ret = server_start(&s);
+		if (ret)
+			return ret;
+recheck:
+		pthread_mutex_lock(&g_ugly_solution);
+		if (!g_server_state) {
+			pthread_mutex_unlock(&g_ugly_solution);
+			sleep(1);
+			goto recheck;
+		}
+		pthread_mutex_unlock(&g_ugly_solution);
+		printf("server started\n");
+	}
+
+	if (s.ip[0] != 0) {
+		ret = connect_client(&c, &s);
+
+		if (ret)
+			return ret;
+	}
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -384,6 +409,24 @@ int main(int arc, char *argv[])
 	a.leveys = WINDOW_X;
 	a.korkeus = WINDOW_Y;
 	SDL_SetRenderDrawBlendMode(a.p.renderer, SDL_BLENDMODE_BLEND);
+
+	if (use_server) {
+recheck2:
+		pthread_mutex_lock(&g_ugly_solution);
+		if (g_server_state != 3) {
+			pthread_mutex_unlock(&g_ugly_solution);
+			sleep(1);
+			goto recheck2;
+		}
+		pthread_mutex_unlock(&g_ugly_solution);
+
+		ret = client_get_id(&c, &s);
+		if (ret)
+			return -1;
+		ret = get_arena(&s, &c, &a);
+		if (ret)
+			return -1;
+	}
 
 	ok = luo_areena(&a);
 	if (ok)

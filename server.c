@@ -35,8 +35,6 @@ void *server_thread(void *param)
 		exit(-EINVAL);
 	}
 	addr = &a->s.ad;
-	addr->sin_port = htons(SERVER_PORT);
-	addr->sin_family = AF_INET;
 
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sock == -1) {
@@ -59,6 +57,11 @@ void *server_thread(void *param)
 			perror("listen\n");
 			exit(1);
 		}
+		printf("Server listening sock %d\n", sock);
+		pthread_mutex_lock(&g_ugly_solution);
+		if (g_server_state < 1)
+			g_server_state = 1;
+		pthread_mutex_unlock(&g_ugly_solution);
 		c->addr_len = sizeof(c->addr);
 		c->sock = accept(sock, (struct sockaddr *)&c->addr, &c->addr_len);
 		if (c->sock < 0) {
@@ -66,7 +69,12 @@ void *server_thread(void *param)
 			exit(1);
 		}
 		printf("Client %d connected sock %d\n", i, c->sock);
+		fflush(stdout);
 		c->id = i;
+
+		pthread_mutex_lock(&g_ugly_solution);
+		g_server_state = 3;
+		pthread_mutex_unlock(&g_ugly_solution);
 	}
 
 	for (;;) {
@@ -82,6 +90,11 @@ int server_start(struct server *s)
 	int ret;
 	pthread_t tid;
 	pthread_attr_t attr;
+	struct sockaddr_in *addr;
+
+	addr = &s->ad;
+	addr->sin_port = htons(SERVER_PORT);
+	addr->sin_family = AF_INET;
 
 	g_sa.s = *s;
 	pthread_attr_init(&attr);
