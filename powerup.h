@@ -5,34 +5,10 @@
 #include "paikka.h" 
 #include "alus.h"
 #define PUPS_KOKO 8
+#include "server_data.h"
 
 struct areena;
 
-enum pup_tyypit {
-	PUP_SPEED = 0,
-	PUP_COOL,
-	PUP_IMMORTAL,
-	PUP_DESTROY,
-	PUP_FREEZE,
-	PUP_PASS_WALLS,
-	PUP_TYYPIT,
-};
-
-static int nappauspisteet[PUP_TYYPIT] __attribute__((unused)) = {
-	[PUP_SPEED] = 200,
-	[PUP_COOL] = 50,
-	[PUP_IMMORTAL] = 10,
-	[PUP_DESTROY] = 10,
-	[PUP_FREEZE] = 500,
-	[PUP_PASS_WALLS] = 10,
-/*	[PUP_SPEED] = 20000,
-	[PUP_COOL] = 500000,
-	[PUP_IMMORTAL] = 1000000,
-	[PUP_DESTROY] = 100000,
-	[PUP_FREEZE] = 5000000,
-	[PUP_PASS_WALLS] = 100000,
-*/
-};
 
 static const char *puppi_txt_arr[PUP_TYYPIT] __attribute__((unused)) = {
 	[PUP_SPEED] = "+200 Kiire!",
@@ -68,7 +44,6 @@ int create_powerup_to_place(struct powerup *p, int koko, struct paikka *pa,
 #define oonko_rikkova(a) mun_pupit((a), PUP_DESTROY)
 #define oonko_jaassa(a) mun_pupit((a), PUP_FREEZE)
 #define oonko_haamu(a) mun_pupit((a), PUP_PASS_WALLS)
-
 
 #endif
 

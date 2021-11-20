@@ -8,15 +8,23 @@
 #include <unistd.h>
 #include "connection.h"
 #include <errno.h>
+#include "server_data.h"
 
 #define CMD_CLIENT_RDY		1
 #define CMD_CLIENT_RDY_RESP	2
 #define CMD_GET_ARENA		3
 #define CMD_GET_ARENA_RESP	4
+#define CMD_SERVER_DATA_UPDATE	5
+
 
 struct message {
 	int size;
 	int command;
+};
+struct server_data_update_msg {
+	struct message hdr;
+	/* Do we need time? Add if needed */
+	struct areena_server_data asd;
 };
 
 struct msg_client_rdy_resp {

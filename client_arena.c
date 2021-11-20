@@ -1,5 +1,6 @@
 #include "msg.h"
 #include "client_arena.h"
+/*
 
 int get_arena(struct server *s, struct client *c, struct areena *a)
 {
@@ -29,3 +30,5 @@ int get_arena(struct server *s, struct client *c, struct areena *a)
 	}
 	return 0;
 };
+
+*/

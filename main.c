@@ -462,7 +462,8 @@ recheck2:
 		ret = client_get_id(&c, &s);
 		if (ret)
 			return -1;
-		ret = get_arena(&s, &c, &a);
+//		ret = get_arena(&s, &c, &a);
+		ret = start_server_updater(&c);
 		if (ret)
 			return -1;
 	}

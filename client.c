@@ -7,6 +7,7 @@
 #include "connection.h"
 #include "client.h"
 #include "msg.h"
+#include "server_data.h"
 
 int connect_client(struct client *c, struct server *s)
 {
