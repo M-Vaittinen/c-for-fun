@@ -411,15 +411,16 @@ recheck:
 	SDL_SetRenderDrawBlendMode(a.p.renderer, SDL_BLENDMODE_BLEND);
 
 	if (use_server) {
+		if (s.start) {
 recheck2:
-		pthread_mutex_lock(&g_ugly_solution);
-		if (g_server_state != 3) {
+			pthread_mutex_lock(&g_ugly_solution);
+			if (g_server_state != 3) {
+				pthread_mutex_unlock(&g_ugly_solution);
+				sleep(1);
+				goto recheck2;
+			}
 			pthread_mutex_unlock(&g_ugly_solution);
-			sleep(1);
-			goto recheck2;
 		}
-		pthread_mutex_unlock(&g_ugly_solution);
-
 		ret = client_get_id(&c, &s);
 		if (ret)
 			return -1;
