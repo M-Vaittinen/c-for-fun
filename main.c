@@ -23,6 +23,8 @@
 #include "client.h"
 #include "client_arena.h"
 
+#define VERSION "0.1 - \"suuttunut siivoaja\""
+
 #define WINDOW_X (640*2)
 #define WINDOW_Y (480*2)
 #define MOVE_THRESH 10
@@ -33,10 +35,31 @@
 #define PISTEKOON_MUUTOS_STEPPI 10
 #define PISTEKOKO_SAMANA_LOOPIT 5
 
+/* Should use cond variable or some nicer solution */
 pthread_mutex_t g_ugly_solution = PTHREAD_MUTEX_INITIALIZER;
 int g_server_state = 0;
 
-/* Should use cond variable or some nicer solution */
+void print_version()
+{
+	printf("Version %s\n", VERSION);
+}
+void print_help(char *name)
+{
+	printf("Käyttö:\n");
+	printf("%s [ --server <server-ip> ] [ --start-server ] [ --help ]\n",
+	       name);
+	printf(" -s --server:\n");
+	printf("		Server IP for two-player. \n" \
+	       "		One of the players must start the server,\n");
+	printf("		Second one can just connect to it. Both must\n");
+	printf("		specify the IP used by the server starter\n");
+	printf(" -S --start-serves:\n");
+	printf("		Start the server\n");
+	printf(" -h --help:\n");
+	printf("		Display this help and exit\n");
+	printf(" -v --version:\n");
+	printf("		Display version information and exit\n");
+}
 
 int music_init(struct sounds *s)
 {
@@ -286,6 +309,7 @@ static int parse_args(int argc, char *argv[], struct server *s)
 	int index;
 	int c;
 	bool ip_given = false;
+	int ret = 1;
 
 	memset(s, 0, sizeof(*s));
 
@@ -295,9 +319,17 @@ static int parse_args(int argc, char *argv[], struct server *s)
 		{
 		case ':':
 			return -1;
+		case 'v':
+			print_version();
+			return 1;
 		case '?':
+			printf("Unknown parameter\n");
+			ret = -1;
+		case 'h':
+			print_version();
+			print_help(argv[0]);
 			printf("Usage: ./ampu [-s server-ip ]\n");
-			return -1;
+			return ret;
         	case 's':
 		{
 			int str_len;
@@ -354,8 +386,11 @@ int main(int arc, char *argv[])
 	srand(time(NULL));
 
 	ok = parse_args(arc, argv, &s);
-	if (ok)
+	if (ok) {
+		if (ok == 1)
+			ok = 0;
 		return ok;
+	}
 
 	if (s.ip[0] != 0) {
 		printf("Server given as '%s'\n", s.ip);
