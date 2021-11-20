@@ -205,7 +205,7 @@ void valipisteet(struct areena *ar)
 
 	i = (i+1)%10;
 
-	snprintf(ptsptr, 10, "%u", ar->pisteet);
+	snprintf(ptsptr, 10, "%u", ar->sd.pisteet);
 	ptsptr[9] = 0;
 
 	if (!pt) {
@@ -244,7 +244,7 @@ const char * alkuruutu(struct areena *a)
 	int y,i;
 
 	p[0].x = 100,
-	p[0].y = a->korkeus/4 -5,		 
+	p[0].y = a->korkeus/4 -5,
 
 	draw_text(a, "Aloita Peli", &p[0], 500, 100, &v);
 	p[0].x = 100;
@@ -483,7 +483,7 @@ recheck2:
 
 	Mix_PlayMusic( a.s.music, -1 );
 uusiksi:
-	a.pisteet = 0;
+	a.sd.pisteet = 0;
 	putsaa_pupit(&a);
 	ok = luo_alukset(&a);
 	a.stop = 0;
@@ -494,7 +494,7 @@ uusiksi:
 
 
 	for (i = 0; 1 ; i++) {
-		a.pisteet ++;
+		a.sd.pisteet ++;
 		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(a.p.renderer);
 		uudet_paikat(&a);
@@ -502,7 +502,7 @@ uusiksi:
 			lisaa_alus(&a);
 			arvo_powerup(&a);
 		}
-		if (a.pisteet && !(a.pisteet%500))
+		if (a.sd.pisteet && !(a.sd.pisteet%500))
 			valipisteet(&a);
 
 		if (a.piirra(&a))
@@ -526,7 +526,7 @@ uusiksi:
 	Mix_CloseAudio();
 
 out_font:
-	TTF_CloseFont( a.p.font );	
+	TTF_CloseFont( a.p.font );
 	TTF_Quit();
 	SDL_Quit();
 

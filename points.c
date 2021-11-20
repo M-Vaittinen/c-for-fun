@@ -31,9 +31,9 @@ struct hiscore * lisaa_hiscore(struct hiscore *h, const char *nimi, unsigned int
 		head->next = NULL;
 		head->name[0] = 0;
 		hchead = head;
-	}
-	else 
+	} else {
 		head = h->head;
+	}
 
 	if (!head) {
 		SDL_Log("NULL HEAD\n");
@@ -157,7 +157,7 @@ int write_scores()
 
 void talleta_pisteet(struct areena *ar, const char *name)
 {
-	paivita_pisteet(name, ar->pisteet);
+	paivita_pisteet(name, ar->sd.pisteet);
 	write_scores();
 }
 

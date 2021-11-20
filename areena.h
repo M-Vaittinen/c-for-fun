@@ -8,11 +8,13 @@
 #include "alus.h"
 #include "common.h"
 #include "powerup.h"
+#include "server_data.h"
 
 struct areena {
 	struct piirrin p;
 	struct sounds s;
-	unsigned pisteet;
+//	unsigned pisteet;
+	struct areena_server_data sd;
 	int stop;
 	int realstop;
 	int leveys;
