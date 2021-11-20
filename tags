@@ -1,0 +1,308 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ALUKSET_MAX	common.h	5;"	d
+ALUS_OLETUS_LEVEYS	alus.h	15;"	d
+ALUS_OLETUS_NOPEUS	alus.h	18;"	d
+ALUS_OLETUS_PITUUS	alus.h	14;"	d
+ALUS_OLETUS_SUUNTA	alus.h	17;"	d
+ALUS_OLETUS_VARI	alus.h	16;"	d
+CC	Makefile	/^CC = gcc$/;"	m
+CMD_CLIENT_RDY	msg.h	13;"	d
+CMD_CLIENT_RDY_RESP	msg.h	14;"	d
+CMD_GET_ARENA	msg.h	15;"	d
+CMD_GET_ARENA_RESP	msg.h	16;"	d
+CMD_SERVER_DATA_UPDATE	msg.h	17;"	d
+DrawCircle	helpers.c	/^void DrawCircle(SDL_Renderer * renderer, struct paikka *centre, int32_t radius, struct SDL_Color *v)$/;"	f
+GNU_SOURCE	points.c	1;"	d	file:
+HDR	Makefile	/^HDR = alus.h areena.h common.h helpers.h hiscore.h media.h paikka.h piirrettavat_tekstit.h powerup.h seina.h server.h client.h server_data.h$/;"	m
+LOOPS_TO_SHOW_PUP_TEXT	powerup.c	10;"	d	file:
+LOOP_DELAY_US	common.h	12;"	d
+MAX	helpers.h	9;"	d
+MAX_ACTIVE_PUPS	alus.h	9;"	d
+MAX_PUPS	common.h	7;"	d
+MIN	helpers.h	8;"	d
+MOVE_JUMP_THRESH	main.c	32;"	d	file:
+MOVE_THRESH	main.c	31;"	d	file:
+NAME_MAX	hiscore.h	5;"	d
+NOP_MAX	common.h	13;"	d
+OPTSTRING	main.c	298;"	d	file:
+PELAAJIA	main.c	234;"	d	file:
+PISTEET_NAKYY_KIERROSTA	main.c	34;"	d	file:
+PISTEKOKO_SAMANA_LOOPIT	main.c	37;"	d	file:
+PISTEKOON_MUUTOS_STEPPI	main.c	36;"	d	file:
+PISTEKOON_PIENENNYS_ALUSSA	main.c	35;"	d	file:
+POWERUP_VAIKUTUSAIKA	alus.h	11;"	d
+PUPPITXT_MAX	alus.h	12;"	d
+PUPS_KOKO	powerup.h	7;"	d
+PUP_COOL	server_data.h	/^	PUP_COOL,$/;"	e	enum:pup_tyypit
+PUP_DESTROY	server_data.h	/^	PUP_DESTROY,$/;"	e	enum:pup_tyypit
+PUP_FREEZE	server_data.h	/^	PUP_FREEZE,$/;"	e	enum:pup_tyypit
+PUP_IMMORTAL	server_data.h	/^	PUP_IMMORTAL,$/;"	e	enum:pup_tyypit
+PUP_PASS_WALLS	server_data.h	/^	PUP_PASS_WALLS,$/;"	e	enum:pup_tyypit
+PUP_SPEED	server_data.h	/^	PUP_SPEED = 0,$/;"	e	enum:pup_tyypit
+PUP_TYYPIT	server_data.h	/^	PUP_TYYPIT,$/;"	e	enum:pup_tyypit
+SERVER_PORT	connection.h	4;"	d
+SRC	Makefile	/^SRC = main.c points.c paikka.c alus.c powerup.c seina.c areena.c tekstit.c helpers.c server.c client.c server_data.c$/;"	m
+TALL_TIEDOSTO	points.c	15;"	d	file:
+UUDEN_PUPIN_TSAANNSSI	common.h	9;"	d
+VARI_HAAMU	media.h	10;"	d
+VARI_JAASSA	media.h	12;"	d
+VARI_KUOLEMATON	media.h	9;"	d
+VARI_NOPPEE	media.h	7;"	d
+VARI_RIKKOVA	media.h	11;"	d
+VARI_UPPEE	media.h	8;"	d
+VERSION	main.c	27;"	d	file:
+WINDOW_X	main.c	29;"	d	file:
+WINDOW_Y	main.c	30;"	d	file:
+_ALUS_H_	alus.h	2;"	d
+_AREENA_H_	areena.h	2;"	d
+_CLIENT_ARENA_H	client_arena.h	2;"	d
+_CLIENT_H	client.h	2;"	d
+_COMMON_H_	common.h	2;"	d
+_CONNECTION_H	connection.h	2;"	d
+_HELPERS_H_	helpers.h	2;"	d
+_HISCORE_H_	hiscore.h	2;"	d
+_MEDIA_H_	media.h	2;"	d
+_MSG_H	msg.h	2;"	d
+_PAIKKA_H_	paikka.h	2;"	d
+_PIIRRETTAVAT_TEKSTIT_H	piirrettavat_tekstit.h	2;"	d
+_POWERUP_H_	powerup.h	2;"	d
+_SEINA_H_	seina.h	2;"	d
+_SERVER_DATA_H	server_data.h	2;"	d
+__SERVER_H	server.h	2;"	d
+active_pups	areena.h	/^	int active_pups;$/;"	m	struct:areena
+active_pups	server_data.h	/^	int active_pups;$/;"	m	struct:areena_server_data
+ad	server.h	/^    	struct sockaddr_in ad;$/;"	m	struct:server	typeref:struct:server::sockaddr_in
+addr	server.c	/^	struct sockaddr_in addr;$/;"	m	struct:client	typeref:struct:client::sockaddr_in	file:
+addr_len	server.c	/^	socklen_t addr_len;$/;"	m	struct:client	file:
+alku	seina.h	/^	struct paikka alku;$/;"	m	struct:seina	typeref:struct:seina::paikka
+alkuruutu	main.c	/^const char * alkuruutu(struct areena *a)$/;"	f
+alukset	areena.h	/^	struct alus alukset[ALUKSET_MAX];$/;"	m	struct:areena	typeref:struct:areena::alus
+alukset	server_data.h	/^	struct alus_server_data alukset[ALUKSET_MAX];$/;"	m	struct:areena_server_data	typeref:struct:areena_server_data::alus_server_data
+alus	alus.h	/^struct alus {$/;"	s
+alus_laske_nurkat	alus.c	/^void alus_laske_nurkat(struct alus *a)$/;"	f
+alus_server_data	server_data.h	/^struct alus_server_data {$/;"	s
+alusta_oma_alus	alus.c	/^static void alusta_oma_alus(struct areena *a)$/;"	f	file:
+alusta_seina	seina.c	/^int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct SDL_Color *v)$/;"	f
+alusta_seinat	areena.c	/^static int alusta_seinat(struct areena *a)$/;"	f	file:
+alusten_maara	areena.h	/^	int alusten_maara;$/;"	m	struct:areena
+alusten_maara	server_data.h	/^	int alusten_maara;$/;"	m	struct:areena_server_data
+areena	areena.h	/^struct areena {$/;"	s
+areena_server_data	server_data.h	/^struct areena_server_data {$/;"	s
+arvo_alus	alus.c	/^static void arvo_alus(struct areena *a, int index)$/;"	f	file:
+arvo_powerup	areena.c	/^int arvo_powerup(struct areena *ar)$/;"	f
+asd	msg.h	/^	struct areena_server_data asd;$/;"	m	struct:server_data_update_msg	typeref:struct:server_data_update_msg::areena_server_data
+asd	server_data.c	/^	struct areena_server_data *asd;$/;"	m	struct:sdata_updater_args	typeref:struct:sdata_updater_args::areena_server_data	file:
+asd_mtx	server_data.c	/^pthread_mutex_t asd_mtx = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+c	server_data.c	/^	struct client c;$/;"	m	struct:sdata_updater_args	typeref:struct:sdata_updater_args::client	file:
+cli_server_data_updater	server_data.c	/^void *cli_server_data_updater(void *dater)$/;"	f
+client	client.h	/^struct client {$/;"	s
+client	server.c	/^struct client {$/;"	s	file:
+client_get_id	client.c	/^int client_get_id(struct client *c, struct server *s)$/;"	f
+client_get_serverdata	server_data.c	/^void client_get_serverdata(struct client *c, struct areena_server_data *d)$/;"	f
+client_id	msg.h	/^	int client_id;$/;"	m	struct:msg_client_rdy_resp
+coll_max	alus.h	/^	struct paikka coll_max;$/;"	m	struct:alus	typeref:struct:alus::paikka
+coll_max	server_data.h	/^	struct paikka coll_max;$/;"	m	struct:alus_server_data	typeref:struct:alus_server_data::paikka
+coll_min	alus.h	/^	struct paikka coll_min;$/;"	m	struct:alus	typeref:struct:alus::paikka
+coll_min	server_data.h	/^	struct paikka coll_min;$/;"	m	struct:alus_server_data	typeref:struct:alus_server_data::paikka
+coll_update	alus.c	/^static void coll_update(struct alus *a, struct paikka *p)$/;"	f	file:
+command	msg.h	/^	int command;$/;"	m	struct:message
+connect_client	client.c	/^int connect_client(struct client *c, struct server *s)$/;"	f
+crash	media.h	/^	Mix_Chunk *crash;$/;"	m	struct:sounds
+create_powerup_to_place	powerup.c	/^int create_powerup_to_place(struct powerup *p, int koko, struct paikka *pa,$/;"	f
+create_random_powerup_to_place	powerup.c	/^int create_random_powerup_to_place(struct powerup *p, int koko, struct paikka *pa)$/;"	f
+doIntersect	helpers.c	/^static bool doIntersect(struct paikka *p1, struct paikka *q1, struct paikka *p2, struct paikka *q2) $/;"	f	file:
+draw_text	helpers.c	/^void draw_text(struct areena *a, const char *text, struct paikka *p, int w, int h, struct SDL_Color *v)$/;"	f
+etsi_nimella	points.c	/^struct hiscore * etsi_nimella(struct hiscore *head, const char *name)$/;"	f
+etunurkka	alus.h	/^	struct paikka etunurkka;$/;"	m	struct:alus	typeref:struct:alus::paikka
+expire	alus.h	/^	time_t expire;$/;"	m	struct:puppi
+expire	powerup.h	/^	time_t expire;$/;"	m	struct:powerup
+first	alus.h	/^	uint8_t first;$/;"	m	struct:puppipuskuri
+font	media.h	/^	TTF_Font* font;$/;"	m	struct:piirrin
+g_args	server_data.c	/^static struct sdata_updater_args g_args;$/;"	v	typeref:struct:sdata_updater_args	file:
+g_asd	server_data.c	/^static struct areena_server_data g_asd;$/;"	v	typeref:struct:areena_server_data	file:
+g_cl_table	server.c	/^static struct client g_cl_table[2];$/;"	v	typeref:struct:client	file:
+g_pt	tekstit.c	/^static struct pirrettava_teksti g_pt[255] = {};$/;"	v	typeref:struct:pirrettava_teksti	file:
+g_sa	server.c	/^static struct server_thread_args g_sa;$/;"	v	typeref:struct:server_thread_args	file:
+g_server_state	main.c	/^int g_server_state = 0;$/;"	v
+g_ugly_solution	main.c	/^pthread_mutex_t g_ugly_solution = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+g_vapaat	tekstit.c	/^uint64_t g_vapaat[4] = { 0xffffffffffffffffULL, 0xffffffffffffffffULL,$/;"	v
+get_input	main.c	/^void get_input(struct areena *a)$/;"	f
+give_client_id	server.c	/^int give_client_id(struct server *s, struct client *c)$/;"	f
+hae_pisteet	points.c	/^unsigned int hae_pisteet(const char *name)$/;"	f
+hanskaa_pupit	powerup.c	/^void hanskaa_pupit(struct areena *ar)$/;"	f
+hchead	points.c	/^static struct hiscore *hchead = NULL;$/;"	v	typeref:struct:hiscore	file:
+hdr	msg.h	/^	struct message hdr;$/;"	m	struct:msg_client_rdy	typeref:struct:msg_client_rdy::message
+hdr	msg.h	/^	struct message hdr;$/;"	m	struct:msg_client_rdy_resp	typeref:struct:msg_client_rdy_resp::message
+hdr	msg.h	/^	struct message hdr;$/;"	m	struct:msg_get_arena	typeref:struct:msg_get_arena::message
+hdr	msg.h	/^	struct message hdr;$/;"	m	struct:msg_get_arena_resp	typeref:struct:msg_get_arena_resp::message
+hdr	msg.h	/^	struct message hdr;$/;"	m	struct:server_data_update_msg	typeref:struct:server_data_update_msg::message
+head	hiscore.h	/^	struct hiscore *head;$/;"	m	struct:hiscore	typeref:struct:hiscore::hiscore
+hiscore	hiscore.h	/^struct hiscore {$/;"	s
+id	alus.h	/^	int id; \/* Alus ID at sever data *\/$/;"	m	struct:alus
+id	client.h	/^	int id;$/;"	m	struct:client
+id	server.c	/^	int id;$/;"	m	struct:client	file:
+id	server_data.h	/^	int id;$/;"	m	struct:alus_server_data
+initialized	server_data.h	/^	bool initialized;$/;"	m	struct:areena_server_data
+ip	server.h	/^	char ip[33];$/;"	m	struct:server
+isin_kolmio	helpers.c	/^bool isin_kolmio(struct paikka *a, struct paikka *b, struct paikka *c,$/;"	f
+joka_huippupisteelle	hiscore.h	18;"	d
+jokaselle_saadulle_powerupille	main.c	94;"	d	file:
+kato_pupit	powerup.c	/^void kato_pupit(struct areena *ar, struct alus *a)$/;"	f
+koko	powerup.h	/^	int koko;$/;"	m	struct:powerup
+koko	server_data.h	/^	int koko;$/;"	m	struct:powerup_server_data
+kokomuutos_kierroksia	piirrettavat_tekstit.h	/^	int kokomuutos_kierroksia;$/;"	m	struct:pirrettava_teksti
+kokomuutos_x_kierros	piirrettavat_tekstit.h	/^	int kokomuutos_x_kierros;$/;"	m	struct:pirrettava_teksti
+kokomuutos_y_kierros	piirrettavat_tekstit.h	/^	int kokomuutos_y_kierros;$/;"	m	struct:pirrettava_teksti
+korkeus	areena.h	/^	int korkeus;$/;"	m	struct:areena
+korkeus	piirrettavat_tekstit.h	/^	int korkeus;$/;"	m	struct:pirrettava_teksti
+korkeus_offset	areena.h	/^	int korkeus_offset;$/;"	m	struct:areena
+last	alus.h	/^	uint8_t last;$/;"	m	struct:puppipuskuri
+leveys	alus.h	/^	float leveys;$/;"	m	struct:alus
+leveys	areena.h	/^	int leveys;$/;"	m	struct:areena
+leveys	piirrettavat_tekstit.h	/^	int leveys;$/;"	m	struct:pirrettava_teksti
+leveys	server_data.h	/^	float leveys;$/;"	m	struct:alus_server_data
+leveys_offset	areena.h	/^	int leveys_offset;$/;"	m	struct:areena
+lisaa_alus	alus.c	/^void lisaa_alus(struct areena *a)$/;"	f
+lisaa_hiscore	points.c	/^struct hiscore * lisaa_hiscore(struct hiscore *h, const char *nimi, unsigned int pisteet)$/;"	f
+lisaa_puptieto	powerup.c	/^static void lisaa_puptieto(struct alus *a, struct powerup *pup)$/;"	f	file:
+lisaa_puptxt_piirtoon	powerup.c	/^void lisaa_puptxt_piirtoon(struct powerup *pup)$/;"	f
+lisaa_rikkopisteet	areena.c	/^void lisaa_rikkopisteet(struct areena *ar, struct alus *oma)$/;"	f
+long_options	main.c	/^static struct option long_options[] =$/;"	v	typeref:struct:option	file:
+loppu	seina.h	/^	struct paikka loppu;$/;"	m	struct:seina	typeref:struct:seina::paikka
+loppu_punaa	alus.c	/^void loppu_punaa(struct areena *ar)$/;"	f
+luo_alukset	alus.c	/^int luo_alukset(struct areena *a)$/;"	f
+luo_alus	alus.c	/^static void luo_alus(struct alus *a, float leveys, float pituus, struct paikka *p,$/;"	f	file:
+luo_areena	areena.c	/^int luo_areena(struct areena *a)$/;"	f
+main	main.c	/^int main(int arc, char *argv[])$/;"	f
+main	srv.c	/^int main()$/;"	f
+message	msg.h	/^struct message {$/;"	s
+msg_client_rdy	msg.h	/^struct msg_client_rdy{$/;"	s
+msg_client_rdy_resp	msg.h	/^struct msg_client_rdy_resp {$/;"	s
+msg_get_arena	msg.h	/^struct msg_get_arena {$/;"	s
+msg_get_arena_resp	msg.h	/^struct msg_get_arena_resp {$/;"	s
+mun_pupit	powerup.c	/^bool mun_pupit(struct alus *a, int tyyppi)$/;"	f
+music	media.h	/^	Mix_Music *music;$/;"	m	struct:sounds
+music_init	main.c	/^int music_init(struct sounds *s)$/;"	f
+nakyvilla_kierros	piirrettavat_tekstit.h	/^	int nakyvilla_kierros;$/;"	m	struct:pirrettava_teksti
+name	hiscore.h	/^	char name[NAME_MAX];$/;"	m	struct:hiscore
+nappauspisteet	powerup.h	/^	int nappauspisteet;$/;"	m	struct:powerup
+nappauspisteet	server_data.h	/^	int nappauspisteet;$/;"	m	struct:powerup_server_data
+nappauspisteet	server_data.h	/^static int nappauspisteet[PUP_TYYPIT] __attribute__((unused)) = {$/;"	v
+new_ship	media.h	/^	Mix_Chunk *new_ship;$/;"	m	struct:sounds
+next	hiscore.h	/^	struct hiscore *next;$/;"	m	struct:hiscore	typeref:struct:hiscore::hiscore
+nimi	main.c	/^static const char *nimi[PELAAJIA] = { "Muru", "Jasper", "Joona", "Iivari", "Mestari-Isi" };$/;"	v	file:
+nopeus	alus.h	/^	int nopeus;$/;"	m	struct:alus
+nopeus	server_data.h	/^	int nopeus;$/;"	m	struct:alus_server_data
+nurkka_ympyrassa	helpers.c	/^bool nurkka_ympyrassa(struct paikka *nurkka, struct paikka *kp, int sade)$/;"	f
+o_iholla	helpers.c	/^int o_iholla(struct alus *a, struct alus *a2)$/;"	f
+oik_takanurkka	alus.h	/^	struct paikka oik_takanurkka;$/;"	m	struct:alus	typeref:struct:alus::paikka
+oma	alus.h	/^	int oma;$/;"	m	struct:alus
+oma	server_data.h	/^	int oma;$/;"	m	struct:alus_server_data
+onSegment	helpers.c	/^static bool onSegment(struct paikka *p, struct paikka *q, struct paikka *r) $/;"	f	file:
+oonko_haamu	powerup.h	46;"	d
+oonko_jaassa	powerup.h	45;"	d
+oonko_kuolematon	powerup.h	43;"	d
+oonko_noppee	powerup.h	41;"	d
+oonko_rikkova	powerup.h	44;"	d
+oonko_uppee	powerup.h	42;"	d
+orientation	helpers.c	/^static int orientation(struct paikka *p, struct paikka *q, struct paikka *r) $/;"	f	file:
+p	alus.h	/^	struct paikka p;$/;"	m	struct:alus	typeref:struct:alus::paikka
+p	areena.h	/^	struct piirrin p;$/;"	m	struct:areena	typeref:struct:areena::piirrin
+p	piirrettavat_tekstit.h	/^	struct paikka p;$/;"	m	struct:pirrettava_teksti	typeref:struct:pirrettava_teksti::paikka
+p	powerup.h	/^	struct paikka p;$/;"	m	struct:powerup	typeref:struct:powerup::paikka
+p	server_data.h	/^	struct paikka p;$/;"	m	struct:alus_server_data	typeref:struct:alus_server_data::paikka
+p	server_data.h	/^	struct paikka p;$/;"	m	struct:powerup_server_data	typeref:struct:powerup_server_data::paikka
+p_delta	alus.h	/^	struct paikka p_delta;$/;"	m	struct:alus	typeref:struct:alus::paikka
+paikka	paikka.h	/^struct paikka {$/;"	s
+paivita_pisteet	points.c	/^void paivita_pisteet(const char *name, unsigned int pisteet)$/;"	f
+parse_args	main.c	/^static int parse_args(int argc, char *argv[], struct server *s)$/;"	f	file:
+pbuf	alus.h	/^	struct puppi pbuf[MAX_ACTIVE_PUPS];$/;"	m	struct:puppipuskuri	typeref:struct:puppipuskuri::puppi
+piirra	alus.h	/^	void (*piirra) (struct areena*, struct alus*);$/;"	m	struct:alus
+piirra	areena.h	/^	int (*piirra) (struct areena*);$/;"	m	struct:areena
+piirra	powerup.h	/^	void (*piirra) (struct areena *, struct powerup*);$/;"	m	struct:powerup
+piirra	seina.h	/^	void (*piirra) (struct areena*, struct seina*);$/;"	m	struct:seina
+piirra_alus	alus.c	/^void piirra_alus(struct areena *ar, struct alus *a)$/;"	f
+piirra_areena	areena.c	/^int piirra_areena(struct areena *a)$/;"	f
+piirra_pup	powerup.c	/^void piirra_pup(struct areena *a, struct powerup* pup)$/;"	f
+piirra_seina	seina.c	/^void piirra_seina(struct areena *a, struct seina *s)$/;"	f
+piirra_tekstit	tekstit.c	/^void piirra_tekstit(struct areena *a)$/;"	f
+piirrin	media.h	/^struct piirrin {$/;"	s
+pirrettava_teksti	piirrettavat_tekstit.h	/^struct pirrettava_teksti {$/;"	s
+pisteet	areena.h	/^	unsigned pisteet;$/;"	m	struct:areena
+pisteet	server_data.h	/^        unsigned pisteet;$/;"	m	struct:areena_server_data
+pituus	alus.h	/^	float pituus;$/;"	m	struct:alus
+pituus	server_data.h	/^	float pituus;$/;"	m	struct:alus_server_data
+points	hiscore.h	/^	unsigned int points;$/;"	m	struct:hiscore
+points	media.h	/^	Mix_Chunk *points;$/;"	m	struct:sounds
+poista_vanhat_pupit	powerup.c	/^void poista_vanhat_pupit(struct alus *a)$/;"	f
+powerup	powerup.h	/^struct powerup {$/;"	s
+powerup_server_data	server_data.h	/^struct powerup_server_data {$/;"	s
+prev	hiscore.h	/^	struct hiscore *prev;$/;"	m	struct:hiscore	typeref:struct:hiscore::hiscore
+print_help	main.c	/^void print_help(char *name)$/;"	f
+print_version	main.c	/^void print_version()$/;"	f
+pup_napattu	powerup.c	/^bool pup_napattu(struct alus *a, struct powerup *pup)$/;"	f
+pup_pisteet	powerup.c	/^void pup_pisteet(struct areena *ar, struct powerup *pup)$/;"	f
+pup_tyypit	server_data.h	/^enum pup_tyypit {$/;"	g
+pupaanet	media.h	/^	Mix_Chunk *pupaanet[PUP_TYYPIT];$/;"	m	struct:sounds
+puppi	alus.h	/^struct puppi {$/;"	s
+puppi_txt_arr	powerup.h	/^static const char *puppi_txt_arr[PUP_TYYPIT] __attribute__((unused)) = {$/;"	v
+puppipuskuri	alus.h	/^struct puppipuskuri {$/;"	s
+pups	alus.h	/^	struct puppipuskuri pups;$/;"	m	struct:alus	typeref:struct:alus::puppipuskuri
+pups	areena.h	/^	struct powerup pups[MAX_PUPS];$/;"	m	struct:areena	typeref:struct:areena::powerup
+pups	server_data.h	/^	struct powerup_server_data pups[MAX_PUPS];$/;"	m	struct:areena_server_data	typeref:struct:areena_server_data::powerup_server_data
+putsaa_pupit	powerup.c	/^void putsaa_pupit(struct areena *ar)$/;"	f
+pysayta_alus	alus.c	/^void pysayta_alus(struct alus *a)$/;"	f
+read_scores	points.c	/^void read_scores()$/;"	f
+realstop	areena.h	/^	int realstop;$/;"	m	struct:areena
+renderer	media.h	/^	SDL_Renderer* renderer;$/;"	m	struct:piirrin
+rikki	alus.h	/^	bool rikki;$/;"	m	struct:alus
+rikki	server_data.h	/^	bool rikki;$/;"	m	struct:alus_server_data
+rikkopts_str	areena.c	/^static const char *rikkopts_str = "100";$/;"	v	file:
+s	areena.h	/^	struct sounds s;$/;"	m	struct:areena	typeref:struct:areena::sounds
+s	server.c	/^	struct server s;$/;"	m	struct:server_thread_args	typeref:struct:server_thread_args::server	file:
+sdata_updater_args	server_data.c	/^struct sdata_updater_args {$/;"	s	file:
+seina	seina.h	/^struct seina {$/;"	s
+seinat	areena.h	/^	struct seina *seinat;$/;"	m	struct:areena	typeref:struct:areena::seina
+seinien_maara	areena.h	/^	int seinien_maara;$/;"	m	struct:areena
+server	server.h	/^struct server {$/;"	s
+server_data_update_msg	msg.h	/^struct server_data_update_msg {$/;"	s
+server_start	server.c	/^int server_start(struct server *s)$/;"	f
+server_thread	server.c	/^void *server_thread(void *param)$/;"	f
+server_thread_args	server.c	/^struct server_thread_args {$/;"	s	file:
+size	msg.h	/^	int size;$/;"	m	struct:message
+sock	client.h	/^	int sock;$/;"	m	struct:client
+sock	server.c	/^	int sock;$/;"	m	struct:client	file:
+soita_puppinappaus	powerup.c	/^void soita_puppinappaus(struct areena *ar, struct powerup *pup)$/;"	f
+sounds	media.h	/^struct sounds {$/;"	s
+start	server.h	/^	bool start;$/;"	m	struct:server
+start_server_updater	server_data.c	/^int start_server_updater(struct client *c)$/;"	f
+stop	areena.h	/^	int stop;$/;"	m	struct:areena
+suunta	alus.h	/^	float suunta;$/;"	m	struct:alus
+suunta	server_data.h	/^	float suunta;$/;"	m	struct:alus_server_data
+talleta_pisteet	points.c	/^void talleta_pisteet(struct areena *ar, const char *name)$/;"	f
+teksti	piirrettavat_tekstit.h	/^	const char *teksti;$/;"	m	struct:pirrettava_teksti
+test_display	main.c	/^void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)$/;"	f
+togglefullscreen	main.c	/^void togglefullscreen(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)$/;"	f
+tormasi	helpers.c	/^int tormasi(struct alus *oma, struct alus *a)$/;"	f
+tyyppi	alus.h	/^	int tyyppi;$/;"	m	struct:puppi
+tyyppi	powerup.h	/^	int tyyppi;$/;"	m	struct:powerup
+tyyppi	server_data.h	/^	int tyyppi;$/;"	m	struct:powerup_server_data
+update_position	alus.h	/^	int (*update_position) (struct alus *, struct areena_server_data *asd);$/;"	m	struct:alus
+uudet_paikat	paikka.c	/^void uudet_paikat(struct areena *a)$/;"	f
+uusi_paikka	paikka.c	/^void uusi_paikka(struct areena *ar, struct alus *a)$/;"	f
+v	piirrettavat_tekstit.h	/^	struct SDL_Color v;$/;"	m	struct:pirrettava_teksti	typeref:struct:pirrettava_teksti::SDL_Color
+valipisteet	main.c	/^void valipisteet(struct areena *ar)$/;"	f
+vapauta_piirrospaikka	tekstit.c	/^void vapauta_piirrospaikka(struct pirrettava_teksti *paikka)$/;"	f
+varaa_piirrospaikka	tekstit.c	/^struct pirrettava_teksti *varaa_piirrospaikka()$/;"	f
+vas_takanurkka	alus.h	/^	struct paikka vas_takanurkka;$/;"	m	struct:alus	typeref:struct:alus::paikka
+vri	alus.h	/^	struct SDL_Color vri;$/;"	m	struct:alus	typeref:struct:alus::SDL_Color
+vri	powerup.h	/^	struct SDL_Color vri;$/;"	m	struct:powerup	typeref:struct:powerup::SDL_Color
+vri	seina.h	/^	struct SDL_Color vri;$/;"	m	struct:seina	typeref:struct:seina::SDL_Color
+write_scores	points.c	/^int write_scores()$/;"	f
+x	paikka.h	/^	int x;$/;"	m	struct:paikka
+y	paikka.h	/^	int y;$/;"	m	struct:paikka
