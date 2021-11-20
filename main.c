@@ -16,6 +16,7 @@
 #include "media.h"
 #include "areena.h"
 #include "common.h"
+#include "connection.h"
 #include "hiscore.h"
 #include "piirrettavat_tekstit.h"
 #include "helpers.h"
@@ -368,6 +369,8 @@ static int parse_args(int argc, char *argv[], struct server *s)
 			printf("Failed to convert ip %s", s->ip);
 			return -1;
 		}
+		s->ad.sin_port = htons(SERVER_PORT);
+		s->ad.sin_family = AF_INET;
 	}
 
 	return 0;

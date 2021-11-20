@@ -155,11 +155,6 @@ int server_start(struct server *s)
 	int ret;
 	pthread_t tid;
 	pthread_attr_t attr;
-	struct sockaddr_in *addr;
-
-	addr = &s->ad;
-	addr->sin_port = htons(SERVER_PORT);
-	addr->sin_family = AF_INET;
 
 	g_sa.s = *s;
 	pthread_attr_init(&attr);
