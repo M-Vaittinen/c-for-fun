@@ -157,7 +157,7 @@ int write_scores()
 
 void talleta_pisteet(struct areena *ar, const char *name)
 {
-	paivita_pisteet(name, ar->sd.pisteet);
+	paivita_pisteet(name, ar->pisteet);
 	write_scores();
 }
 

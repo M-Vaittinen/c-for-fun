@@ -97,7 +97,7 @@ void poista_vanhat_pupit(struct alus *a)
 
 void pup_pisteet(struct areena *ar, struct powerup *pup)
 {
-	ar->sd.pisteet += pup->nappauspisteet;
+	ar->pisteet += pup->nappauspisteet;
 }
 
 void soita_puppinappaus(struct areena *ar, struct powerup *pup)

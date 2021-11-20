@@ -61,7 +61,7 @@ int piirra_areena(struct areena *a)
 		struct paikka p = { .x = a->leveys/2 - 50,
 				    .y = a->korkeus/2 -50, };
 
-		snprintf(pisteet, 255, "%u", a->sd.pisteet);
+		snprintf(pisteet, 255, "%u", a->pisteet);
 		SDL_Log("Pisteita palajo? %s\n", pisteet);
 
 		draw_text(a, pisteet, &p, 200, 200, &valk);
@@ -99,7 +99,7 @@ void lisaa_rikkopisteet(struct areena *ar, struct alus *oma)
 {
 	struct pirrettava_teksti *pt = varaa_piirrospaikka();
 
-	ar->sd.pisteet += 100;
+	ar->pisteet += 100;
 	if (!pt) {
 		SDL_Log("Piirrospooli täys\n");
 		return;

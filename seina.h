@@ -9,7 +9,7 @@ struct areena;
 struct seina {
 	struct paikka alku;
 	struct paikka loppu;
-	int flags;
+//	int flags;
 	struct SDL_Color vri;
 	void (*piirra) (struct areena*, struct seina*);
 };

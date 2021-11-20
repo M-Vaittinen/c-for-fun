@@ -205,7 +205,7 @@ void valipisteet(struct areena *ar)
 
 	i = (i+1)%10;
 
-	snprintf(ptsptr, 10, "%u", ar->sd.pisteet);
+	snprintf(ptsptr, 10, "%u", ar->pisteet);
 	ptsptr[9] = 0;
 
 	if (!pt) {
@@ -483,7 +483,7 @@ recheck2:
 
 	Mix_PlayMusic( a.s.music, -1 );
 uusiksi:
-	a.sd.pisteet = 0;
+	a.pisteet = 0;
 	putsaa_pupit(&a);
 	ok = luo_alukset(&a);
 	a.stop = 0;
@@ -494,7 +494,7 @@ uusiksi:
 
 
 	for (i = 0; 1 ; i++) {
-		a.sd.pisteet ++;
+		a.pisteet ++;
 		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(a.p.renderer);
 		uudet_paikat(&a);
@@ -502,7 +502,7 @@ uusiksi:
 			lisaa_alus(&a);
 			arvo_powerup(&a);
 		}
-		if (a.sd.pisteet && !(a.sd.pisteet%500))
+		if (a.pisteet && !(a.pisteet%500))
 			valipisteet(&a);
 
 		if (a.piirra(&a))

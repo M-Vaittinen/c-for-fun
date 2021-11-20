@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <stdbool.h>
 #include "paikka.h"
+#include "server_data.h"
 
 #define MAX_ACTIVE_PUPS 255
 /* kauanko poweruppi vaikuttaa sekunteina */
@@ -31,6 +32,7 @@ struct puppipuskuri {
 };
 
 struct alus {
+	int id; /* Alus ID at sever data */
 	int oma;
 	struct paikka p;
 	struct paikka coll_min;
@@ -47,7 +49,8 @@ struct alus {
 	bool rikki;
 
 	struct puppipuskuri pups;
-	
+
+	int (*update_position) (struct alus *, struct areena_server_data *asd);
 	void (*piirra) (struct areena*, struct alus*);
 };
 

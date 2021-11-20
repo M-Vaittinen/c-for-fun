@@ -13,14 +13,19 @@
 struct areena {
 	struct piirrin p;
 	struct sounds s;
-//	unsigned pisteet;
-	struct areena_server_data sd;
+	unsigned pisteet;
 	int stop;
 	int realstop;
 	int leveys;
 	int leveys_offset;
 	int korkeus;
 	int korkeus_offset;
+	/*
+	 * Let's keep the walls and wall amount in the client side only.
+	 * It is currently fixed to 4 walls with constant arena size anyways.
+	 * Keeping it all in client allows us to keep the data and functions
+	 * in same constant struct.
+	 */
 	int seinien_maara;
 	struct seina *seinat;
 	int alusten_maara;
