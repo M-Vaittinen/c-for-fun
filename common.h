@@ -1,6 +1,9 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#define WINDOW_X (640*2)
+#define WINDOW_Y (480*2)
+
 /* Alusten maksimimäärä */
 #define ALUKSET_MAX 255
 /* Yhtäaikaisten poweruppien maksimimäärä */

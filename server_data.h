@@ -56,7 +56,8 @@ struct powerup_server_data {
 
 struct areena_server_data {
 	bool initialized;
-        unsigned pisteet;
+        unsigned pisteet_id1;
+	unsigned pisteet_id2;
 	int alusten_maara;
 	struct alus_server_data alukset[ALUKSET_MAX];
 	int active_pups;

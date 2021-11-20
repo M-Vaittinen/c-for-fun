@@ -13,7 +13,6 @@ struct server_thread_args {
 	struct server s;
 };
 
-
 static struct server_thread_args g_sa;
 
 struct client {

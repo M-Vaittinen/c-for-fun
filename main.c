@@ -26,8 +26,6 @@
 
 #define VERSION "0.1 - \"suuttunut siivoaja\""
 
-#define WINDOW_X (640*2)
-#define WINDOW_Y (480*2)
 #define MOVE_THRESH 10
 #define MOVE_JUMP_THRESH 6000
 
