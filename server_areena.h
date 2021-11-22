@@ -1,6 +1,9 @@
 #ifndef _SERVER_AREENA_H
 #define _SERVER_AREENA_H
 
-void arvo_server_areena(struct areena_server_data *sad);
+#include "client.h"
+
+void arvo_server_areena();
+int starttaa_server_areena_updater(struct client *cli_tbl, int num_cli);
 
 #endif

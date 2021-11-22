@@ -6,6 +6,8 @@
 struct client {
 	int id;
 	int sock;
+	struct sockaddr_in addr;
+	socklen_t addr_len;
 //	int sockaddr_in addr;
 };
 

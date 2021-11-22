@@ -55,6 +55,13 @@ struct powerup_server_data {
 };
 
 struct areena_server_data {
+	struct timespec last_server_update; /* Client should ignore these times */
+	/*
+	 * TODO: Should we put the client update timestamps directly in correct
+	 * 'alus' struct ?
+	 */
+	struct timespec last_client1_update; /* TODO: Split server specifics out */
+	struct timespec last_client2_update; /* TODO: Split server specifics out */
 	bool initialized;
         unsigned pisteet_id1;
 	unsigned pisteet_id2;

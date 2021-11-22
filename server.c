@@ -6,22 +6,23 @@
 #include <unistd.h>
 #include "areena.h"
 #include "connection.h"
-#include "server.h"
 #include "msg.h"
+#include "server.h"
+#include "server_areena.h"
 
 struct server_thread_args {
 	struct server s;
 };
 
 static struct server_thread_args g_sa;
-
+/*
 struct client {
 	int id;
 	int sock;
 	struct sockaddr_in addr;
 	socklen_t addr_len;
 };
-
+*/
 static struct client g_cl_table[2];
 
 int give_client_id(struct server *s, struct client *c)
@@ -67,7 +68,7 @@ void *server_thread(void *param)
 	struct server_thread_args *ar = (struct server_thread_args *)param;
 	int sock, ret, i;
 	struct sockaddr_in *addr;
-	struct areena a;
+//	struct areena a;
 	struct server *s;
 
 	if (!ar) {
@@ -119,7 +120,8 @@ void *server_thread(void *param)
 		pthread_mutex_unlock(&g_ugly_solution);
 	}
 
-	luo_areena(&a);
+	//luo_areena(&a);
+	arvo_server_areena();
 /*
  * After the initial hand-shakes and arena creation we do one more thread
  * for updating the arena. This one shall be just a thread listening the
@@ -140,6 +142,15 @@ void *server_thread(void *param)
 	}
 	printf("Clients have IDs\n");
 
+	/* Add some 'wait for both clients ready' messages if needed.
+	 * Right now I don't see it necessary as bot clients should be up
+	 * because they have both connected. Thus we just start computing the
+	 * positions, getting inputs and sending updates right away.
+	 */
+
+	ret = starttaa_server_areena_updater(&g_cl_table[i], 2);
+	if (ret)
+		exit(ret);
 
 	for (;;) {
 		printf("thread running - ip %s\n", ar->s.ip);
