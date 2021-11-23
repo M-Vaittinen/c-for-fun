@@ -59,6 +59,7 @@ int give_client_id(struct server *s, struct client *c)
 		perror("send\n");
 		return -EINVAL;
 	}
+	printf("Sent client ID to sock %d\n", c->sock);
 
 	return 0;
 }
@@ -142,7 +143,7 @@ void *server_thread(void *param)
 	 * positions, getting inputs and sending updates right away.
 	 */
 
-	ret = starttaa_server_areena_updater(&g_cl_table[i], 2);
+	ret = starttaa_server_areena_updater(&g_cl_table[0], 2);
 	if (ret)
 		exit(ret);
 
@@ -151,7 +152,7 @@ void *server_thread(void *param)
 	for (;;) {
 		int ret;
 
-		ret = server_send_arena(&g_cl_table[i], 2);
+		ret = server_send_arena(&g_cl_table[0], 2);
 		if (ret)
 			return NULL;
 

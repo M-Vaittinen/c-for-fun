@@ -78,6 +78,7 @@ int start_server_updater(struct client *c)
 	pthread_attr_t attr;
 
 	g_args.c = *c;
+	g_args.asd = &g_asd;
 
 	printf("Launching clieng side data receiver\n");
 

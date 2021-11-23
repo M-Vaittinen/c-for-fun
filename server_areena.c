@@ -290,14 +290,15 @@ int server_send_arena(struct client *cli_tbl, int num_cli)
 
 	for (i = 0; i < num_cli; i++) {
 		ret = send(cli_tbl[i].sock, &msg, sizeof(msg), 0);
-		if (ret) {
+		if (ret != sizeof(msg)) {
 			/* TODO: Return error if send fails because client
 			 * has disconnected
 			 */
 			perror("send()\n");
-			printf("Failed to send server data to client %d\n", i);
+			printf("Failed to send server data to client %d, sock %d\n", i, cli_tbl[i].sock);
 		}
-		printf("Sent arena update to client %d\n", i);
+		else
+			printf("Sent arena update to client %d, sock %d\n", i, cli_tbl[i].sock);
 	}
 	return 0;
 }
