@@ -124,14 +124,8 @@ void *server_thread(void *param)
 	arvo_server_areena();
 /*
  * After the initial hand-shakes and arena creation we do one more thread
- * for updating the arena. This one shall be just a thread listening the
- * incoming client requests and sending the arena information to clients as they
- * request it && delivering direction updates to client triangles
- *
- * At that phase we need to put both client sockets in select() and poll both
- * for requests. At this handshake phase it does not really matter so we can
- * just do this one client at a time. At this phase the clients need to wait for
- * the replies in any case.
+ * for updating the arena. This one shall be just a thread sending the arena
+ * information to clients.
  */
 	for (i = 0; i < 2; i++) {
 		struct client *c = &g_cl_table[i];
@@ -152,7 +146,15 @@ void *server_thread(void *param)
 	if (ret)
 		exit(ret);
 
+	printf("Arena updater started\n");
+
 	for (;;) {
+		int ret;
+
+		ret = server_send_arena(&g_cl_table[i], 2);
+		if (ret)
+			return NULL;
+
 		printf("thread running - ip %s\n", ar->s.ip);
 		sleep(1);
 	}

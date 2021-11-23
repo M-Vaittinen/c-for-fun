@@ -1,7 +1,6 @@
 #ifndef _MSG_H
 #define _MSG_H
 
-
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdlib.h>

@@ -149,5 +149,61 @@ int arvo_powerup(struct areena *ar)
 	return 0;
 }
 
+void copy_server_pup_to_client(struct powerup_server_data *s, struct powerup *c)
+{
+	s->koko = c->koko;
+	s->p = c->p;
+	s->tyyppi = c->tyyppi;
+	s->nappauspisteet = c->nappauspisteet;
+}
 
+void copy_server_alus_to_client(struct alus_server_data *sa, struct alus *ca)
+{
+	ca->id = sa->id;
+	ca->p = sa->p;
+	ca->coll_min = sa->coll_min;
+	ca->coll_max = sa->coll_max;
+	ca->suunta = sa->suunta;
+	ca->nopeus = sa->nopeus;
+	ca->pituus = sa->pituus;
+	ca->leveys = sa->leveys;
+	ca->rikki = sa->rikki;
+}
+
+void update_areena_by_serverdata(struct areena *a, struct areena_server_data *sd,
+				 int id)
+{
+	int my_points, i;
+
+	if (a->prev_server_update_c.tv_sec == sd->last_server_update_c.tv_sec &&
+	    a->prev_server_update_c.tv_nsec == sd->last_server_update_c.tv_nsec)
+		return;
+
+	if (!sd->initialized) {
+		printf("Uninitialized server data\n");
+		return;
+	}
+	/* TODO: Get client side time */
+	if (id == 0)
+		my_points = sd->pisteet_id1;
+	else
+		my_points = sd->pisteet_id2;
+
+	a->pisteet = my_points;
+	a->alusten_maara = sd->alusten_maara;
+
+	if (id == 0) {
+		copy_server_alus_to_client(&sd->alukset[0], &a->alukset[0]);
+		copy_server_alus_to_client(&sd->alukset[1], &a->alukset[1]);
+	} else {
+		copy_server_alus_to_client(&sd->alukset[1], &a->alukset[0]);
+		copy_server_alus_to_client(&sd->alukset[0], &a->alukset[1]);
+	}
+	for (i = 2; i < sd->alusten_maara && i < ALUKSET_MAX; i++)
+		copy_server_alus_to_client(&sd->alukset[i], &a->alukset[i]);
+
+	a->active_pups = sd->active_pups;
+	for (i = 0; i < a->active_pups && i < MAX_PUPS; i++)
+		copy_server_pup_to_client(&sd->pups[i], & a->pups[i]);
+}
 

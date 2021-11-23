@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <pthread.h>
+#include <time.h>
 #include "areena.h"
 #include "client.h"
 #include "server_data.h"
@@ -36,11 +37,13 @@ void *cli_server_data_updater(void *dater)
 
 	for (;;) {
 		struct server_data_update_msg tmp;
+		struct timespec ts;
 
 		/*
 		 * UDP would be faster and better, right?
 		 * OTOH - missing client updates would not be nice.
 		 */
+		printf("Waiting for data from client socket %d\n", c->sock);
 		ret = recv(c->sock, &tmp, sizeof(tmp), 0);
 		if (ret != sizeof(tmp)) {
 			printf("unexpected update message size %d. Out of sync?\n", ret);
@@ -52,33 +55,20 @@ void *cli_server_data_updater(void *dater)
 				tmp.hdr.command, CMD_SERVER_DATA_UPDATE);
 			continue;
 		}
+		ret = clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
+		if (ret) {
+			printf("Failed to get clock \n");
+			ts.tv_sec = ts.tv_nsec = 0;
+		}
 		printf("Received server data update\n");
 		pthread_mutex_lock(&asd_mtx);
+		asd->last_server_update_c = ts;
 		*asd = tmp.asd;
 		pthread_mutex_unlock(&asd_mtx);
+		usleep(100); /* prevent busy loop if server keep sending */
 	}
 
 	return NULL;
-/*
- * Bah. We have own thread here. We can just do blocking recv().
- * OTOH - we will need nonblocking stuff when we start sending client
- * dir-changes to the server.
- *
-	fd_set rfds;
-	FD_SET(c->sock, &rfds);
-
-	for (;;) {
-		FD_ZERO(&rfds);
-		ret = select(c->sock + 1, &rfds, NULL, NULL, NULL);
-		if (ret == -1) {
-			perror("select()");
-			continue;
-		}
-		if (ret) {
-			struct server_data_update_msg tmp;
-		}
-	}
-	*/
 }
 
 int start_server_updater(struct client *c)
@@ -88,7 +78,8 @@ int start_server_updater(struct client *c)
 	pthread_attr_t attr;
 
 	g_args.c = *c;
-//	asd = &g_asd;
+
+	printf("Launching clieng side data receiver\n");
 
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);

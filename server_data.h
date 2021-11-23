@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "common.h"
+#include "client.h"
 #include "paikka.h"
 
 enum pup_tyypit {
@@ -55,6 +56,7 @@ struct powerup_server_data {
 };
 
 struct areena_server_data {
+	struct timespec last_server_update_c; /* Time when client got this data */
 	struct timespec last_server_update; /* Client should ignore these times */
 	/*
 	 * TODO: Should we put the client update timestamps directly in correct
@@ -70,5 +72,7 @@ struct areena_server_data {
 	int active_pups;
 	struct powerup_server_data pups[MAX_PUPS];
 };
+
+void client_get_serverdata(struct client *c, struct areena_server_data *d);
 
 #endif

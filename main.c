@@ -374,6 +374,14 @@ static int parse_args(int argc, char *argv[], struct server *s)
 	return 0;
 }
 
+static void uus_data_serverilta(struct client *c, struct areena *a)
+{
+	struct areena_server_data sd;
+
+	client_get_serverdata(c, &sd);
+	update_areena_by_serverdata(a, &sd, c->id);
+}
+
 int main(int arc, char *argv[])
 {
 	int ok, i, ret;
@@ -496,6 +504,8 @@ uusiksi:
 		a.pisteet ++;
 		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(a.p.renderer);
+		if (use_server)
+			uus_data_serverilta(&c, &a);
 		uudet_paikat(&a);
 		if (i && !(i%100)) {
 			lisaa_alus(&a);

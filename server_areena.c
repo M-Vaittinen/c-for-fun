@@ -272,6 +272,36 @@ void * server_update_thread(void *data)
 
 }
 
+int server_send_arena(struct client *cli_tbl, int num_cli)
+{
+	struct server_data_update_msg msg;
+	int i, ret;
+
+	if (num_cli != 2) {
+		printf("Unexpected num_cli %d\n", num_cli);
+		return -EINVAL;
+	}
+
+	msg.hdr.size = sizeof(msg);
+	msg.hdr.command = CMD_SERVER_DATA_UPDATE;
+	pthread_mutex_lock(&sad_lock);
+	msg.asd = g_sad;
+	pthread_mutex_unlock(&sad_lock);
+
+	for (i = 0; i < num_cli; i++) {
+		ret = send(cli_tbl[i].sock, &msg, sizeof(msg), 0);
+		if (ret) {
+			/* TODO: Return error if send fails because client
+			 * has disconnected
+			 */
+			perror("send()\n");
+			printf("Failed to send server data to client %d\n", i);
+		}
+		printf("Sent arena update to client %d\n", i);
+	}
+	return 0;
+}
+
 int starttaa_server_areena_updater(struct client *cli_tbl, int num_cli)
 {
 	int ret;
@@ -297,6 +327,4 @@ int starttaa_server_areena_updater(struct client *cli_tbl, int num_cli)
 
 	return ret;
 }
-
-
 

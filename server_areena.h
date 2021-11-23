@@ -5,5 +5,6 @@
 
 void arvo_server_areena();
 int starttaa_server_areena_updater(struct client *cli_tbl, int num_cli);
+int server_send_arena(struct client *cli_tbl, int num_cli);
 
 #endif

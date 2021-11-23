@@ -10,7 +10,10 @@
 #include "powerup.h"
 #include "server_data.h"
 
+struct areena_server_data;
+
 struct areena {
+	struct timespec prev_server_update_c;
 	struct piirrin p;
 	struct sounds s;
 	unsigned pisteet;
@@ -40,5 +43,7 @@ int luo_areena(struct areena *a);
 int alusta_seina(struct seina *s, struct paikka *alku, struct paikka *loppu, struct SDL_Color *v);
 void lisaa_rikkopisteet(struct areena *ar, struct alus *oma);
 int arvo_powerup(struct areena *ar);
+void update_areena_by_serverdata(struct areena *a, struct areena_server_data *sd,
+				 int id);
 
 #endif
