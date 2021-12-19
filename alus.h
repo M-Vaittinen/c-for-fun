@@ -3,10 +3,11 @@
 
 #include <SDL.h>
 #include <stdbool.h>
+#include "nurkat.h"
 #include "paikka.h"
+#include "puppipuskuri.h"
 #include "server_data.h"
 
-#define MAX_ACTIVE_PUPS 255
 /* kauanko poweruppi vaikuttaa sekunteina */
 #define POWERUP_VAIKUTUSAIKA 5
 #define PUPPITXT_MAX 255
@@ -19,18 +20,6 @@
 
 struct areena;
 
-struct puppi {
-	int tyyppi;
-	time_t expire;
-};
-
-struct puppipuskuri {
-	uint8_t first;
-	uint8_t last;
-
-	struct puppi pbuf[MAX_ACTIVE_PUPS];
-};
-
 struct alus {
 	int id; /* Alus ID at sever data */
 	int oma;
@@ -38,9 +27,7 @@ struct alus {
 	struct paikka coll_min;
 	struct paikka coll_max;
 	struct paikka p_delta;
-	struct paikka vas_takanurkka;
-	struct paikka oik_takanurkka;
-	struct paikka etunurkka;
+	struct nurkat corners;
 	float suunta;
 	int nopeus;
 	float pituus;

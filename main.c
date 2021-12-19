@@ -118,9 +118,9 @@ void test_display(struct areena *a, SDL_Window* window, SDL_Renderer* renderer)
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
-void get_input(struct areena *a)
+void get_input(struct areena *a, int id)
 {
-	struct alus *oma = &a->alukset[0];
+	struct alus *oma = &a->alukset[id];
 	float fix = 0;
 	const Uint8 *state;
 	struct paikka hiiri = {0,0};;
@@ -149,8 +149,12 @@ void get_input(struct areena *a)
 	hiiri.x -= a->leveys_offset;
 	hiiri.y -= a->korkeus_offset;
 
-	if ((!oonko_kuolematon(oma)) && isin_kolmio(&oma->vas_takanurkka, &oma->oik_takanurkka,
-	    &oma->etunurkka, &hiiri)) {
+	if ((!oonko_kuolematon(&oma->pups)) && isin_kolmio(&oma->corners.vas_takanurkka, &oma->corners.oik_takanurkka,
+	    &oma->corners.etunurkka, &hiiri)) {
+		/* TBD: ponder if this should be done or not. */
+		/* If yes, the server should be informed. But this is a place
+		 * for a cheat :/
+		 */
 		SDL_Log("Törmäsit hiireen!\n");
 		loppu_punaa(a);
 	}
@@ -178,6 +182,7 @@ void get_input(struct areena *a)
 	oma->suunta += fix;
 	if (oma->suunta < 0)
 		oma->suunta += 360;
+
 }
 void valipisteet(struct areena *ar)
 {
@@ -391,6 +396,7 @@ int main(int arc, char *argv[])
 	struct server s;
 	struct client c;
 	bool use_server = false;
+	struct alus *oma;
 
 	srand(time(NULL));
 
@@ -472,6 +478,8 @@ recheck2:
 		ret = start_server_updater(&c);
 		if (ret)
 			return -1;
+
+		printf("My client ID %d, sock %d\n", c.id, c.sock);
 	}
 
 	ok = luo_areena(&a);
@@ -499,16 +507,22 @@ uusiksi:
 
 	nimi = alkuruutu(&a);
 
+	if (use_server && c.id < ALUKSET_MAX)
+		oma = &a.alukset[c.id];
+	else
+		oma = &a.alukset[0];
 
 	for (i = 0; 1 ; i++) {
+		float suunta_vanha = oma->suunta;
 		a.pisteet ++;
 		SDL_SetRenderDrawColor(a.p.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(a.p.renderer);
 		if (use_server)
 			uus_data_serverilta(&c, &a);
+
 		uudet_paikat(&a);
 		if (i && !(i%100)) {
-			lisaa_alus(&a);
+//			lisaa_alus(&a);
 			arvo_powerup(&a);
 		}
 		if (a.pisteet && !(a.pisteet%500))
@@ -520,11 +534,13 @@ uusiksi:
 			goto uusiksi;
 		}
 		usleep(LOOP_DELAY_US);
-		get_input(&a);
+		get_input(&a, use_server?c.id:0);
 		if (a.realstop) {
 			talleta_pisteet(&a, nimi);
 			break;
 		}
+		if (oma->suunta != suunta_vanha)
+			send_suunta_to_server(&c, oma->suunta);
 		SDL_RenderPresent(a.p.renderer);
 	}
 

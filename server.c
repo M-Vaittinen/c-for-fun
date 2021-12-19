@@ -112,7 +112,7 @@ void *server_thread(void *param)
 			perror("accept\n");
 			exit(1);
 		}
-		printf("Client %d connected sock %d\n", i, c->sock);
+		printf("Client %d connected. Server side  sock %d\n", i, c->sock);
 		fflush(stdout);
 		c->id = i;
 

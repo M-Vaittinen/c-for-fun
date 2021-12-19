@@ -10,9 +10,9 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 	int noppeus;
 	struct alus *oma = &ar->alukset[0];
 
-	if (oonko_jaassa(a))
+	if (oonko_jaassa(&a->pups))
 		noppeus = 0;
-	else if (oonko_noppee(a))
+	else if (oonko_noppee(&a->pups))
 		noppeus = NOP_MAX;
 	else
 		noppeus = a->nopeus;
@@ -45,14 +45,14 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 	}
 
 	if ( a->p.x <= 0 ) {
-		if (oonko_haamu(a) || (a->oma && oonko_kuolematon(a))) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
 			/* Mee seinän läpi */
 			a->p.x = ar->leveys;
 			goto x_paivitetty;
 		}
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
-			loppu_punaa(ar);	
+			loppu_punaa(ar);
 			goto paikka_paivitetty;
 		}
 
@@ -67,14 +67,14 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 		}
 	}
 	if ( a->p.x >= ar->leveys ) {
-		if (oonko_haamu(a) || (a->oma && oonko_kuolematon(a))) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
 			/* Mee seinän läpi */
 			a->p.x = 0;
 			goto x_paivitetty;
 		}
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
-			loppu_punaa(ar);	
+			loppu_punaa(ar);
 			goto paikka_paivitetty;
 		}
 
@@ -91,14 +91,14 @@ void uusi_paikka(struct areena *ar, struct alus *a)
 	}
 x_paivitetty:
 	if ( a->p.y <= 0 ) {
-		if (oonko_haamu(a) || (a->oma && oonko_kuolematon(a))) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
 			/* Mee seinän läpi */
 			a->p.y = ar->korkeus;
 			goto paikka_paivitetty;
 		}
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
-			loppu_punaa(ar);	
+			loppu_punaa(ar);
 			goto paikka_paivitetty;
 		}
 
@@ -113,14 +113,14 @@ x_paivitetty:
 			a->suunta = 360.0 - a->suunta;
 	}
 	if (a->p.y >= ar->korkeus) {
-		if (oonko_haamu(a) || (a->oma && oonko_kuolematon(a))) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
 			/* Mee seinän läpi */
 			a->p.y = 0;
 			goto paikka_paivitetty;
 		}
 		if (a->oma) {
 			printf("Törmäsit seinään\n");
-			loppu_punaa(ar);	
+			loppu_punaa(ar);
 			goto paikka_paivitetty;
 		}
 		if (a->p.y >= ar->korkeus) {
@@ -140,16 +140,19 @@ paikka_paivitetty:
 	if (a->oma)
 	{
 		poista_vanhat_pupit(a);
-		kato_pupit(ar, a);
+		/* TBD: Passing NULL as pts breaks points adding untill server
+		 * is operational
+		 */
+		kato_pupit(&ar->active_pups, &a->pups, NULL, ar);
 	}
 
 	if (a->oma)
 		return;
 
-	if (!oonko_kuolematon(oma)) {
+	if (!oonko_kuolematon(&oma->pups)) {
 		if ( o_iholla(oma,a)) {
-			if ( tormasi(oma, a)) {
-				if (oonko_rikkova(oma)) {
+			if ( tormasi(&oma->corners, &a->corners)) {
+				if (oonko_rikkova(&oma->pups)) {
 					if (!a->rikki) {
 						lisaa_rikkopisteet(ar, oma);
 						pysayta_alus(a);

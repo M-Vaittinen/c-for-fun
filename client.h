@@ -14,5 +14,6 @@ struct client {
 int connect_client(struct client *c, struct server *s);
 int client_get_id(struct client *c, struct server *s);
 int start_server_updater(struct client *c);
+void send_suunta_to_server(struct client *c, float suunta);
 
 #endif

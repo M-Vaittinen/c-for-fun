@@ -12,7 +12,8 @@ bool nurkka_ympyrassa(struct paikka *nurkka, struct paikka *kp, int sade);
 void draw_text(struct areena *a, const char *text, struct paikka *p, int w, int h, struct SDL_Color *v);
 void DrawCircle(SDL_Renderer * renderer, struct paikka *centre, int32_t radius, struct SDL_Color *v);
 int o_iholla(struct alus *a, struct alus *a2);
-int tormasi(struct alus *oma, struct alus *a);
+//int tormasi(struct alus *oma, struct alus *a);
+int tormasi(struct nurkat *oma, struct nurkat *a);
 bool isin_kolmio(struct paikka *a, struct paikka *b, struct paikka *c,
 		struct paikka *p);
 

@@ -26,6 +26,11 @@ void client_get_serverdata(struct client *c, struct areena_server_data *d)
 	pthread_mutex_lock(&asd_mtx);
 	*d = g_asd;
 	pthread_mutex_unlock(&asd_mtx);
+/*
+	printf("sent by server at %ld %ld, recvd by client at %ld %ld\n",
+	       d->last_server_update.tv_sec, d->last_server_update.tv_nsec,
+	       d->last_server_update_c.tv_sec, d->last_server_update_c.tv_nsec);
+*/
 }
 
 void *cli_server_data_updater(void *dater)
@@ -44,9 +49,9 @@ void *cli_server_data_updater(void *dater)
 		 * OTOH - missing client updates would not be nice.
 		 */
 		printf("Waiting for data from client socket %d\n", c->sock);
-		ret = recv(c->sock, &tmp, sizeof(tmp), 0);
+		ret = recv(c->sock, &tmp, sizeof(tmp), MSG_WAITALL);
 		if (ret != sizeof(tmp)) {
-			printf("unexpected update message size %d. Out of sync?\n", ret);
+			printf("unexpected update message size %d. Exoected %d Out of sync?\n", ret, (int)sizeof(tmp));
 			continue;
 		}
 
@@ -65,7 +70,6 @@ void *cli_server_data_updater(void *dater)
 		asd->last_server_update_c = ts;
 		*asd = tmp.asd;
 		pthread_mutex_unlock(&asd_mtx);
-		usleep(100); /* prevent busy loop if server keep sending */
 	}
 
 	return NULL;

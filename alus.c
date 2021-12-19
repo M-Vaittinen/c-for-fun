@@ -15,7 +15,6 @@ static void coll_update(struct alus *a, struct paikka *p)
 	a->coll_min.y = MIN(a->coll_min.y, p->y);
 }
 
-
 static void alusta_oma_alus(struct areena *a)
 {
 	struct SDL_Color v = ALUS_OLETUS_VARI;
@@ -111,27 +110,27 @@ void alus_laske_nurkat(struct alus *a)
 	change_y = sinf(angle) * pit;
 	change_x = cosf(angle) * pit;
 
-	a->etunurkka.x = a->p.x + change_x;
-	a->etunurkka.y = a->p.y + change_y;
+	a->corners.etunurkka.x = a->p.x + change_x;
+	a->corners.etunurkka.y = a->p.y + change_y;
 
-	a->coll_max.x = a->coll_min.x = a->etunurkka.x;
-	a->coll_max.y = a->coll_min.y = a->etunurkka.y;
+	a->coll_max.x = a->coll_min.x = a->corners.etunurkka.x;
+	a->coll_max.y = a->coll_min.y = a->corners.etunurkka.y;
 
 	change_y = sin(M_PI + tangle + angle) * pit_nurkka;
 	change_x = cos(M_PI + tangle + angle) * pit_nurkka;
 
-	a->oik_takanurkka.x = a->p.x + change_x;
-	a->oik_takanurkka.y = a->p.y + change_y;
+	a->corners.oik_takanurkka.x = a->p.x + change_x;
+	a->corners.oik_takanurkka.y = a->p.y + change_y;
 
-	coll_update(a, &a->oik_takanurkka);
+	coll_update(a, &a->corners.oik_takanurkka);
 
 	change_y = sin(M_PI - tangle + angle) * pit_nurkka;
 	change_x = cos(M_PI - tangle + angle) * pit_nurkka;
 
-	a->vas_takanurkka.x = a->p.x + change_x;
-	a->vas_takanurkka.y = a->p.y + change_y;
+	a->corners.vas_takanurkka.x = a->p.x + change_x;
+	a->corners.vas_takanurkka.y = a->p.y + change_y;
 
-	coll_update(a, &a->vas_takanurkka);
+	coll_update(a, &a->corners.vas_takanurkka);
 }
 
 void piirra_alus(struct areena *ar, struct alus *a)
@@ -148,25 +147,25 @@ void piirra_alus(struct areena *ar, struct alus *a)
 
 	v = &a->vri;
 
-	if (oonko_uppee(a))
+	if (oonko_uppee(&a->pups))
 		v = &v_upee;
-	if (oonko_noppee(a))
+	if (oonko_noppee(&a->pups))
  		v = &v_nopee;
-	if (oonko_haamu(a))
+	if (oonko_haamu(&a->pups))
 		v = &v_haamu;
-	if (oonko_rikkova(a))
+	if (oonko_rikkova(&a->pups))
 		v = &v_rikkova;
-	if (oonko_kuolematon(a))
+	if (oonko_kuolematon(&a->pups))
 		v = &v_kuolematon;
-	if (oonko_jaassa(a))
+	if (oonko_jaassa(&a->pups))
 		v = &v_jaassa;
 
 
-	alusta_seina(&s, &a->vas_takanurkka, &a->oik_takanurkka, v);
+	alusta_seina(&s, &a->corners.vas_takanurkka, &a->corners.oik_takanurkka, v);
 	s.piirra(ar, &s);
-	alusta_seina(&s, &a->oik_takanurkka, &a->etunurkka, v);
+	alusta_seina(&s, &a->corners.oik_takanurkka, &a->corners.etunurkka, v);
 	s.piirra(ar, &s);
-	alusta_seina(&s, &a->etunurkka, &a->vas_takanurkka, v);
+	alusta_seina(&s, &a->corners.etunurkka, &a->corners.vas_takanurkka, v);
 	s.piirra(ar, &s);
 /*
 	SDL_SetRenderDrawColor(renderer, 0,255,0,SDL_ALPHA_OPAQUE);
@@ -201,8 +200,3 @@ void pysayta_alus(struct alus *a)
 	a->vri.b = 0;
 	a->nopeus = 0;
 }
-
-
-
-
-

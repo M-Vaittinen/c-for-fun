@@ -11,6 +11,7 @@
 /* tsäännsi että uus poweruppi tehdään on yksi näin monesta */
 #define UUDEN_PUPIN_TSAANNSSI 3
 
+#define MIN_SERVER_UPDATE_TIME_US 5000
 //5 ms
 #define LOOP_DELAY_US 5000
 #define NOP_MAX 36000*2

@@ -29,6 +29,7 @@ void server_lisaa_alus(struct areena_server_data *sad,
 {
 	pthread_mutex_lock(&sad_lock);
 	sad->alukset[id] = *a;
+	sad->alusten_maara ++;
 	pthread_mutex_unlock(&sad_lock);
 }
 
@@ -55,9 +56,9 @@ void srv_alus_laske_nurkat(struct alus_server_data *a)
         float pit, pit_nurkka;
         float lev;
         float angle = a->suunta * M_PI / 180.0f;
-	struct paikka etunurkka;
-	struct paikka oik_takanurkka;
-	struct paikka vas_takanurkka;
+//	struct paikka etunurkka;
+//	struct paikka oik_takanurkka;
+//	struct paikka vas_takanurkka;
 
         float tangle;
 
@@ -73,27 +74,27 @@ void srv_alus_laske_nurkat(struct alus_server_data *a)
         change_y = sinf(angle) * pit;
         change_x = cosf(angle) * pit;
 
-        etunurkka.x = a->p.x + change_x;
-        etunurkka.y = a->p.y + change_y;
+        a->corners.etunurkka.x = a->p.x + change_x;
+        a->corners.etunurkka.y = a->p.y + change_y;
 
-        a->coll_max.x = a->coll_min.x = etunurkka.x;
-        a->coll_max.y = a->coll_min.y = etunurkka.y;
+        a->coll_max.x = a->coll_min.x = a->corners.etunurkka.x;
+        a->coll_max.y = a->coll_min.y = a->corners.etunurkka.y;
 
         change_y = sin(M_PI + tangle + angle) * pit_nurkka;
         change_x = cos(M_PI + tangle + angle) * pit_nurkka;
 
-        oik_takanurkka.x = a->p.x + change_x;
-        oik_takanurkka.y = a->p.y + change_y;
+        a->corners.oik_takanurkka.x = a->p.x + change_x;
+        a->corners.oik_takanurkka.y = a->p.y + change_y;
 
-        srv_coll_update(a, &oik_takanurkka);
+        srv_coll_update(a, &a->corners.oik_takanurkka);
 
         change_y = sin(M_PI - tangle + angle) * pit_nurkka;
         change_x = cos(M_PI - tangle + angle) * pit_nurkka;
 
-        vas_takanurkka.x = a->p.x + change_x;
-        vas_takanurkka.y = a->p.y + change_y;
+        a->corners.vas_takanurkka.x = a->p.x + change_x;
+        a->corners.vas_takanurkka.y = a->p.y + change_y;
 
-        srv_coll_update(a, &vas_takanurkka);
+        srv_coll_update(a, &a->corners.vas_takanurkka);
 }
 
 void server_arvo_alus(struct alus_server_data *a, int id,
@@ -130,6 +131,9 @@ void arvo_server_areena()
 	int i;
 	struct areena_server_data *sad = &g_sad;
 
+	sad->leveys = WINDOW_X;
+	sad->korkeus = WINDOW_Y;
+
 	for (i = 0; i < alusten_maara; i++) {
 		struct alus_server_data a;
 
@@ -149,7 +153,9 @@ void update_cli_at_server_storage(struct cli_update_to_server *upd, int id)
 		tm.tv_sec = tm.tv_nsec = 0;
 	}
 	pthread_mutex_lock(&sad_lock);
+
 	g_sad.alukset[id].suunta = upd->suunta;
+	printf("Updated client %d direction to %d\n", id, (int)upd->suunta);
 	if (tm.tv_sec != 0 || tm.tv_nsec != 0) {
 		if (id == 0)
 			g_sad.last_client1_update = tm;
@@ -164,19 +170,259 @@ void handle_cli_update(struct client *c)
 	int ret;
 	struct cli_update_to_server upd_msg;
 
-	ret = recv(c->sock, &upd_msg, sizeof(upd_msg), 0);
+	ret = recv(c->sock, &upd_msg, sizeof(upd_msg), MSG_WAITALL);
+//	printf("Server received msg from client %d, sock %d, size %d, expected %ld\n", c->id, c->sock, ret, sizeof(upd_msg));
+	if (!ret)
+		exit(0);
+
 	if (ret != sizeof(upd_msg))
+	{
+		perror("recv()\n");
 		return;
-	if (upd_msg.hdr.command != CMD_CLI_UPDATE)
+	}
+	if (upd_msg.hdr.command != CMD_CLI_UPDATE) {
+		printf("Unexpected command. Expected CMD_CLI_UPDATE: got %d\n", upd_msg.hdr.command);
 		return;
+	}
 
 	update_cli_at_server_storage(&upd_msg, c->id);
 }
 
-void server_alus_update_pos(struct alus_server_data *a, struct timespec *tm)
+void game_over(struct areena_server_data *sad, struct alus_server_data *a)
 {
-	printf("%s not implemented.", __func__);
-	exit(1);
+	/* TODO: Mark player whose alus it was as lost */
+	/* do something else */
+}
+void server_alus_update_pos(struct areena_server_data *sad, struct alus_server_data *a, struct timespec *tm)
+{
+//	printf("%s not implemented.\n", __func__);
+
+//void uusi_paikka(struct areena *ar, struct alus *a)
+//{
+	int nop_x, nop_y, i;
+	float angle;
+	int matka;
+//	struct alus_server_data *cli1 = &sad->alukset[0];
+//	struct alus_server_data *cli2 = &sad->alukset[1];
+	bool *loser = NULL;
+	unsigned int *pts = NULL;
+	unsigned long long int nsec = tm->tv_nsec;;
+	unsigned long long int time_delta_us;
+	int liik_x = 0, liik_y = 0;
+
+	if (!sad->last_server_update.tv_sec && !sad->last_server_update.tv_nsec) {
+		time_delta_us = 0;
+		sad->last_server_update.tv_sec = tm->tv_sec;
+		sad->last_server_update.tv_nsec = tm->tv_nsec;
+
+		return;
+	}
+
+	time_delta_us = (tm->tv_sec - sad->last_server_update.tv_sec) * 1000000;
+	time_delta_us += (nsec - sad->last_server_update.tv_nsec) / 1000;
+
+	if (time_delta_us < MIN_SERVER_UPDATE_TIME_US)
+		return;
+
+	sad->last_server_update = *tm;
+
+	if (a->id == 0) {
+		loser = &sad->player1_lost;
+		pts = &sad->pisteet_id1;
+	} else if (a->id == 1) {
+		loser = &sad->player2_lost;
+		pts = &sad->pisteet_id2;
+	}
+
+	if (oonko_jaassa(&a->pups))
+		matka = 0;
+
+	else if (oonko_noppee(&a->pups))
+		matka = NOP_MAX * (time_delta_us / MIN_SERVER_UPDATE_TIME_US);
+	else
+		matka = a->nopeus * (time_delta_us / MIN_SERVER_UPDATE_TIME_US);
+
+	if (!matka)
+		goto paikka_paivitetty;
+
+	angle = a->suunta * M_PI / 180.0f;
+	nop_y = sinf(angle) * matka;
+	nop_x = cosf(angle) * matka;
+
+	if (!nop_y && !nop_x)
+		goto paikka_paivitetty;
+
+	a->p_delta.x += nop_x;
+	while (a->p_delta.x > NOP_MAX) {
+		a->p.x++;
+		a->p_delta.x -= NOP_MAX;
+		liik_x++;
+	}
+	while (a->p_delta.x < -NOP_MAX) {
+		a->p.x--;
+		a->p_delta.x += NOP_MAX;
+		liik_x--;
+	}
+
+	a->p_delta.y += nop_y;
+	while (a->p_delta.y > NOP_MAX) {
+		a->p.y++;
+		a->p_delta.y -= NOP_MAX;
+		liik_y++;
+	}
+	while (a->p_delta.y < -NOP_MAX) {
+		a->p.y--;
+		a->p_delta.y += NOP_MAX;
+		liik_y--;
+	}
+	printf("Alus %d liikahtaa X sunntaan %d, Y suuntaan %d\n", a->id, liik_x,
+	       liik_y);
+
+
+	if ( a->p.x <= 0 ) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
+			/* Mee seinän läpi */
+			a->p.x = sad->leveys;
+			goto x_paivitetty;
+		}
+		if (loser) {
+			*loser = true;
+			printf("pellaja %d tormasi seinään (paikka X=%d)\n", a->id, a->p.x);
+			game_over(sad, a);
+			goto paikka_paivitetty;
+		}
+
+		a->p.x=1;
+		a->p_delta.x=0;
+
+		if (a->suunta > 90 && a->suunta < 270) {
+			if ( a->suunta <= 180.0)
+				a->suunta = 90.0 - (a->suunta - 90.0);
+			else
+				a->suunta = 270.0 - a->suunta + 270.0;
+		}
+	}
+	if ( a->p.x >= sad->leveys ) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
+			/* Mee seinän läpi */
+			a->p.x = 0;
+			goto x_paivitetty;
+		}
+		if (loser) {
+			*loser = true;
+			printf("pellaja %d tormasi seinään\n", a->id);
+					game_over(sad, a);
+			goto paikka_paivitetty;
+		}
+
+		a->p.x=sad->leveys-1;
+		a->p_delta.x=0;
+
+		if (a->suunta > 270 || a->suunta < 90) {
+
+			if( a->suunta <= 90.0)
+				a->suunta = 90.0 - a->suunta + 90.0;
+			else
+				a->suunta = 270.0 - (a->suunta - 270);
+		}
+	}
+x_paivitetty:
+	if ( a->p.y <= 0 ) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
+			/* Mee seinän läpi */
+			a->p.y = sad->korkeus;
+			goto paikka_paivitetty;
+		}
+		if (loser) {
+			*loser = true;
+			printf("pellaja %d tormasi seinään\n", a->id);
+					game_over(sad, a);
+			goto paikka_paivitetty;
+		}
+
+		if (a->p.y <= 0) {
+			a->p.y = 1;
+			a->p_delta.y = 0;
+		}
+
+		if ((a->suunta <= 270 && a->suunta >= 180) )
+			a->suunta = 180 - (a->suunta - 180);
+		else if (a->suunta > 270)
+			a->suunta = 360.0 - a->suunta;
+	}
+	if (a->p.y >= sad->korkeus) {
+		if (oonko_haamu(&a->pups) || (a->oma && oonko_kuolematon(&a->pups))) {
+			/* Mee seinän läpi */
+			a->p.y = 0;
+			goto paikka_paivitetty;
+		}
+		if (loser) {
+			*loser = true;
+			printf("pellaja %d tormasi seinään\n", a->id);
+					game_over(sad, a);
+			goto paikka_paivitetty;
+		}
+
+		if (a->p.y >= sad->korkeus) {
+			a->p.y = sad->korkeus - 1;
+			a->p_delta.y = 0;
+		}
+
+		if ( a->suunta <= 180 )
+			a->suunta = 360.0 - a->suunta;
+
+
+	}
+paikka_paivitetty:
+
+	srv_alus_laske_nurkat(a);
+
+	if (a->id == 0 || a->id == 1)
+	{
+	/* TODO: Remove expired power-ups at server side */
+	//	poista_vanhat_pupit(a);
+//void kato_pupit(int *active_pups, struct puppipuskusri *pups, struct areena *ar)
+		kato_pupit(&sad->active_pups, &a->pups, pts, NULL);
+	}
+
+	if (a->id == 0 || a->id == 1)
+		return;
+
+	for ( i = 0; i < 2; i++) {
+	struct alus_server_data *c = &sad->alukset[i];
+
+	/* Spaghetti spaghetti spaghetti... */
+	if (i)
+		loser = &sad->player2_lost;
+	else
+		loser = &sad->player1_lost;
+
+	if (!oonko_kuolematon(&c->pups)) {
+		if ( srv_o_iholla(c, a)) {
+			if ( tormasi(&c->corners, &a->corners)) {
+				if (oonko_rikkova(&c->pups)) {
+					if (!a->rikki) {
+						/* TODO: Add points */
+		//				lisaa_rikkopisteet(ar, oma);
+						//pysayta_alus(a);
+						a->nopeus = 0;
+						a->rikki = 1;
+					}
+				}
+				else
+					*loser = true;
+					//game_over(sad, c);
+		//			loppu_punaa(ar);
+			}
+		}
+	}
+	}
+//}
+
+
+
+
+//	exit(1);
 }
 
 void position_update()
@@ -185,6 +431,8 @@ void position_update()
 	struct timespec tm;
 //	unsigned int time_delta_us = 0;
 	struct areena_server_data sad_copy;
+
+	printf("update positions at server\n");
 
 	pthread_mutex_lock(&sad_lock);
 	sad_copy = g_sad;
@@ -213,7 +461,8 @@ void position_update()
 		struct alus_server_data *a;
 
 		a = &sad_copy.alukset[i];
-		server_alus_update_pos(a, &tm);
+		printf("update alus %d, id %d\n", i, a->id);
+		server_alus_update_pos(&sad_copy, a, &tm);
 	}
 	/* TODO: this won't do. We have a race here. We must either keep the
 	 * sad locked for whole func or see if someone has updated it

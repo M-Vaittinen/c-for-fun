@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include "common.h"
 #include "client.h"
+#include "nurkat.h"
 #include "paikka.h"
+#include "puppipuskuri.h"
 
 enum pup_tyypit {
 	PUP_SPEED = 0,
@@ -37,14 +39,18 @@ struct alus_server_data {
 	int id;
 	int oma;
 	struct paikka p;
+	struct paikka p_delta;
 	/* TODO: Check where these are used */
 	struct paikka coll_min;
 	struct paikka coll_max;
+	struct nurkat corners;
 	float suunta;
 	int nopeus;
 	float pituus;
 	float leveys;
 	bool rikki;
+
+	struct puppipuskuri pups;
 };
 
 struct powerup_server_data {
@@ -52,6 +58,7 @@ struct powerup_server_data {
 	struct paikka p;
 	int tyyppi;
 	int nappauspisteet;
+	time_t expire;
 
 };
 
@@ -67,10 +74,15 @@ struct areena_server_data {
 	bool initialized;
         unsigned pisteet_id1;
 	unsigned pisteet_id2;
+	bool player1_lost;
+	bool player2_lost;
 	int alusten_maara;
 	struct alus_server_data alukset[ALUKSET_MAX];
 	int active_pups;
 	struct powerup_server_data pups[MAX_PUPS];
+	/* These should not need to be sent */
+	int leveys;
+	int korkeus;
 };
 
 void client_get_serverdata(struct client *c, struct areena_server_data *d);

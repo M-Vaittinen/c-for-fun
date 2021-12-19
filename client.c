@@ -61,3 +61,21 @@ int client_get_id(struct client *c, struct server *s)
 
 	return 0;
 }
+
+void send_suunta_to_server(struct client *c, float suunta)
+{
+	struct cli_update_to_server msg = {
+		.hdr = {
+			.size = sizeof(struct cli_update_to_server),
+			.command = CMD_CLI_UPDATE,
+		},
+		.suunta = suunta,
+	};
+	int ret;
+
+	printf("Sending suunta 0x%f to server\n", suunta);
+	ret = send(c->sock, &msg, sizeof(msg), 0);
+	if (ret != sizeof(msg)) {
+		perror("send()\n");
+	}
+}

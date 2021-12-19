@@ -55,9 +55,9 @@ int create_random_powerup_to_place(struct powerup *p, int koko, struct paikka *p
 
 bool pup_napattu(struct alus *a, struct powerup *pup)
 {
-	return (nurkka_ympyrassa(&a->etunurkka, &pup->p, pup->koko) ||
-		nurkka_ympyrassa(&a->vas_takanurkka, &pup->p, pup->koko) ||
-		nurkka_ympyrassa(&a->oik_takanurkka, &pup->p, pup->koko));
+	return (nurkka_ympyrassa(&a->corners.etunurkka, &pup->p, pup->koko) ||
+		nurkka_ympyrassa(&a->corners.vas_takanurkka, &pup->p, pup->koko) ||
+		nurkka_ympyrassa(&a->corners.oik_takanurkka, &pup->p, pup->koko));
 }
 
 void lisaa_puptxt_piirtoon(struct powerup *pup)
@@ -95,9 +95,9 @@ void poista_vanhat_pupit(struct alus *a)
 	}
 }
 
-void pup_pisteet(struct areena *ar, struct powerup *pup)
+void pup_pisteet(int *pts, struct powerup *pup)
 {
-	ar->pisteet += pup->nappauspisteet;
+	*pts += pup->nappauspisteet;
 }
 
 void soita_puppinappaus(struct areena *ar, struct powerup *pup)
@@ -107,7 +107,7 @@ void soita_puppinappaus(struct areena *ar, struct powerup *pup)
 	if (snd)
 		Mix_PlayChannel( -1, snd, 0 );
 }
-
+/*
 static void lisaa_puptieto(struct alus *a, struct powerup *pup)
 {
 	struct puppi *uusi;
@@ -129,36 +129,49 @@ static void lisaa_puptieto(struct alus *a, struct powerup *pup)
 	uusi->tyyppi = pup->tyyppi;
 	uusi->expire = time(NULL) + POWERUP_VAIKUTUSAIKA;
 }
+*/
 
-void kato_pupit(struct areena *ar, struct alus *a)
+void kato_pupit(int *active_pups, struct puppipuskuri *pups, unsigned int *pts, struct areena *ar)
 {
-	int i;
+	//int i;
 
-	if (!ar->active_pups)
+	if (!*active_pups)
 		return;
-
+#if 0
 	for (i = 0; i < MAX_PUPS; i++)
-		if (ar->pups[i].expire)
-			if (pup_napattu(a, &ar->pups[i])) {
-				lisaa_puptieto(a, &ar->pups[i]);
-				lisaa_puptxt_piirtoon(&ar->pups[i]);
-				ar->pups[i].expire = 0;
-				ar->active_pups--;
-				pup_pisteet(ar, &ar->pups[i]);
-				soita_puppinappaus(ar, &ar->pups[i]);
+		if (pups[i].expire)
+			if (pup_napattu(a, &pups[i])) {
+				lisaa_puptieto(a, &pups[i]);
+				lisaa_puptxt_piirtoon(&pups[i]);
+				pups[i].expire = 0;
+				*active_pups -= 1;
+				/* TODO: Increase points somewhere outside ?
+				 * Now points are only increased at cloent side
+				 * and will be overwritten by server data
+				 * Points hould be increased at server side, right?
+				 * OTOH - we could leave points to be fully
+				 * handled at client side. Server does not store
+				 * points now so cheating does not really matter
+				 */
+				if (pts)
+					pup_pisteet(pts, &>pups[i]);
+				if (ar)
+					soita_puppinappaus(ar, &>pups[i]);
 			}
 
 	return;
+#endif
 }
 
-bool mun_pupit(struct alus *a, int tyyppi)
+//bool mun_pupit(struct alus *a, int tyyppi)
+bool mun_pupit(struct puppipuskuri *pups, int tyyppi)
 {
 	uint8_t i;
 	if (tyyppi >= PUP_TYYPIT)
 		return false;
 
-	for (i = a->pups.first; i != a->pups.last; i++)
-		if (a->pups.pbuf[i].tyyppi == tyyppi)
+	for (i = pups->first; i != pups->last; i++)
+		if (pups->pbuf[i].tyyppi == tyyppi)
 			return true;
 	return false;
 }

@@ -17,7 +17,7 @@ static int alusta_seinat(struct areena *a)
 		.b = 255,
 		.a = SDL_ALPHA_OPAQUE,
 	};
-	struct paikka alut[] = { 
+	struct paikka alut[] = {
 		{ .x = 0, .y =  0},
 		{ .x = a->leveys, .y =  0 },
 		{ .x = a->leveys, .y = a->korkeus },
@@ -161,6 +161,7 @@ void copy_server_alus_to_client(struct alus_server_data *sa, struct alus *ca)
 {
 	ca->id = sa->id;
 	ca->p = sa->p;
+	ca->p_delta = sa->p_delta;
 	ca->coll_min = sa->coll_min;
 	ca->coll_max = sa->coll_max;
 	ca->suunta = sa->suunta;
