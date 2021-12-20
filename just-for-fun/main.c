@@ -68,7 +68,7 @@ static int parse_args(int argc, char *argv[], int *seinia)
 	return 0;
 }
 
-#define MAX_SEINA 1024
+#define MAX_SEINA 2048
 
 struct seina {
 	int alku_x;
@@ -187,15 +187,12 @@ static int jaa_seina(struct seina s, struct seina *a, struct seina *b, int levey
 
 static int laske_uudet_seinat(struct seina *s, int seinamaara, int leveys, int korkeus)
 {
-	int i, first = 0;
+	int i;
 
 	for (i = seinamaara - 1; i >= 0; i--) {
 		int uusi1 = i * 2;
 		int uusi2 = uusi1 + 1;
 
-		if (!first)
-			printf("tan jalkeen seinia on %u\n", uusi2 + 1);
-		first = 1;
 		if (jaa_seina(s[i], &s[uusi1], &s[uusi2], leveys, korkeus))
 			return -1;
 	}
