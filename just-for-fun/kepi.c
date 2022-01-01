@@ -16,7 +16,14 @@
 
 #define MAX_KEHAP 600
 
-//static SDL_Renderer* grdr;
+void piirra_kolmio(SDL_Renderer* grdr, struct piste *k)
+{
+	SDL_SetRenderDrawColor(grdr, 255, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderDrawLine(grdr, k[0].x, k[0].y, k[1].x, k[1].y);
+	SDL_RenderDrawLine(grdr, k[1].x, k[1].y, k[2].x, k[2].y);
+	SDL_RenderDrawLine(grdr, k[2].x, k[2].y, k[0].x, k[0].y);
+	SDL_SetRenderDrawColor(grdr, 255, 0, 255, SDL_ALPHA_OPAQUE);
+}
 
 void arvo_kolmio(SDL_Renderer* grdr, struct piste *k, int max_x, int max_y)
 {
@@ -72,12 +79,6 @@ void arvo_kolmio(SDL_Renderer* grdr, struct piste *k, int max_x, int max_y)
 	k[1] = tmp[1];
 	k[2] = tmp[2];
 
-	SDL_RenderPresent(grdr);
-	SDL_SetRenderDrawColor(grdr, 255, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderDrawLine(grdr, k[0].x, k[0].y, k[1].x, k[1].y);
-	SDL_RenderDrawLine(grdr, k[1].x, k[1].y, k[2].x, k[2].y);
-	SDL_RenderDrawLine(grdr, k[2].x, k[2].y, k[0].x, k[0].y);
-	SDL_SetRenderDrawColor(grdr, 255, 0, 255, SDL_ALPHA_OPAQUE);
 }
 
 int laske_pts(struct piste kylki1, struct piste kylki2, int kokopit,
@@ -130,45 +131,28 @@ void oota()
 
 int the_kepi(SDL_Renderer* renderer, int leveys, int korkeus)
 {
-	int num_kehap, i, tmp;
+	int num_kehap, i, tmp, loops;
 	struct piste kolmio[3];
 	int len[3], len_keha;
 	int num_valipts[3];
 	struct piste *pisteet[3] = { NULL };
-	SDL_Event event;
-	//int ret;
 
-//	while (1) {
+	while (1) {
 
-	len_keha = 0;
 	tmp = 0;
 	if (pisteet[0])
 		for (i = 0; i < 3; i++)
 			free(pisteet[i]);
 
-	memset(&kolmio[0], 0, sizeof(kolmio));
-	num_kehap = 0;
-	memset(&len, 0, sizeof(len));
-	memset(&num_valipts,0 ,sizeof(num_valipts));;
-
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(renderer);
-		
-	//SDL_RenderPresent(renderer);
-	SDL_RenderClear(renderer);
-	SDL_Delay(1000);
-	//SDL_RenderClear(renderer);
-	//SDL_RenderPresent(renderer);
-
 	arvo_kolmio(renderer, &kolmio[0], leveys, korkeus);
 	num_kehap = (9 + rand() % MAX_KEHAP);
 
 	for (i = 0; i < 3; i++) {
-		struct jana tmp;
+		struct jana tj;
 
-		tmp.alku = kolmio[i];
-		tmp.loppu = kolmio[(i + 1) % 3];
-		len[i] = jana_pituus(&tmp);
+		tj.alku = kolmio[i];
+		tj.loppu = kolmio[(i + 1) % 3];
+		len[i] = jana_pituus(&tj);
 		len_keha += len[i];
 	}
 	for (i = 0; i < 3; i++) {
@@ -178,45 +162,47 @@ int the_kepi(SDL_Renderer* renderer, int leveys, int korkeus)
 	}
 	num_kehap = tmp;
 
-	for (i = 0; i < 3; i++) {
-		laske_pts(kolmio[i], kolmio[(i + 1) % 3], len[i], num_valipts[i], /* kulmakerroin[i],*/ &pisteet[i]);
-		piirra_pts(renderer, pisteet[i], num_valipts[i] + 1);
-	}
-	/* Just lets see what this does */
-	SDL_RenderPresent(renderer);
+	for (loops = 0; loops < num_valipts[0]; loops++) {
+		piirra_kolmio(renderer, &kolmio[0]);
 
-	for (i = 0; i < num_valipts[0]; i++) {
-		struct piste *alkup, *loppup;
-//		struct timespec tm = {.tv_sec = 0, .tv_nsec = 10000000 };
+		for (i = 0; i < 3; i++) {
+			laske_pts(kolmio[i], kolmio[(i + 1) % 3], len[i], num_valipts[i], &pisteet[i]);
+			piirra_pts(renderer, pisteet[i], num_valipts[i] + 1);
+		}
 
-		alkup = &pisteet[0][i];
-		loppup = &pisteet[1][i];
+		for (i = 0; i <= loops; i++) {
+			SDL_Event event;
+			struct piste *alkup, *loppup;
 
-		SDL_RenderDrawLine(renderer, alkup->x, alkup->y, loppup->x, loppup->y);
+			alkup = &pisteet[0][i];
+			loppup = &pisteet[1][i];
 
-		alkup = &pisteet[1][i];
-		loppup = &pisteet[2][i];
+			SDL_RenderDrawLine(renderer, alkup->x, alkup->y, loppup->x, loppup->y);
 
-		SDL_RenderDrawLine(renderer, alkup->x, alkup->y, loppup->x, loppup->y);
+			alkup = &pisteet[1][i];
+			loppup = &pisteet[2][i];
 
-		alkup = &pisteet[2][i];
-		loppup = &pisteet[0][i];
+			SDL_RenderDrawLine(renderer, alkup->x, alkup->y, loppup->x, loppup->y);
 
-		SDL_RenderDrawLine(renderer, alkup->x, alkup->y, loppup->x, loppup->y);
+			alkup = &pisteet[2][i];
+			loppup = &pisteet[0][i];
+
+			SDL_RenderDrawLine(renderer, alkup->x, alkup->y, loppup->x, loppup->y);
+			SDL_SetRenderDrawColor(renderer, (255 - i * 2)%255, i * 2%255, (255 - i * 4)%255, SDL_ALPHA_OPAQUE);
+
+			SDL_PollEvent( &event );
+			if (event.type == SDL_KEYDOWN) {
+				SDL_Quit();
+				return 0;
+			}
+		}
 		SDL_RenderPresent(renderer);
-//		nanosleep(&tm, NULL);
-		SDL_Delay(10);
+		SDL_Delay(50);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(renderer);
 	}
 
-/*
-	SDL_PollEvent( &event );
-	if (event.type == SDL_KEYDOWN) {
-		SDL_Quit();
-		break;
 	}
-*/
-	oota();
-//	}
 
 	return 0;
 }
