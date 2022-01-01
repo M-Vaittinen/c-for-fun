@@ -10,11 +10,15 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "kepi.h"
+
 #define OPTSTRING "s:v?"
+#define KEPI 0xabba
 
 static struct option long_options[] =
 {
     {"janoja" , required_argument, 0, 'j'},
+    {"kepi", no_argument, 0, 'k'},
     {"version",  no_argument, 0, 'v'},
     {"help",  no_argument, 0, 'h'},
     {0,0,0,0}
@@ -47,12 +51,12 @@ static int parse_args(int argc, char *argv[], int *seinia)
 			print_version();
 			printf("Usage: %s [-j janojen-maara ]\n", argv[0]);
 			return ret;
-        	case 's':
+        	case 'j':
 		{
 			char *test;
 
 			if (!optarg) {
-				printf ("-s puuttuva janojen maara\n");
+				printf ("-j puuttuva janojen maara\n");
 				return -1;
 			}
 			*seinia = strtol(optarg, &test, 0);
@@ -62,6 +66,8 @@ static int parse_args(int argc, char *argv[], int *seinia)
 			}
 			break;
 		}
+		case 'k':
+			return KEPI;
 		}
 	}
 
@@ -247,24 +253,48 @@ int main(int arc, char *argv[])
 	int seinamaara = 0;
 	int alkuseinia = 1;
 	struct seina **seinataulukot;
+	bool kepi = false;
 
 	srand(time(NULL));
 
 	ret = parse_args(arc, argv, &alkuseinia);
-	if (ret) {
+	/*
+	 * Return value KEPI is special and indicates we should do kehapiste
+	 * stuff
+	 */
+	if (ret == KEPI) {
+		kepi = true;
+	} else if (ret) {
 		if (ret < 0)
 			return -1;
 		return 0;
 	}
 
-	seinataulukot = calloc(alkuseinia, sizeof(struct seina *));
-	if (!seinataulukot)
-		return -ENOMEM;
-
-	for (i = 0; i < alkuseinia; i++) {
-		seinataulukot[i] = calloc(MAX_SEINA, sizeof(struct seina));
-		if (!seinataulukot[i])
+	/*
+	 * We don't need these tables for KEPI.
+	 * Yep. These ifs are ugly. It'd be nicer to move the 'seina'-stuff in
+	 * own file and just keep the generic SDL init and arg parsing here &&
+	 * depending on the args just proceed with correct program.
+	 *
+	 * Well, I don't have the time or energy to split this now so I just
+	 * leave it as is and do these ifs. I won't move the allocation after
+	 * SDL init (which would also leave us with clearer code as then we
+	 * could branch-out for KEPI after SDL init but before the alloc)
+	 * because these allocations may fail if -j has a large value. It does
+	 * not really matter but something in me says that it's nicer to get the
+	 * alloc failure right at the beginning and not to bother with the
+	 * SDL inits if we don't have the memory.
+	 */
+	if (!kepi) {
+		seinataulukot = calloc(alkuseinia, sizeof(struct seina *));
+		if (!seinataulukot)
 			return -ENOMEM;
+
+		for (i = 0; i < alkuseinia; i++) {
+			seinataulukot[i] = calloc(MAX_SEINA, sizeof(struct seina));
+			if (!seinataulukot[i])
+				return -ENOMEM;
+		}
 	}
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -284,6 +314,12 @@ int main(int arc, char *argv[])
 	leveys -= 2;
 	korkeus -= 2;
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+	/*
+	 * Decide which decoration to display
+	 */
+	if (kepi)
+		return the_kepi(renderer, leveys, korkeus);
 
 
 	while (1) {

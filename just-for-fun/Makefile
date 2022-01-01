@@ -1,5 +1,5 @@
 CC=gcc
-SRC=main.c
+SRC=main.c jana.c  kepi.c 
 CFLAGS= -Wall `sdl2-config --cflags`
 CFLAGS= -ggdb -Wall `sdl2-config --cflags`
 
