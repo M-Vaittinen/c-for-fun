@@ -10,11 +10,13 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "circle.h"
 #include "kepi.h"
 #include "seina.h"
 
-#define OPTSTRING "hj:ks:v?"
+#define OPTSTRING "hj:ks:vy?"
 #define KEPI 0xabba
+#define YMPY 0xbabe
 
 static struct option long_options[] =
 {
@@ -22,16 +24,18 @@ static struct option long_options[] =
     {"kepi", no_argument, 0, 'k'},
     {"version",  no_argument, 0, 'v'},
     {"help",  no_argument, 0, 'h'},
+    {"ympyra",  no_argument, 0, 'y'},
     {0,0,0,0}
 };
 
 static void print_help(char *prog)
 {
-	printf("Usage: %s [-k -v -h] [-j number of lines]\n", prog);
+	printf("Usage: %s [-k -v -h -y] [-j number of lines]\n", prog);
 	printf("-k --kepi	Launch drawing with triangles instead of the\n		default one with line splitting\n");
 	printf("-v --version	print version and exit\n");
 	printf("-h --help	print this help and exit\n");
 	printf("-j --janoja	when -k is not given the number of lines to\n		start with can be specified using -j\n");
+	printf("-y --ympyra	Launch drawing circles instead of the\n		default one with line splitting\n");
 }
 
 static void print_version()
@@ -43,7 +47,7 @@ static int parse_args(int argc, char *argv[], int *seinia)
 {
 	int index;
 	int c;
-	int ret = 1;
+	int helpret = 1, ret = 0;
 
 	while(-1 != (c = getopt_long(argc, argv, OPTSTRING, long_options,
 				     &index))) {
@@ -56,11 +60,11 @@ static int parse_args(int argc, char *argv[], int *seinia)
 			return 1;
 		case '?':
 			printf("Unknown parameter\n");
-			ret = -1;
+			helpret = -1;
 		case 'h':
 			print_version();
 			print_help(argv[0]);
-			return ret;
+			return helpret;
         	case 'j':
 		{
 			char *test;
@@ -77,11 +81,15 @@ static int parse_args(int argc, char *argv[], int *seinia)
 			break;
 		}
 		case 'k':
-			return KEPI;
+			ret = KEPI;
+			break;
+		case 'y':
+			ret = YMPY;
+			break;
 		}
 	}
 
-	return 0;
+	return ret;
 }
 
 int main(int arc, char *argv[])
@@ -90,6 +98,7 @@ int main(int arc, char *argv[])
 	SDL_Renderer* renderer;
 	int leveys, korkeus, ret, alkuseinia = 1;
 	bool kepi = false;
+	bool ympy = false;
 
 	srand(time(NULL));
 
@@ -100,6 +109,8 @@ int main(int arc, char *argv[])
 	 */
 	if (ret == KEPI) {
 		kepi = true;
+	} else if (ret == YMPY) {
+		ympy = true;
 	} else if (ret) {
 		if (ret < 0)
 			return -1;
@@ -129,6 +140,8 @@ int main(int arc, char *argv[])
 	 */
 	if (kepi)
 		ret = the_kepi(renderer, leveys, korkeus);
+	else if (ympy)
+		ret = circle(renderer, leveys, korkeus, alkuseinia);
 	else
 		ret = linesplit(renderer, leveys, korkeus, alkuseinia);
 
