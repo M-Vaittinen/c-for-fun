@@ -12,7 +12,7 @@
 
 #include "kepi.h"
 
-#define OPTSTRING "s:v?"
+#define OPTSTRING "hj:ks:v?"
 #define KEPI 0xabba
 
 static struct option long_options[] =
@@ -23,6 +23,15 @@ static struct option long_options[] =
     {"help",  no_argument, 0, 'h'},
     {0,0,0,0}
 };
+
+static void print_help(char *prog)
+{
+	printf("Usage: %s [-k -v -h] [-j number of lines]\n", prog);
+	printf("-k --kepi	Launch drawing with triangles instead of the\n		default one with line splitting\n");
+	printf("-v --version	print version and exit\n");
+	printf("-h --help	print this help and exit\n");
+	printf("-j --janoja	when -k is not given the number of lines to\n		start with can be specified using -j\n");
+}
 
 static void print_version()
 {
@@ -49,7 +58,7 @@ static int parse_args(int argc, char *argv[], int *seinia)
 			ret = -1;
 		case 'h':
 			print_version();
-			printf("Usage: %s [-j janojen-maara ]\n", argv[0]);
+			print_help(argv[0]);
 			return ret;
         	case 'j':
 		{
