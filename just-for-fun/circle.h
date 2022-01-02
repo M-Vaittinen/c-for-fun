@@ -2,6 +2,8 @@
 #define __CIRCLE_H
 
 #include <SDL.h>
-int circle(SDL_Renderer* renderer, int leveys, int korkeus, int kertaa);
+#include <stdbool.h>
+
+int circle(SDL_Renderer* renderer, int leveys, int korkeus, int kertaa, bool all);
 
 #endif

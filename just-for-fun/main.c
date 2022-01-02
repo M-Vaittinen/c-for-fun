@@ -10,16 +10,19 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "fun.h"
 #include "circle.h"
 #include "kepi.h"
 #include "seina.h"
 
-#define OPTSTRING "hj:ks:vy?"
+#define OPTSTRING "ahj:ks:vy?"
+#define KAIKKI (KEPI| (YMPY << 16))
 #define KEPI 0xabba
 #define YMPY 0xbabe
 
 static struct option long_options[] =
 {
+    {"all",	no_argument, 0, 'a'},
     {"janoja" , required_argument, 0, 'j'},
     {"kepi", no_argument, 0, 'k'},
     {"version",  no_argument, 0, 'v'},
@@ -36,6 +39,7 @@ static void print_help(char *prog)
 	printf("-h --help	print this help and exit\n");
 	printf("-j --janoja	when -k is not given the number of lines to\n		start with can be specified using -j\n");
 	printf("-y --ympyra	Launch drawing circles instead of the\n		default one with line splitting\n");
+	printf("-a --all	Käy läpi kaikki\n");
 }
 
 static void print_version()
@@ -81,10 +85,25 @@ static int parse_args(int argc, char *argv[], int *seinia)
 			break;
 		}
 		case 'k':
+			if (ret == YMPY || ret == KAIKKI) {
+				printf("-k, -y ja -a ovat toisensa poissulkevia\n");
+				return -1;
+			}
 			ret = KEPI;
 			break;
 		case 'y':
+			if (ret == KEPI || ret == KAIKKI) {
+				printf("-k, -y ja -a ovat toisensa poissulkevia\n");
+				return -1;
+			}
 			ret = YMPY;
+			break;
+		case 'a':
+			if (ret == YMPY || ret == KEPI) {
+				printf("-k, -y ja -a ovat toisensa poissulkevia\n");
+				return -1;
+			}
+			ret = KAIKKI;
 			break;
 		}
 	}
@@ -99,6 +118,7 @@ int main(int arc, char *argv[])
 	int leveys, korkeus, ret, alkuseinia = 1;
 	bool kepi = false;
 	bool ympy = false;
+	bool kaikki = false;
 
 	srand(time(NULL));
 
@@ -111,6 +131,8 @@ int main(int arc, char *argv[])
 		kepi = true;
 	} else if (ret == YMPY) {
 		ympy = true;
+	} else if (ret == KAIKKI) {
+		kaikki = true;
 	} else if (ret) {
 		if (ret < 0)
 			return -1;
@@ -138,12 +160,29 @@ int main(int arc, char *argv[])
 	/*
 	 * Decide which decoration to display
 	 */
-	if (kepi)
-		ret = the_kepi(renderer, leveys, korkeus);
+	if (kaikki) {
+		while (1) {
+		/* TODO - add param to exit and to not quit SDL */
+			ret = the_kepi(renderer, leveys, korkeus, true);
+			if (ret)
+				goto out;
+			ret = circle(renderer, leveys, korkeus, alkuseinia, true);
+			if (ret)
+				goto out;
+			ret = linesplit(renderer, leveys, korkeus, alkuseinia, true);
+			if (ret)
+				goto out;
+		}
+	} else if (kepi)
+		ret = the_kepi(renderer, leveys, korkeus, false);
 	else if (ympy)
-		ret = circle(renderer, leveys, korkeus, alkuseinia);
+		ret = circle(renderer, leveys, korkeus, alkuseinia, false);
 	else
-		ret = linesplit(renderer, leveys, korkeus, alkuseinia);
+		ret = linesplit(renderer, leveys, korkeus, alkuseinia, false);
+
+out:
+	if (ret == ALL_OK)
+		ret = 0;
 
 	SDL_Quit();
 

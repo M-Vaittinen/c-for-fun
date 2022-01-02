@@ -1,9 +1,11 @@
+#include <errno.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include <SDL2_gfxPrimitives.h>
 #include <math.h>
 
+#include "fun.h"
 #include "circle.h"
 #include "piste.h"
 
@@ -81,15 +83,17 @@ void calc_kehaympyrat(struct ympyra *y, struct ympyra *y2, int deg, int sp)
 		kehaympyra(y, &y2[i], i * deg);
 }
 
-int circle(SDL_Renderer* renderer, int leveys, int korkeus, int kertaa)
+int circle(SDL_Renderer* renderer, int leveys, int korkeus, int kertaa, bool all)
 {
 	struct ympyra *y, **y2;
-	int *splits, *degree, i, looppi, j, k;
+	int *splits, *degree, i, j;
 
 	y = calloc(kertaa, sizeof(*y));
 	y2 = calloc(kertaa, sizeof(*y2));
 	splits = calloc(kertaa, sizeof(*splits));
 	degree = calloc(kertaa, sizeof(*degree));
+	if (!y || !y2 || !splits || !degree)
+		return -ENOMEM;
 
 	for (j = 0; j < kertaa; j++) {
 
@@ -104,7 +108,9 @@ int circle(SDL_Renderer* renderer, int leveys, int korkeus, int kertaa)
 		splits[j] = 360 / degree[j];
 
 		y2[j] = calloc(splits[j], sizeof(**y2));
-//		y2[j][0].sade = rand() & y[j].sade;
+		if (!y2[j])
+			return -ENOMEM;
+
 		y2[j][0].sade = rand() % SADE_MAX;
 		if ( y2[j][0].sade < 20)
 			y2[j][0].sade = 20;
@@ -125,10 +131,8 @@ int circle(SDL_Renderer* renderer, int leveys, int korkeus, int kertaa)
 				piirra_kehaympyrat(renderer, &y[j], y2[j], splits[j]);
 
 			SDL_PollEvent( &event );
-			if (event.type == SDL_KEYDOWN) {
-				SDL_Quit();
-				return 0;
-			}
+			if (event.type == SDL_KEYDOWN)
+				return ALL_OK;
 
 			piirra_kehaympyrat(renderer, &y[i], y2[i], loops_for_me);
 			SDL_Delay(50);
@@ -138,7 +142,15 @@ int circle(SDL_Renderer* renderer, int leveys, int korkeus, int kertaa)
 		}
 
 	}
-	SDL_Delay(5000);
+	for (i = 0; i < kertaa; i++)
+		free(y2[i]);
+	free(y);
+	free(y2);
+	free(splits);
+	free(degree);
+
+	if (!all)
+		SDL_Delay(5000);
 
 	return 0;
 }

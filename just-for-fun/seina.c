@@ -7,7 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 
-
+#include "fun.h"
 #include "seina.h"
 
 struct seina {
@@ -170,7 +170,7 @@ static void piirra_seinat(SDL_Renderer* renderer, struct seina **st, int seinata
 	SDL_RenderPresent(renderer);
 }
 
-int linesplit(SDL_Renderer* renderer, int leveys, int korkeus, int alkuseinia)
+int linesplit(SDL_Renderer* renderer, int leveys, int korkeus, int alkuseinia, bool all)
 {
 	int seinamaara = 0;
 	int i, j;
@@ -182,6 +182,10 @@ int linesplit(SDL_Renderer* renderer, int leveys, int korkeus, int alkuseinia)
 
 	for (i = 0; i < alkuseinia; i++) {
 		seinataulukot[i] = calloc(MAX_SEINA, sizeof(struct seina));
+		/*
+		 * This leaks the already allocated stuff - but it does not
+		 * really matter as we are going to exit anyways.
+		 */
 		if (!seinataulukot[i])
 			return -ENOMEM;
 	}
@@ -206,13 +210,18 @@ int linesplit(SDL_Renderer* renderer, int leveys, int korkeus, int alkuseinia)
 			//sleep(1);
 			SDL_Delay(1000);
 			while( SDL_PollEvent( &event )) {
-				if (event.type == SDL_KEYDOWN) {
-			//		SDL_Quit();
-					return 0;
-				}
+				if (event.type == SDL_KEYDOWN)
+					return ALL_OK;
 
 			}
 		}
-		sleep(2);
+		SDL_Delay(2000);
+		if (all)
+			break;
 	}
+	for (i = 0; i < alkuseinia; i++)
+		free(seinataulukot[i]);
+	free(seinataulukot);
+
+	return 0;
 }

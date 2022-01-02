@@ -10,6 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "fun.h"
 #include "piste.h"
 #include "jana.h"
 #include "kepi.h"
@@ -117,19 +118,8 @@ void piirra_pts(SDL_Renderer* renderer, struct piste *p, int lkm)
 		SDL_RenderDrawRect(renderer, &r);
 	}
 }
-void oota()
-{
-	SDL_Event event;
-	while( 1 ) {
-		SDL_PollEvent( &event );
-		if (event.type == SDL_KEYDOWN) {
-			SDL_Quit();
-			break;
-		}
-	}
-}
 
-int the_kepi(SDL_Renderer* renderer, int leveys, int korkeus)
+int the_kepi(SDL_Renderer* renderer, int leveys, int korkeus, bool all)
 {
 	int num_kehap, i, tmp, loops;
 	struct piste kolmio[3];
@@ -191,17 +181,16 @@ int the_kepi(SDL_Renderer* renderer, int leveys, int korkeus)
 			SDL_SetRenderDrawColor(renderer, (255 - i * 2)%255, i * 2%255, (255 - i * 4)%255, SDL_ALPHA_OPAQUE);
 
 			SDL_PollEvent( &event );
-			if (event.type == SDL_KEYDOWN) {
-				SDL_Quit();
-				return 0;
-			}
+			if (event.type == SDL_KEYDOWN)
+				return ALL_OK;
 		}
 		SDL_RenderPresent(renderer);
 		SDL_Delay(50);
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(renderer);
 	}
-
+		if (all)
+			break;
 	}
 
 	return 0;
