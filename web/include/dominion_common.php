@@ -33,9 +33,9 @@ function get_expansions($conn, $include_nocards = false, $plain = false)
 	 * must display only those expansions which have cards added to randomizer - and which aren't disabled.
 	 * This is working Ok with the current query, but perhaps we could do more efficient (RIGHT?) JOIN.
 	 */
-	if ($include_nocards)
+	if ($include_nocards) {
 		$query = "SELECT DISTINCT e.id, e.name FROM expansion AS e JOIN parsed_cards as pc WHERE e.id = pc.exp_id";
-	else
+	} else {
 		$query = "SELECT DISTINCT e.id, e.ordernumber, e.name, events.expansion_id AS expansion_events, landmarks.expansion_id AS expansion_landmarks, types.name_plural AS landmark_type ";
 		$query .= "FROM expansion AS e ";
 		$query .= "JOIN cards as c ";
@@ -44,6 +44,7 @@ function get_expansions($conn, $include_nocards = false, $plain = false)
 		$query .= "LEFT JOIN event_type AS types ON landmarks.type_id = types.id ";
 		$query .= "WHERE e.disabled != 1 AND c.expansion_id = e.id ";
 		$query .= "ORDER BY e.ordernumber";
+	}
 
 	debug_print("Querying expanisons: $query");
 
