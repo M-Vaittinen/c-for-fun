@@ -399,7 +399,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* Stolen from the web https://www.geeksforgeeks.org/how-to-detect-a-mobile-device-using-php/ */
 function isMobileDevice() { 
-    return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo 
+	if (!isset($_SERVER["HTTP_USER_AGENT"]))
+		return false;
+
+	return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo 
 |fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i" 
 , $_SERVER["HTTP_USER_AGENT"]); 
 } 
