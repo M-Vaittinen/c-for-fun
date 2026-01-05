@@ -66,7 +66,6 @@ class dom_card_set {
 			$this->cards[] = dom_card::from_full_row($row);
 	}
 	public function show_sets($keepids, $mobile = 0) {
-
 		$vals_on_sets = array(3,3,4);
 		$omena = false;
 
@@ -103,6 +102,8 @@ class dom_card_set {
 //				$prizetype = htmlspecialchars($c->prizetype_name);
 				$expansion = htmlspecialchars($c->expansion_name);
 				$cardtype = htmlspecialchars($c->type_name);
+				/* TODO: Do we need to escape the image name? */
+				$imagename = htmlspecialchars($c->imagename);
 
 				$setup_tip = '';
 
@@ -142,11 +143,18 @@ class dom_card_set {
 				if ($name != "" && $en_name != "" && $name != $en_name)
 					$name = $name . " (" . $en_name . ")";
 
-				if (!$mobile)
-					$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td><td>' . $name . '</td><td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td><td>' . $cardtype . '</td><td>' . $prize . '</td><td>' . $expansion . '</td></tr>'."\n";
-					//$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td><td>' . $name . '</td><td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td><td>' . $cardtype . '</td><td>' . $prize . ' (' . $prizetype . ')</td><td>' . $expansion . '</td></tr>'."\n";
-				else
-					$out .= '<tr><td>' . $this->add_change_input($c->id, $i, $c->prize, $checked) . '</td><td>'. $name . $setup_tip . '</td><td>' . $expansion . '</td></tr>'."\n";
+				if (!$mobile) {
+					$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>'."\n";
+					$out .= '<td><div class="image-container"><p tabindex="0">' . $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div></td>'."\n";
+					$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td>'."\n";
+					$out .= '<td>' . $cardtype . '</td>'."\n";
+					$out .= '<td>' . $prize . '</td>'."\n";
+					$out .= '<td>' . $expansion . '</td></tr>'."\n";
+				} else {
+					$out .= '<tr><td>' . $this->add_change_input($c->id, $i, $c->prize, $checked) . '</td>'."\n";
+					$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $setup_tip . '</td>'."\n";
+					$out .= '<td>' . $expansion . '</td></tr>'."\n";
+				}
 			}
 			$out .= "</table>"."\n";
 			$out .= "Tuhina " . $tuhinasum."\n";

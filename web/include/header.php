@@ -27,6 +27,13 @@ echo '
     color: white;
     padding: 5px;
     border-radius: 5px;
+    z-index: 10;
+}
+.card-img {
+    width: 200px;
+    height: auto;
+    cursor: auto;
+    z-index: 11;
 }
 
 .image-container:hover .hover-text,
@@ -288,6 +295,19 @@ table.aarvonta {
     position: absolute;
     top:-40px;
     left:0;
+}
+
+/* Suggestions: */
+.sfade-in {
+  opacity: 0;
+  animation: sfadeIn 2s forwards;
+  animation-delay: 3s; /* Delay before the animation starts */
+}
+
+@keyframes sfadeIn {
+  to {
+    opacity: 1;
+  }
 }
 
 /* CSS animation */
