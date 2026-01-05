@@ -1,0 +1,10 @@
+RewriteEngine on
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?mva-rohm.local [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?suffle.fi [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?dominionkortit.fi [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?google.com [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?bing.com [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?yahoo.com [NC]
+RewriteRule \.(jpg|jpeg|png|gif|svg)$ http://suffle.fi/img/stolen.png [NC,R,L]
+
