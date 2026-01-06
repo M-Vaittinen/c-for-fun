@@ -36,6 +36,11 @@ echo '
     z-index: 11;
 }
 
+.rohto-img {
+    width: auto;
+    height: 30px;
+}
+
 .image-container:hover .hover-text,
 .image-container:focus-within .hover-text {
     display: block;

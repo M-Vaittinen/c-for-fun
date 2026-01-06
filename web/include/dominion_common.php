@@ -12,6 +12,21 @@
 
 $CARDTYPE_MONEY = 1;
 
+function image_with_explanation($imgfile, $explanation, $imgalt = '', $css_class = '')
+{
+	if ($css_class != '')
+		$imgclass = ' class="'.$css_class.'" ';
+	else
+		$imgclass = '';
+
+	$out = '<div class="image-container">'."\n";
+	$out .= '<img src="'.$imgfile.'" alt="'.$explanation.'" '.$imgclass.'tabindex="0">'."\n";
+	$out .= '<div class="hover-text">'.$explanation.'</div>'."\n";
+	$out .= '</div>'."\n";
+
+	return $out;
+}
+
 function debug_print($str)
 {
 	global $DBG;

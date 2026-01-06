@@ -106,38 +106,27 @@ class dom_card_set {
 				$imagename = htmlspecialchars($c->imagename);
 
 				$setup_tip = '';
+				$potion = '';
 
+				if ($c->potion) {
+					$potion = image_with_explanation("img/potion.png", "Rohto", 'Rohto', ($mobile)?'':'rohto-img');
+				}
 				if ($c->omen) {
-					$setup_tip .= '<div class="image-container">'."\n";
-					$setup_tip .= '<img src="img/omena.png" alt="Omen" tabindex="0">'."\n";
-					$setup_tip .= '<div class="hover-text">Olen Omena</div>'."\n";
-					$setup_tip .= '</div>'."\n";
+					$setup_tip .= image_with_explanation('img/omena.png', 'Olen Omena', 'omen');
 					/* We return the information that an omen was included so we can later add the prophecies */
 					$omena = true;
 				}
 				if ($c->prizetype_id == PRIZETYPE_ID_DEBT) {
-					$setup_tip .= '<div class="image-container">'."\n";
-					$setup_tip .= '<img src="img/debt.png" alt="Myyd&auml;&auml;n Rahoituksella" tabindex="0">'."\n";
-					$setup_tip .= '<div class="hover-text">Myyd&auml;&auml;n Rahoituksella</div>'."\n";
-					$setup_tip .= '</div>'."\n";
+					$setup_tip .= image_with_explanation('img/debt_small.png', 'Myyd&auml;&auml;n Rahoituksella', 'Velka');
 				}
 				if ($c->curse) {
-					$setup_tip .= '<div class="image-container">'."\n";
-					$setup_tip .= '<img src="img/curse.png" alt="Kiroukset" tabindex="0">'."\n";
-					$setup_tip .= '<div class="hover-text">Kirous</div>'."\n";
-					$setup_tip .= '</div>'."\n";
+					$setup_tip .= image_with_explanation("img/curse.png", "Kirous", "Kiroukset");
 				}
 				if ($c->attack) {
-					$setup_tip .= '<div class="image-container">'."\n";
-					$setup_tip .= '<img src="img/speargoblin.png" alt="Valmistelut" tabindex="0">'."\n";
-					$setup_tip .= '<div class="hover-text">Hy&ouml;kk&auml;ys</div>'."\n";
-					$setup_tip .= '</div>'."\n";
+					$setup_tip .= image_with_explanation("img/speargoblin.png", "Hy&ouml;kk&auml;yskortti"  ,"Goblin");
 				}
 				if ($c->setup_text) {
-					$setup_tip .= '<div class="image-container">'."\n";
-					$setup_tip .= '<img src="img/peasant.png" alt="Valmistelut" tabindex="0">'."\n";
-					$setup_tip .= '<div class="hover-text">Extra valmisteluja: '.$c->setup_text.'</div>'."\n";
-					$setup_tip .= '</div>'."\n";
+					$setup_tip .= image_with_explanation("img/peasant.png", htmlspecialchars($c->setup_text), "Valmistelut");
 				}
 
 				if ($name != "" && $en_name != "" && $name != $en_name)
@@ -148,11 +137,11 @@ class dom_card_set {
 					$out .= '<td><div class="image-container"><p tabindex="0">' . $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div></td>'."\n";
 					$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td>'."\n";
 					$out .= '<td>' . $cardtype . '</td>'."\n";
-					$out .= '<td>' . $prize . '</td>'."\n";
+					$out .= '<td>' . $prize . $potion .'</td>'."\n";
 					$out .= '<td>' . $expansion . '</td></tr>'."\n";
 				} else {
 					$out .= '<tr><td>' . $this->add_change_input($c->id, $i, $c->prize, $checked) . '</td>'."\n";
-					$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $setup_tip . '</td>'."\n";
+					$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $potion . $setup_tip . '</td>'."\n";
 					$out .= '<td>' . $expansion . '</td></tr>'."\n";
 				}
 			}

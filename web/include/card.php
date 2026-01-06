@@ -67,6 +67,7 @@ class dom_card
 	public $actionmoney	= null;
 	public $omen		= null;
 	public $imagename	= null;
+	public $potion		= null;
 
 	public $type_name	= null;
 	public $prizetype_name	= null;
@@ -106,6 +107,7 @@ class dom_card
 		$this->below_name = isset($row[$tableprefix.'below_name']) ? $row[$tableprefix.'below_name'] : null;
 		$this->above_name = isset($row[$tableprefix.'above_name']) ? $row[$tableprefix.'above_name'] : null;
 		$this->omen = isset($row[$tableprefix.'omen']) ? $row[$tableprefix.'omen'] : null;
+		$this->potion = isset($row[$tableprefix.'potion']) ? $row[$tableprefix.'potion'] : 0;
 		$this->imagename = isset($row[$tableprefix.'imagename']) ? $row[$tableprefix.'imagename'] : null;
 	}
 
