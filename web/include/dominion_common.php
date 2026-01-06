@@ -118,23 +118,15 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	$onloads = null;
 	$result = get_expansions($conn, false, true);
 
-	$mobile = 1;
 	/* Output the form table */
 
 	$output = '<form action="" method="post" id="theform">'."\n";
-	/*
-	if (!$mobile) {
-	//	$output = '<table class="structure"><tr><th>Käytettävät lisäosat</th><th>Tuhina\'o-meter</th> <th>Tupina\'o-meter</th><th>Kapita\'o-meter</th></tr><tr><td>';
-		//$output .= '<table class="structure"><tr><th>Käytettävät lisäosat</th><th>Tuhina\'o-meter</th> <th>Tupina\'o-meter</th><th>Kapita\'o-meter</th></tr>';
-		$output .= '<table class="structure"><tr><th>Käytettävät lisäosat</th><th>Painotukset</th></tr>'."\n";
-		} else {
-		// $output = '<table class="structure"><tr><th>Käytettävät lisäosat</th><th>Painotukset</th></tr><tr><td>';
-		$output .= '<table class="structure"><tr><th>Käytettävät lisäosat</th><th>Painotukset</th></tr>'."\n";
-		}
+$output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
 
-	$output .= '<tr><td>'."\n";
-	 */
-$output .= '<h3>Käytettävät lisäosat</h3>';
+	$output .= '<td><div class="help-tip">'."\n".'
+	    <p>Totta. Osa lis&auml;osista puuttuu. Olen lis&auml;nnyt vain ne lis&auml;osat / kortit jotka minulla (tai siskollani) on. Mik&auml;li toivot ett&auml; lis&auml;&auml;n uuden, voit olla yhteydess&auml; ja lahjoittaa lis&auml;osan minulle tai siskolleni :) Lis&auml;&auml;n (toistaiseksi) sivulle vain kortteja joilla pelaan</p>
+	</div></td></tr></table>'."\n";
+
 	$output .= '<table class="structure">'."\n"; //expansion table
 	// $output .= '<form action="" method="post" id="theform">';
 	/* Print expansion checkboxes */
@@ -221,15 +213,14 @@ $output .= '<h3>Käytettävät lisäosat</h3>';
 	}
 
 	$output .= '<h3>Painotukset</h3>';
-/*	$output .= '</td> <td>'."\n"; // Overall structure table
- */
-	$output .= '<table class="structure">'."\n"; //ometer table
-	$output .= '<tr><td>'."\n";
-
 	/* ...Tuhina cell: */
-	//$output .= '<td>';
-	if ($mobile)
-		$output .= '<b>Tuhina\'o-meter</b> <br />'."\n";
+	$output .= '<table><tr><td>';
+	$output .= '<b>Tuhina\'o-meter</b>'."\n";
+	$output .= '</td><td>';
+	$output .= '<div class="help-tip">'."\n".'
+	    <p>Tuhina\'o-meter&copy; :ll&auml; voit muuttaa korttiarvontaa v&auml;hent&auml;m&auml;&auml;n tai lis&auml;&auml;m&auml;&auml;n toimintoketjuja lis&auml;&auml;vi&auml; kortteja.</p>
+	</div>'."\n";
+	$output .= '</td></tr></table>';
 
 	$output .= '<div class="slidecontainer">'."\n".'
   <span class="label">-10</span>'."\n".'
@@ -240,21 +231,14 @@ $output .= '<h3>Käytettävät lisäosat</h3>';
   <span class="label">+10</span>'."\n".'
 </div> '."\n";
 
-	$output .= '<div class="help-tip">'."\n".'
-	    <p>Tuhina\'o-meter&copy; :ll&auml; voit muuttaa korttiarvontaa v&auml;hent&auml;m&auml;&auml;n tai lis&auml;&auml;m&auml;&auml;n toimintoketjuja lis&auml;&auml;vi&auml; kortteja.</p>
+	$output .= '<table><tr><td>';
+	$output .= '<b>Tupina\'o-meter</b>'."\n";
+	$output .= '</td><td>';
+	$output .= '<div class="help-tip">
+	    <p>Tupina\'o-meter&copy; :ll&auml; v&auml;henn&auml;t tai lis&auml;&auml;t peliin tupinaa ja jupinaa aiheuttavia elementtej&auml;.<br /><br />Ja jos todella haluat koetella k&auml;rsiv&auml;llisyytesi rajoja niin voit h&ouml;yst&auml;&auml; peli&auml; ripauksella nihilismi&auml; ja pienent&auml;&auml; rahaa ja vastavetoja tuovien toimintakorttien mahdollisuutta.</p>
 	</div>'."\n";
-	$output .= '</td>'."\n";
-	
-	if ($mobile) {
-		/* On a mobile we end the row here */
-		//$output .= '</tr><tr><td></td>';
-		$output .= '</tr><tr>'."\n";
-	}
+	$output .= '</td></tr></table>';
 
-	/* Tupina cell: */
-	$output .= '<td>'."\n";
-	if ($mobile)
-		$output .= '<b>Tupina\'o-meter</b><br />'."\n";
 	$output .= '<div class="slidecontainer">
   <span class="label">-10</span>
   <div class="slider-wrapper">
@@ -266,22 +250,21 @@ $output .= '<h3>Käytettävät lisäosat</h3>';
 
 
 	$output .= '<input type="checkbox" id="add_nihilism" name="add_nihilism" value="1">'."\n";
-	$output .= '<label for="add_nihilism">...ripauksella nihilismi&auml;</label><br>'."\n";
+	$output .= '<label for="add_nihilism">...ripauksella nihilismi&auml;</label></br></br>'."\n";
+
+
+	/* ...Kapita cell: */
+	$output .= '<table><tr><td>';
+	$output .= '<b>Kapita\'o-meter</b><br />'."\n";
+	$output .= '</td><td>';
 	$output .= '<div class="help-tip">
-	    <p>Tupina\'o-meter&copy; :ll&auml; v&auml;henn&auml;t tai lis&auml;&auml;t peliin tupinaa ja jupinaa aiheuttavia elementtej&auml;.<br /><br />Ja jos todella haluat koetella k&auml;rsiv&auml;llisyytesi rajoja niin voit h&ouml;yst&auml;&auml; peli&auml; ripauksella nihilismi&auml; ja pienent&auml;&auml; rahaa ja vastavetoja tuovien toimintakorttien mahdollisuutta.</p>
+	    <p>Kapita\'o-meter&copy; :ll&auml; voit muuttaa korttiarvontaa priorisoimaan raha- ja rahaa lis&auml;&auml;vi&auml; toimintakortteja.</p>
 	</div>'."\n";
 	$output .= '</td>'."\n";
 
-	if ($mobile) {
-		/* On a mobile we end the row here */
-		//$output .= '</tr><tr><td></td>';
-		$output .= '</tr><tr>'."\n";
-	}
+	/* End of the form table and form */
+	$output .= '</tr></table>'."\n";
 
-	/* ...Kapita cell: */
-	$output .= '<td>'."\n";
-	if ($mobile)
-		$output .= '<b>Kapita\'o-meter</b><br />'."\n";
 
 	$output .= '<div class="slidecontainer">
   <span class="label">-10</span>
@@ -292,28 +275,9 @@ $output .= '<h3>Käytettävät lisäosat</h3>';
   <span class="label">+10</span>
 </div>'."\n";
 
-	$output .= '<div class="help-tip">
-	    <p>Kapita\'o-meter&copy; :ll&auml; voit muuttaa korttiarvontaa priorisoimaan raha- ja rahaa lis&auml;&auml;vi&auml; toimintakortteja.</p>
-	</div>'."\n";
-	$output .= '</td>'."\n";
-
-	/* End of the form table and form */
-	$output .= '</tr></table>'."\n";
-
-	/*	$output .= '</td></tr></table>'."\n"; */
-
 	$output .= '<input type="submit" value="Arvo kortit">'."\n";
 	$output .= '</form>'."\n";
-/*
-	if ($onload_ids) {
-		$output .= '<script>';
-		$output .= 'window.onload = function() {'."\n";
-		foreach($onload_ids AS $oid) {
-			$output .= 'toggleCheckboxes(document.getElementById(\'foo\'), \''.$oid.'\');'."\n";
-		}
-		$output .= '};</script>';
-	}
- */
+
 	return $output;
 }
 
