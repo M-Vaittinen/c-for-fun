@@ -633,6 +633,7 @@ foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
 	if ($num_presel) {
 		$query .= exclude_presel_id($preselected[$i]);
 	}
+	$num_cards_to_rand = $num_cards[$i] - $num_presel;
 
 	$result = query_cards($conn, $query);
 	$foo = 0;
@@ -640,8 +641,11 @@ foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
 		$foo++;
 		$card[] = dom_card::from_partial_row($row);
 	}
-	debug_print("$foo cards fetched for $card_group_names[$i] - selecting from those:");
-
+	debug_print("$foo cards fetched for $card_group_names[$i] - selecting from those:\n");
+	if (count($card) < $num_cards_to_rand) {
+		echo '<h3>Ei riitt&auml;v&auml;sti hintaryhm&auml;n <i>"'.$card_group_names[$i].'"</i>-kortteja.</h3> Valitse useampi (tai isompi) lis&auml;osa';
+		goto page_end;
+	}
 	$selected = randomize_cards($card, $tuh_inafactor, $tup_inafactor, $nihilism, $kap_itafactor, $num_cards[$i] - $num_presel);
 	if ($num_presel)
 		add_existing($selected, $preselected[$i]);
@@ -660,6 +664,8 @@ $omena = $card_set->show_sets($preselected, $mobile);
 if ($land_exp || $event_exp || $keep_land_ids || $keep_event_ids || $omena) {
 	show_eventland($conn, $event_exp, $land_exp, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $exp, $mobile);
 }
+
+page_end:
 
 /* Close connection, print (c) and send </body> </html> */
 echo '<p><h1><a href="aloittaja.php" target="_blank">Arvo my&ouml;s aloittaja?</a></h1>';
