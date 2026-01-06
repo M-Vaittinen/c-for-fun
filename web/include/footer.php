@@ -18,7 +18,7 @@ echo '<table class="structure"><tr><td>';
 //echo '<script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1289001/t/4"></script>';
 echo '</td><td>';
 echo "Copyright (c) 2025, Matti Vaittinen mazziesaccount (at) gmail com";
-echo ' -- Card Images from <a href="https://dominioncg.fandom.com">dominioncg.fandom.com</a>. Images available under <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>';
+echo ' -- Card Images from <a href="https://dominioncg.fandom.com">dominioncg.fandom.com</a> and <a href="https://wiki.dominionstrategy.com">wiki.dominionstrategy.com</a>. Images available under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA</a>';
 echo '</td></tr></table>';
 echo "</body> </html>";
 ?>
