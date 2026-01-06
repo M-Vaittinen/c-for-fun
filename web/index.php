@@ -311,7 +311,7 @@ function do_prize_bucket_where($boundaries, $prize_column)
 $boundary_prizes = get_prize_buckets($conn, $exp);
 $PRIZEBUCKETS = do_prize_bucket_where($boundary_prizes, 'c.prize');
 
-$QUERY_BASE = 'SELECT c.id AS id, c.tuhinakerroin AS tuhinakerroin, c.actionmoney AS actionmoney, c.curse AS curse, c.attack AS attack, c.defence AS defence, c.type_id AS type_id FROM cards AS c LEFT JOIN expansion as e ON c.expansion_id = e.id WHERE e.disabled != 1 AND c.dual_below_id = 0 AND ';
+$QUERY_BASE = 'SELECT c.id AS id, c.dual_top_of_id, c.tuhinakerroin AS tuhinakerroin, c.actionmoney AS actionmoney, c.curse AS curse, c.attack AS attack, c.defence AS defence, c.type_id AS type_id FROM cards AS c LEFT JOIN expansion as e ON c.expansion_id = e.id WHERE e.disabled != 1 AND c.dual_below_id = 0 AND ';
 
 $num_cards = array(3, 3, 4);
 $card_group_names = array('Halpaa ku saippua', 'Keskiluokan keskiostos', 'N&auml;&auml; M&auml;&auml; Tahdon!');
@@ -343,6 +343,9 @@ function add_landmark_kinput($land_id, $offset, $checked) {
 	return $out;
 }
 
+/* TODO: Refactor this. Make a generic function which can be separately called for
+ * all of the different types of cards
+ */
 function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $all_exp_ids, $mobile = true)
 {
 	$out = "";
@@ -615,52 +618,48 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 	echo $out;
 }
 
-//if ($exp) {
-	$i = 0;
-	foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
-		$exp_where = SQL_add_expansion_where('c.expansion_id', $exp);
+$i = 0;
+foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
+	$exp_where = SQL_add_expansion_where('c.expansion_id', $exp);
 
-		$query = $QUERY_BASE.$PRIZE_LIMIT;
-		if ($exp_where)
-			$query .= " AND ".$exp_where;
+	$query = $QUERY_BASE.$PRIZE_LIMIT;
+	if ($exp_where)
+		$query .= " AND ".$exp_where;
 
-		if (isset($preselected[$i]))
-			$num_presel=count($preselected[$i]);
-		else
-			$num_presel = 0;
-		if ($num_presel) {
-			$query .= exclude_presel_id($preselected[$i]);
-		}
-
-		$result = query_cards($conn, $query);
-		$foo = 0;
-		while ($row = mysqli_fetch_assoc($result)) {
-			$foo++;
-			$card[] = dom_card::from_partial_row($row);
-		}
-		debug_print("$foo cards fetched for $card_group_names[$i] - selecting from those:");
-
-		$selected = randomize_cards($card, $tuh_inafactor, $tup_inafactor, $nihilism, $kap_itafactor, $num_cards[$i] - $num_presel);
-		if ($num_presel)
-			add_existing($selected, $preselected[$i]);
-
-		$card_set->add_set($selected, $card_group_names[$i]);
-		$card = array();
-
-		$i++;
-
-		debug_print("bucket $i: $PRIZE_LIMIT");
+	if (isset($preselected[$i]))
+		$num_presel=count($preselected[$i]);
+	else
+		$num_presel = 0;
+	if ($num_presel) {
+		$query .= exclude_presel_id($preselected[$i]);
 	}
 
-	$card_set->get_cards();
-	$omena = $card_set->show_sets($preselected, $mobile);
-
-	if ($land_exp || $event_exp || $keep_land_ids || $keep_event_ids || $omena) {
-		show_eventland($conn, $event_exp, $land_exp, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $exp, $mobile);
+	$result = query_cards($conn, $query);
+	$foo = 0;
+	while ($row = mysqli_fetch_assoc($result)) {
+		$foo++;
+		$card[] = dom_card::from_partial_row($row);
 	}
-//}
+	debug_print("$foo cards fetched for $card_group_names[$i] - selecting from those:");
 
-//echo output_input_form($conn, $mobile, $exp);
+	$selected = randomize_cards($card, $tuh_inafactor, $tup_inafactor, $nihilism, $kap_itafactor, $num_cards[$i] - $num_presel);
+	if ($num_presel)
+		add_existing($selected, $preselected[$i]);
+
+	$card_set->add_set($selected, $card_group_names[$i]);
+	$card = array();
+
+	$i++;
+
+	debug_print("bucket $i: $PRIZE_LIMIT");
+}
+
+$card_set->get_cards();
+$omena = $card_set->show_sets($preselected, $mobile);
+
+if ($land_exp || $event_exp || $keep_land_ids || $keep_event_ids || $omena) {
+	show_eventland($conn, $event_exp, $land_exp, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $exp, $mobile);
+}
 
 /* Close connection, print (c) and send </body> </html> */
 echo '<p><h1><a href="aloittaja.php" target="_blank">Arvo my&ouml;s aloittaja?</a></h1>';

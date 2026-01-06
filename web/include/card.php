@@ -111,6 +111,14 @@ class dom_card
 		$this->imagename = isset($row[$tableprefix.'imagename']) ? $row[$tableprefix.'imagename'] : null;
 	}
 
+	public function showcard_popup($label = null)
+	{
+		if (!$label)
+			$label = htmlspecialchars($this->name);
+
+		$out = '<div class="image-container"><p tabindex="0">' . $label . '<div class="hover-text"><img class="card-img" src="cardpics/'.htmlspecialchars($this->imagename).'"></div></div>'."\n";
+		return $out;
+	}
 	public function get_id()
 	{
 		return $this->id;

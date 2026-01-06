@@ -31,8 +31,28 @@ class dom_card_set {
 	public $ids		= null;
 	public $all_ids		= null;
 	public $cards		= null;
+	public $bottom_cards	= null;
 	private $conn		= null;
 
+	private function bottom_out($c, $mobile)
+	{
+		$found = null;
+
+		foreach($this->bottom_cards AS $bc) {
+			if ($bc->id == $c->dual_top_of_id)
+				$found = $bc;
+		}
+		if (!$found) {
+			debug_print("Bottom card id ".$c->dual_top_of_id." for ".htmlspecialchars($c->name)." Not Found!");
+			return '';
+		}
+		if ($mobile) {
+			$out = $found->showcard_popup('<i>'.htmlspecialchars('-> '.$found->name).'</i>');
+		} else {
+			$out = $found->showcard_popup('<i>'.htmlspecialchars('-> '.$found->name).'</i>');
+		}
+		return $out;
+	}
 	private function add_change_input($id, $set_num, $prize, $checked)
 	{
 		$out = '<input form="theform" type="checkbox" name="keepid[]" value="'.$id.'"'.$checked.'>'."\n";
@@ -49,6 +69,11 @@ class dom_card_set {
 			$this->all_ids .= ', '.$tmp;
 		else
 			$this->all_ids .= $tmp;
+		/* Hack to handle dual decks */
+		foreach($skeleton_cards AS $c)
+			if ($c->dual_top_of_id)
+				$this->all_ids .= ', '.$c->dual_top_of_id;
+
 	}
 	public function get_cards()
 	{
@@ -63,7 +88,10 @@ class dom_card_set {
 		$query .= "ORDER BY c.prize";
 		$res = query_cards($this->conn, $query);
 		while ($row = mysqli_fetch_assoc($res))
-			$this->cards[] = dom_card::from_full_row($row);
+			if (!$row['dual_below_id'])
+				$this->cards[] = dom_card::from_full_row($row);
+			else
+				$this->bottom_cards[] = dom_card::from_full_row($row);
 	}
 	public function show_sets($keepids, $mobile = 0) {
 		$vals_on_sets = array(3,3,4);
@@ -87,6 +115,11 @@ class dom_card_set {
 			for ($j = 0; $j < $vals_on_sets[$i]; $j++) {
 				$c = $this->cards[$j + 3 * $i];
 				$tuhinasum += $c->tuhinakerroin;
+
+				if ($c->dual_top_of_id)
+					$bottom_card = $this->bottom_out($c, $mobile);
+				else
+					$bottom_card = '';
 
 				$checked = "";
 				if (isset($keepids[$i])) {
@@ -134,14 +167,16 @@ class dom_card_set {
 
 				if (!$mobile) {
 					$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>'."\n";
-					$out .= '<td><div class="image-container"><p tabindex="0">' . $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div></td>'."\n";
+					$out .= '<td>'.$c->showcard_popup().' '.$bottom_card.'</td>';
+//					$out .= '<td><div class="image-container"><p tabindex="0">' . $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div></td>'."\n";
 					$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td>'."\n";
 					$out .= '<td>' . $cardtype . '</td>'."\n";
 					$out .= '<td>' . $prize . $potion .'</td>'."\n";
 					$out .= '<td>' . $expansion . '</td></tr>'."\n";
 				} else {
 					$out .= '<tr><td>' . $this->add_change_input($c->id, $i, $c->prize, $checked) . '</td>'."\n";
-					$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $potion . $setup_tip . '</td>'."\n";
+					$out .= '<td>'.$c->showcard_popup().$potion . $setup_tip . $bottom_card .'</td>'."\n";
+//					$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $potion . $setup_tip . '</td>'."\n";
 					$out .= '<td>' . $expansion . '</td></tr>'."\n";
 				}
 			}
