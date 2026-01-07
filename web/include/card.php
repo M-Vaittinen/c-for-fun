@@ -78,6 +78,12 @@ class dom_card
 
 	public $weight		= 0;  // For weighted random selection
 
+	/* Outputs */
+	private $cell_data	= null;
+	private $row_built	= false;
+	private $potion_out	= null;
+	private $setup_tip	= null;
+
 	private function __populate($row, $tableprefix)
 	{
 		$this->setup_text = isset($row[$tableprefix.'setup_text']) ? $row[$tableprefix.'setup_text'] : null;
@@ -111,10 +117,169 @@ class dom_card
 		$this->imagename = isset($row[$tableprefix.'imagename']) ? $row[$tableprefix.'imagename'] : null;
 	}
 
+	/*
+	 * TODO:
+	 * Place the column heads in a static array. Define keys for cells
+	 * like KEEP_BOX, CARDNAME, SPECIALS, CARDTYPE, COST, EXPANSION.
+	 *
+	 * Consider putting also card output data in similar array for output.
+	 * This might make adding/removing/re-ordering the cells simpler.
+	 */
+	public static function get_card_tablehead($mobile)
+	{
+		if (!$mobile) {
+			$out .= '<th>Kortti</th><th class="squeeze">Specials</th><th>Korttityyppi</th><th>Hinta</th><th>Peliosa</th>';
+		} else {
+			$out .= '<th>Kortti</th> <th>Peliosa</th>';
+		}
+
+		return $out;
+	}
+
+	public function append_card_name_cell($data, $mobile)
+	{
+		if (!$this->row_built)
+			$this->build_card_row($mobile);
+
+		$this->cell_data['NAME_CELL'] .= $data;
+	}
+
+	private function get_setup_tip_output()
+	{
+		if ($this->setup_tip != null)
+			return $this->setup_tip;
+
+		$this->setup_tip = '';
+
+		if ($this->omen) {
+			$this->setup_tip .= image_with_explanation('img/omena.png', 'Olen Omena', 'omen');
+		}
+		if ($this->prizetype_id == PRIZETYPE_ID_DEBT) {
+			$this->setup_tip .= image_with_explanation('img/debt_small.png', 'Myyd&auml;&auml;n Rahoituksella', 'Velka');
+		}
+		if ($this->curse) {
+			$this->setup_tip .= image_with_explanation("img/curse.png", "Kirous", "Kiroukset");
+		}
+		if ($this->attack) {
+			$this->setup_tip .= image_with_explanation("img/speargoblin.png", "Hy&ouml;kk&auml;yskortti"  ,"Goblin");
+		}
+		if ($this->setup_text) {
+			$this->setup_tip .= image_with_explanation("img/peasant.png", htmlspecialchars($this->setup_text), "Valmistelut");
+		}
+
+		return $this->setup_tip;
+	}
+
+	private function get_potion_output()
+	{
+		if ($this->potion_out != null)
+			return $this->potion_out;
+
+		if ($this->potion)
+			$this->potion_out = image_with_explanation("img/potion.png", "Rohto", 'Rohto', ($mobile)?'':'rohto-img');
+		else
+			$this->potion_out = '';
+
+		return $this->potion_out;
+	}
+
+	public function build_card_row($mobile)
+	{
+
+		$setup_tip = $this->get_setup_tip_output();
+		$potion = $this->get_potion_output();
+
+		if (!$mobile) {
+			$this->cell_data['NAME_CELL'] = $this->showcard_popup();
+			$this->cell_data['SPECIALS'] = (($setup_tip != '') ? $setup_tip : '--');
+			$this->cell_data['CARDTYPE'] = htmlspecialchars($this->type_name);
+			$this->cell_data['PRIZE'] = htmlspecialchars($this->prize) . $potion;
+		} else {
+			/*
+			 * We only populate name here. Rest of mobile view is stuffed in the
+			 * cell at name_cell_finalize() so that bottom-card info can be
+			 * appended right after the name and before the rest of the stuff.
+			 */
+			$this->cell_data['NAME_CELL'] = $this->showcard_popup();
+		}
+		$this->cell_data['EXPANSION'] = htmlspecialchars($this->expansion_name);
+
+		$this->row_built = true;
+	}
+
+	/*
+	 * This is a dirty hack resulting from dual decks and the fact that we
+	 * stuff plenty of unrelated data in card-name cell for mobile. Ideally,
+	 * the name cell would only contain the name, and caller could just use
+	 * the append_card_name_cell() to add the bottom card info for
+	 * dual-decks.
+	 *
+	 * For mobile browsers we stuff setup tips and other icons into name cell
+	 * (at least currently), so we can't just append bottom card data after
+	 * the name cell is built - or the bottom card info wouldn't be right
+	 * after the top-card (this) name as it should. Hence, we 'finalize' the
+	 * name cell (meaning that we stuff everyting else but the card name) as
+	 * the last step before returning the card_output. This way callers should
+	 * have already appended the bottom card info to the name cell, and the
+	 * extra stuff should appear after it.
+	 */
+	private function name_cell_finalize($mobile)
+	{
+		if (!$mobile)
+			return;
+
+		$setup_tip = $this->get_setup_tip_output();
+		$potion = $this->get_potion_output();
+
+		if ($mobile)
+			$this->append_card_name_cell($potion . $setup_tip);
+	}
+
+	public function get_card_row($mobile)
+	{
+		if (!$this->row_built)
+			$this->build_card_row($mobile);
+
+		$this->name_cell_finalize($mobile);
+
+		if (!$mobile) {
+//			$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>';
+			$out .= '<td>'.$this->cell_data['NAME_CELL']."</td>\n";
+			$out .= '<td>'.$this->cell_data['SPECIALS']."</td>\n";
+			$out .= '<td>'.$this->cell_data['CARDTYPE']."</td>\n";
+			$out .= '<td>'.$this->cell_data['PRIZE']."</td>\n";
+			$out .= '<td>'.$this->cell_data['EXPANSION']."</td>\n";
+
+			/*
+			$out .= '<td>'.$this->showcard_popup().' '.$bottom_card.'</td>';
+			$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td>'."\n";
+			$out .= '<td>' . $cardtype . '</td>'."\n";
+			$out .= '<td>' . $prize . $potion .'</td>'."\n";
+			$out .= '<td>' . $expansion . '</td></tr>'."\n";
+			 */
+		} else {
+//			$out .= '<tr><td>' . $this->add_change_input($c->id, $i, $c->prize, $checked) . '</td>'."\n";
+			$out .= '<td>'.$c->showcard_popup().$potion . $setup_tip . $bottom_card .'</td>'."\n";
+//			$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $potion . $setup_tip . '</td>'."\n";
+			$out .= '<td>' . $expansion . '</td></tr>'."\n";
+		}
+		return $out;
+	}
+
+	private function get_card_names()
+	{
+		$name = $this->name;
+
+		if ($this->name != "" && $this->en_name != "" && $this->name != $this->en_name)
+			$name = $this->name . " (" . $this->en_name . ")";
+
+		return htmlspecialchars($name);
+	}
+
 	public function showcard_popup($label = null)
 	{
 		if (!$label)
-			$label = htmlspecialchars($this->name);
+			$label = $this->get_card_names();
 
 		$out = '<div class="image-container"><p tabindex="0">' . $label . '<div class="hover-text"><img class="card-img" src="cardpics/'.htmlspecialchars($this->imagename).'"></div></div>'."\n";
 		return $out;

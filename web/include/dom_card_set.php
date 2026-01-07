@@ -93,33 +93,44 @@ class dom_card_set {
 			else
 				$this->bottom_cards[] = dom_card::from_full_row($row);
 	}
+	private function set_table_start()
+	{
+		$card_table_headers = dom_card::get_card_tablehead($mobile);
+		$out = '<table class="cardlist"><tr>'."\n";
+		$out .= '<th class="checkbox">[pid&auml;]</th>';
+		$out .= $card_table_headers;
+		$out .= '</tr>';
+
+		return $out;
+	}
 	public function show_sets($keepids, $mobile = 0) {
 		$vals_on_sets = array(3,3,4);
 		$omena = false;
 
 		$out = "";
 		for ($i = 0; $i < 3; $i++) {
-			$title = $this->set_name[$i];
-
-			if (!$mobile) {
-				$out .= '<h3>' . $title . '</h3>'."\n";
-				$out .= '<table class="cardlist"><tr>'."\n";
-				$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti</th><th class="squeeze">Specials</th><th>Korttityyppi</th><th>Hinta</th><th>Peliosa</th></tr>'."\n";
-			} else {
-				$out .= "<h3> $title </h3>\n";
-				$out .= '<table class="cardlist"><tr>'."\n";
-				$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti</th> <th>Peliosa</th></tr>'."\n";
-			}
 			$tuhinasum = 0;
+
+			$out .= '<h3>' . htmlspecialchars($this->set_name[$i]) . '</h3>'."\n";
+			$out .= $this->set_table_start();
+
 			/* This is a horrible hack, trusting sets have 3, 3, 4 cards */
 			for ($j = 0; $j < $vals_on_sets[$i]; $j++) {
 				$c = $this->cards[$j + 3 * $i];
 				$tuhinasum += $c->tuhinakerroin;
 
-				if ($c->dual_top_of_id)
+				if ($c->dual_top_of_id) {
 					$bottom_card = $this->bottom_out($c, $mobile);
-				else
-					$bottom_card = '';
+					/*
+					 * For dual deck cards, we add the bottom card information
+					 * to the card name cell
+					 */
+					$c->append_card_name_cell($bottom_card, $mobile);
+				}
+
+				/* We return the information that an omen was included so we can later add the prophecies */
+				if ($c->omen)
+					$omena = true;
 
 				$checked = "";
 				if (isset($keepids[$i])) {
@@ -129,56 +140,9 @@ class dom_card_set {
 					}
 				}
 
-				$name = htmlspecialchars($c->name);
-				$en_name = htmlspecialchars($c->en_name);
-				$prize = htmlspecialchars($c->prize);
-//				$prizetype = htmlspecialchars($c->prizetype_name);
-				$expansion = htmlspecialchars($c->expansion_name);
-				$cardtype = htmlspecialchars($c->type_name);
-				/* TODO: Do we need to escape the image name? */
-				$imagename = htmlspecialchars($c->imagename);
-
-				$setup_tip = '';
-				$potion = '';
-
-				if ($c->potion) {
-					$potion = image_with_explanation("img/potion.png", "Rohto", 'Rohto', ($mobile)?'':'rohto-img');
-				}
-				if ($c->omen) {
-					$setup_tip .= image_with_explanation('img/omena.png', 'Olen Omena', 'omen');
-					/* We return the information that an omen was included so we can later add the prophecies */
-					$omena = true;
-				}
-				if ($c->prizetype_id == PRIZETYPE_ID_DEBT) {
-					$setup_tip .= image_with_explanation('img/debt_small.png', 'Myyd&auml;&auml;n Rahoituksella', 'Velka');
-				}
-				if ($c->curse) {
-					$setup_tip .= image_with_explanation("img/curse.png", "Kirous", "Kiroukset");
-				}
-				if ($c->attack) {
-					$setup_tip .= image_with_explanation("img/speargoblin.png", "Hy&ouml;kk&auml;yskortti"  ,"Goblin");
-				}
-				if ($c->setup_text) {
-					$setup_tip .= image_with_explanation("img/peasant.png", htmlspecialchars($c->setup_text), "Valmistelut");
-				}
-
-				if ($name != "" && $en_name != "" && $name != $en_name)
-					$name = $name . " (" . $en_name . ")";
-
-				if (!$mobile) {
-					$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>'."\n";
-					$out .= '<td>'.$c->showcard_popup().' '.$bottom_card.'</td>';
-//					$out .= '<td><div class="image-container"><p tabindex="0">' . $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div></td>'."\n";
-					$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td>'."\n";
-					$out .= '<td>' . $cardtype . '</td>'."\n";
-					$out .= '<td>' . $prize . $potion .'</td>'."\n";
-					$out .= '<td>' . $expansion . '</td></tr>'."\n";
-				} else {
-					$out .= '<tr><td>' . $this->add_change_input($c->id, $i, $c->prize, $checked) . '</td>'."\n";
-					$out .= '<td>'.$c->showcard_popup().$potion . $setup_tip . $bottom_card .'</td>'."\n";
-//					$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $potion . $setup_tip . '</td>'."\n";
-					$out .= '<td>' . $expansion . '</td></tr>'."\n";
-				}
+				$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>'."\n";
+				$out .= $c->get_card_row($mobile);
+				$out .= '</tr>';
 			}
 			$out .= "</table>"."\n";
 			$out .= "Tuhina " . $tuhinasum."\n";

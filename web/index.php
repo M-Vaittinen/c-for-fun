@@ -314,7 +314,7 @@ $PRIZEBUCKETS = do_prize_bucket_where($boundary_prizes, 'c.prize');
 $QUERY_BASE = 'SELECT c.id AS id, c.dual_top_of_id, c.tuhinakerroin AS tuhinakerroin, c.actionmoney AS actionmoney, c.curse AS curse, c.attack AS attack, c.defence AS defence, c.type_id AS type_id FROM cards AS c LEFT JOIN expansion as e ON c.expansion_id = e.id WHERE e.disabled != 1 AND c.dual_below_id = 0 AND ';
 
 $num_cards = array(3, 3, 4);
-$card_group_names = array('Halpaa ku saippua', 'Keskiluokan keskiostos', 'N&auml;&auml; M&auml;&auml; Tahdon!');
+$card_group_names = array('Halpaa ku saippua', 'Keskiluokan keskiostos', 'Nää Mää Tahdon!');
 
 $card_set = dom_card_set::prepare_set($conn);
 
@@ -641,9 +641,9 @@ foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
 		$foo++;
 		$card[] = dom_card::from_partial_row($row);
 	}
-	debug_print("$foo cards fetched for $card_group_names[$i] - selecting from those:\n");
+	debug_print("$foo cards fetched for ".htmlspecialchars($card_group_names[$i])." - selecting from those:\n");
 	if (count($card) < $num_cards_to_rand) {
-		echo '<h3>Ei riitt&auml;v&auml;sti hintaryhm&auml;n <i>"'.$card_group_names[$i].'"</i>-kortteja.</h3> Valitse useampi (tai isompi) lis&auml;osa';
+		echo '<h3>Ei riitt&auml;v&auml;sti hintaryhm&auml;n <i>"'.htmlspecialchars($card_group_names[$i]).'"</i>-kortteja.</h3> Valitse useampi (tai isompi) lis&auml;osa';
 		goto page_end;
 	}
 	$selected = randomize_cards($card, $tuh_inafactor, $tup_inafactor, $nihilism, $kap_itafactor, $num_cards[$i] - $num_presel);
