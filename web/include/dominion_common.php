@@ -121,10 +121,11 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	/* Output the form table */
 
 	$output = '<form action="" method="post" id="theform">'."\n";
-$output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
+	$output .= '<div><br /></div>';
+	$output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
 
 	$output .= '<td><div class="help-tip">'."\n".'
-	    <p>Totta. Osa lis&auml;osista puuttuu. Olen lis&auml;nnyt vain ne lis&auml;osat / kortit jotka minulla (tai siskollani) on. Mik&auml;li toivot ett&auml; lis&auml;&auml;n uuden, voit olla yhteydess&auml; ja lahjoittaa lis&auml;osan minulle tai siskolleni :) Lis&auml;&auml;n (toistaiseksi) sivulle vain kortteja joilla pelaan</p>
+	    <p>Totta. Osa lis&auml;osista puuttuu. Olen lis&auml;nnyt vain ne lis&auml;osat / kortit jotka minulla (tai siskollani) on. Mik&auml;li toivot ett&auml; lis&auml;&auml;n uuden, voit olla yhteydess&auml; ja lahjoittaa lis&auml;osan minulle tai siskolleni :) Lis&auml;&auml;n (toistaiseksi) sivulle vain kortteja joilla pelaan. <br /> -- Terkuin Matti (mazziesaccount@gmail.com)</p>
 	</div></td></tr></table>'."\n";
 
 	$output .= '<table class="structure">'."\n"; //expansion table
@@ -212,10 +213,12 @@ $output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
 		$output .= '}</script>'."\n";
 	}
 
-	$output .= '<h3>Painotukset</h3>';
+	/*	$output .= '<h3>Painotukset</h3>'; */
 	/* ...Tuhina cell: */
-	$output .= '<table><tr><td>';
+	$output .= '<br /><table><tr><td>';
+	/* $output .= '<span class="ometer"><b>Tuhina\'o-meter</b></span>'."\n"; */
 	$output .= '<b>Tuhina\'o-meter</b>'."\n";
+	/*$output .= '<h3>Tuhina\'o-meter</h3>'."\n"; */
 	$output .= '</td><td>';
 	$output .= '<div class="help-tip">'."\n".'
 	    <p>Tuhina\'o-meter&copy; :ll&auml; voit muuttaa korttiarvontaa v&auml;hent&auml;m&auml;&auml;n tai lis&auml;&auml;m&auml;&auml;n toimintoketjuja lis&auml;&auml;vi&auml; kortteja.</p>
@@ -233,6 +236,7 @@ $output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
 
 	$output .= '<table><tr><td>';
 	$output .= '<b>Tupina\'o-meter</b>'."\n";
+/*	$output .= '<h3>Tupina\'o-meter</h3>'."\n"; */
 	$output .= '</td><td>';
 	$output .= '<div class="help-tip">
 	    <p>Tupina\'o-meter&copy; :ll&auml; v&auml;henn&auml;t tai lis&auml;&auml;t peliin tupinaa ja jupinaa aiheuttavia elementtej&auml;.<br /><br />Ja jos todella haluat koetella k&auml;rsiv&auml;llisyytesi rajoja niin voit h&ouml;yst&auml;&auml; peli&auml; ripauksella nihilismi&auml; ja pienent&auml;&auml; rahaa ja vastavetoja tuovien toimintakorttien mahdollisuutta.</p>
@@ -256,6 +260,7 @@ $output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
 	/* ...Kapita cell: */
 	$output .= '<table><tr><td>';
 	$output .= '<b>Kapita\'o-meter</b><br />'."\n";
+	/*	$output .= '<h3>Kapita\'o-meter</h3>'."\n"; */
 	$output .= '</td><td>';
 	$output .= '<div class="help-tip">
 	    <p>Kapita\'o-meter&copy; :ll&auml; voit muuttaa korttiarvontaa priorisoimaan raha- ja rahaa lis&auml;&auml;vi&auml; toimintakortteja.</p>

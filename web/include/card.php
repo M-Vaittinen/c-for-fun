@@ -127,11 +127,10 @@ class dom_card
 	 */
 	public static function get_card_tablehead($mobile)
 	{
-		if (!$mobile) {
-			$out .= '<th>Kortti</th><th class="squeeze">Specials</th><th>Korttityyppi</th><th>Hinta</th><th>Peliosa</th>';
-		} else {
-			$out .= '<th>Kortti</th> <th>Peliosa</th>';
-		}
+		if (!$mobile)
+			$out = '<th>Kortti</th><th class="squeeze">Specials</th><th>Korttityyppi</th><th>Hinta</th><th>Peliosa</th>';
+		else
+			$out = '<th>Kortti</th> <th>Peliosa</th>';
 
 		return $out;
 	}
@@ -232,7 +231,7 @@ class dom_card
 		$potion = $this->get_potion_output();
 
 		if ($mobile)
-			$this->append_card_name_cell($potion . $setup_tip);
+			$this->append_card_name_cell($potion . $setup_tip, $mobile);
 	}
 
 	public function get_card_row($mobile)
@@ -243,25 +242,14 @@ class dom_card
 		$this->name_cell_finalize($mobile);
 
 		if (!$mobile) {
-//			$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>';
-			$out .= '<td>'.$this->cell_data['NAME_CELL']."</td>\n";
+			$out = '<td>'.$this->cell_data['NAME_CELL']."</td>\n";
 			$out .= '<td>'.$this->cell_data['SPECIALS']."</td>\n";
 			$out .= '<td>'.$this->cell_data['CARDTYPE']."</td>\n";
 			$out .= '<td>'.$this->cell_data['PRIZE']."</td>\n";
 			$out .= '<td>'.$this->cell_data['EXPANSION']."</td>\n";
-
-			/*
-			$out .= '<td>'.$this->showcard_popup().' '.$bottom_card.'</td>';
-			$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') . '</td>'."\n";
-			$out .= '<td>' . $cardtype . '</td>'."\n";
-			$out .= '<td>' . $prize . $potion .'</td>'."\n";
-			$out .= '<td>' . $expansion . '</td></tr>'."\n";
-			 */
 		} else {
-//			$out .= '<tr><td>' . $this->add_change_input($c->id, $i, $c->prize, $checked) . '</td>'."\n";
-			$out .= '<td>'.$c->showcard_popup().$potion . $setup_tip . $bottom_card .'</td>'."\n";
-//			$out .= '<td><div class="image-container"><p tabindex="0">'. $name . '<div class="hover-text"><img class="card-img" src="cardpics/'.$imagename.'"></div></div>'. $potion . $setup_tip . '</td>'."\n";
-			$out .= '<td>' . $expansion . '</td></tr>'."\n";
+			$out = '<td>'.$this->cell_data['NAME_CELL']."</td>\n";
+			$out .= '<td>'.$this->cell_data['EXPANSION']."</td>\n";
 		}
 		return $out;
 	}

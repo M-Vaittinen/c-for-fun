@@ -12,13 +12,28 @@
 
 mysqli_close($conn);
 
+function generate_footer($mobile, $suggest)
+{
+
 echo '<hr style="height:10px;border-width:0;color:#d2691e;background-color:#d2691e">';
 echo '<table class="structure"><tr><td>';
-//echo "<a href='http://www.freevisitorcounters.com'>Counters</a> <script type='text/javascript' src='https://www.freevisitorcounters.com/auth.php?id=57ceb84220fd0f19e28a1c0659163db3326e40d4'></script>";
-//echo '<script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1289001/t/4"></script>';
-echo '</td><td>';
-echo "Copyright (c) 2025, Matti Vaittinen mazziesaccount (at) gmail com";
-echo ' -- Card Images from <a href="https://dominioncg.fandom.com">dominioncg.fandom.com</a> and <a href="https://wiki.dominionstrategy.com">wiki.dominionstrategy.com</a>. Images available under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA</a>';
+echo 'Copyright (c) 2025, Matti Vaittinen mazziesaccount (at) gmail com';
+if (!$suggest) {
+	if (!$mobile) {
+		$endlink = '</a>';
+		$link_dominioncg = '<a target="_blank" href="https://dominioncg.fandom.com">';
+		$link_dominionstrategy = '<a target="_blank" href="https://wiki.dominionstrategy.com">';
+		$link_cc_license = '<a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">';
+	} else {
+		$endlink = '';
+		$link_dominioncg = '';
+		$link_dominionstrategy = '';
+		$link_cc_license = '';
+	}
+
+	echo ' -- Card Images from '.$link_dominioncg.'dominioncg.fandom.com'.$endlink.' and '.$link_dominionstrategy.'wiki.dominionstrategy.com'.$endlink.'. Images available under '.$link_cc_license.'CC-BY-NC-SA'.$endlink;
+}
 echo '</td></tr></table>';
 echo "</body> </html>";
+}
 ?>

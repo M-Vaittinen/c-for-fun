@@ -228,4 +228,5 @@ if ($added)
 
 /* Close connection, print (c) and send </body> </html> */
 require 'include/footer.php';
+generate_footer(false, true);
 ?>

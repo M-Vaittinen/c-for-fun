@@ -139,6 +139,34 @@ h1 {
   margin-left: 40px;
 }
 
+h3 {
+  color: maroon;
+  /* margin-left: 40px; */
+}
+
+.settitle h3 {
+  margin-left: 40px;
+}
+
+.ometer b {
+/*  margin-left: 20px; */
+  color: maroon;
+}
+
+.header img {
+  float: left;
+  width: 80px;
+  height: 80px;
+  background: #555;
+  cursor: auto;
+}
+
+.header h1 {
+  position: relative;
+  top: 18px;
+  left: 10px;
+}
+
 table.structure {
   width: 100%;
   border: none;
@@ -256,6 +284,7 @@ table.aarvonta {
     content:\'?\';
     font-weight: bold;
     color:#fff;
+    cursor: pointer;
 }
 
 .help-tip:hover, .help-tip:focus, .help-tip:active p{
@@ -399,7 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <title>' . $title . '</title>
 </head>
-<body>';
+<body>'."\n";
 }
 
 /* Stolen from the web https://www.geeksforgeeks.org/how-to-detect-a-mobile-device-using-php/ */

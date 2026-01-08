@@ -103,6 +103,7 @@ $output .= '</div>'."\n";
 
 echo $output;
 require '../include/footer.php';
+generate_footer(false, true);
 
 ?>
 

@@ -93,7 +93,7 @@ class dom_card_set {
 			else
 				$this->bottom_cards[] = dom_card::from_full_row($row);
 	}
-	private function set_table_start()
+	private function set_table_start($mobile)
 	{
 		$card_table_headers = dom_card::get_card_tablehead($mobile);
 		$out = '<table class="cardlist"><tr>'."\n";
@@ -111,8 +111,8 @@ class dom_card_set {
 		for ($i = 0; $i < 3; $i++) {
 			$tuhinasum = 0;
 
-			$out .= '<h3>' . htmlspecialchars($this->set_name[$i]) . '</h3>'."\n";
-			$out .= $this->set_table_start();
+			$out .= '<div class="settitle"><h3>' . htmlspecialchars($this->set_name[$i]) . '</h3></div>'."\n";
+			$out .= $this->set_table_start($mobile);
 
 			/* This is a horrible hack, trusting sets have 3, 3, 4 cards */
 			for ($j = 0; $j < $vals_on_sets[$i]; $j++) {

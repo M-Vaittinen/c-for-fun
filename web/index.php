@@ -23,6 +23,8 @@ define("SETUP_ID_DEBT", 44);
 //$DBG=true;
 $DBG=false;
 $TESTING=false;
+$TEST_MOBILE = false;
+//$TEST_MOBILE = true;
 
 $preselected = null;
 $keep_land_ids = null;
@@ -111,9 +113,16 @@ require 'include/dom_card_set.php';
 
 debug_print("Recv'd tuhina: $tuh_inafactor, Tupina: $tup_inafactor (nihilism $nihilism), Kapita: $kap_itafactor");
 /* On a mobile device we try to fit the tables on a screen */
-$mobile = isMobileDevice();
+if ($TEST_MOBILE)
+	$mobile = 1;
+else
+	$mobile = isMobileDevice();
+
 do_head("Dominion - korttiarvonta v2");
-echo '<h1>Dominion - Arvo kortit v2 (<a href="index2.php">Yhyy, Wanha oli parempi</a>)</h1>';
+echo '<div class="header">'."\n";
+echo '    <img src="img/dominion-app-icon-4x4.jpg" alt="logo">'."\n";
+echo '    <h1>Dominion - Arvo kortit v2</h1>'."\n";
+echo '</div>'."\n";
 
 echo output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_inafactor, $tup_inafactor, $kap_itafactor);
 
@@ -670,5 +679,6 @@ page_end:
 /* Close connection, print (c) and send </body> </html> */
 echo '<p><h1><a href="aloittaja.php" target="_blank">Arvo my&ouml;s aloittaja?</a></h1>';
 require 'include/footer.php';
+generate_footer($mobile, false);
 
 ?>
