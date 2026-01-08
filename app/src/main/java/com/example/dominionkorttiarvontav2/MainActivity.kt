@@ -3,7 +3,6 @@ package com.example.dominionkorttiarvontav2
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Build
 import android.os.Bundle
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -15,17 +14,25 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
-/*    private lateinit var myWebView: WebView */
-
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val webView = findViewById<WebView>(R.id.web)
+        webView.saveState(outState) // Save the state of the WebView
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
         val webView = findViewById<WebView>(R.id.web)
-
-        webView.loadUrl("https://suffle.fi")
         webView.settings.javaScriptEnabled = true
+
+        // Restore the WebView state if available
+        if (savedInstanceState != null) {
+            webView.restoreState(savedInstanceState)
+        } else {
+        webView.loadUrl("https://suffle.fi")
+        }
 
         onBackPressedDispatcher.addCallback(
             this,
@@ -61,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             }
             private fun isNetworkAvailable(): Boolean {
                 val connectivityManager =
-                    getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    getSystemService(Context.CONNECTIVITY_SERVICE)  as ConnectivityManager
 
                 val networkCapabilities =
                     connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
