@@ -157,13 +157,13 @@ class dom_card
 			$this->setup_tip .= image_with_explanation('img/debt_small.png', 'Myyd&auml;&auml;n Rahoituksella', 'Velka');
 		}
 		if ($this->curse) {
-			$this->setup_tip .= image_with_explanation("img/curse.png", "Kirous", "Kiroukset");
+			$this->setup_tip .= image_with_explanation("img/curse_100x100.png", "Kirous", "Kiroukset");
 		}
 		if ($this->attack) {
-			$this->setup_tip .= image_with_explanation("img/speargoblin.png", "Hy&ouml;kk&auml;yskortti"  ,"Goblin");
+			$this->setup_tip .= image_with_explanation("img/speargoblin_200x200.png", "Hy&ouml;kk&auml;yskortti"  ,"Goblin");
 		}
 		if ($this->setup_text) {
-			$this->setup_tip .= image_with_explanation("img/peasant.png", htmlspecialchars($this->setup_text), "Valmistelut");
+			$this->setup_tip .= image_with_explanation("img/peasant_200x200.png", htmlspecialchars($this->setup_text), "Valmistelut");
 		}
 
 		return $this->setup_tip;
