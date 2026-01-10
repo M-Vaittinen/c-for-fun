@@ -1,4 +1,21 @@
 <?php
+/*
+ * Dominon card randomizer.
+ * Uses MySQL database.
+ *
+ * AUTHOR: Matti Vaittinen <mazziesaccount@gmail.com>
+ *
+ * Written just for fun. No Warranty. Use at your own risk!
+ *
+ * Copyright 2025, Matti Vaittinen mazziesaccount@gmail.com>
+ */
+
+/* Sigh. A desperate attempt to squeeze down some expences. */
+$AD_ID = '
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2999778840133894"
+     crossorigin="anonymous"></script>
+';
+
 function do_head($title)
 {
 echo '
@@ -29,6 +46,18 @@ echo '
     border-radius: 5px;
     z-index: 10;
 }
+
+.landcardname {
+    min-width: 300px;
+}
+
+.landscape-card-img {
+    width: 350px;
+    height: auto;
+    cursor: auto;
+    z-index: 11;
+}
+
 .card-img {
     width: 200px;
     height: auto;
@@ -369,9 +398,8 @@ table.aarvonta {
 }
 
 </style>
-
+' . $AD_ID .'
 <script>
-
 /* Toggle checkbox visibility to display expansion specific options (for selected expansions) */
 function toggleCheckboxes(checkbox, relatedClass) {
 	var relatedCheckboxes = document.getElementsByClassName(relatedClass);

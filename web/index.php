@@ -352,6 +352,14 @@ function add_landmark_kinput($land_id, $offset, $checked) {
 	return $out;
 }
 
+function add_landmark_cardpic($cardname, $imagename)
+{
+		$out = '<div class="image-container"><p tabindex="0">' . $cardname . '<div class="hover-text"><img class="landscape-card-img" src="cardpics/'.$imagename.'"></div></div>'."\n";
+		return $out;
+
+}
+
+
 /* TODO: Refactor this. Make a generic function which can be separately called for
  * all of the different types of cards
  */
@@ -363,7 +371,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 		return;
 
 	if ($omena) {
-		$query = "SELECT prophecy.id, prophecy.name, prophecy.description, setup.text, setup.id AS stupid, expansion.name AS exp_name, etype.name AS typename ";
+		$query = "SELECT prophecy.id, prophecy.name, prophecy.imagename, prophecy.description, setup.text, setup.id AS stupid, expansion.name AS exp_name, etype.name AS typename ";
 		$query .= 'FROM prophecies AS prophecy ';
 		$query .= 'LEFT JOIN setup_extras AS setup ON prophecy.setup_id = setup.id ';
 		$query .= 'LEFT JOIN expansion AS expansion ON prophecy.expansion_id = expansion.id ';
@@ -395,17 +403,18 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 		if (!$mobile) {
 			$out .= '<h3>OmenaProphecy</h3>'."\n";
 			$out .= '<table class="cardlist"><tr>'."\n";
-			$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti</th><th>Selitys</th><th class="squeeze">Specials</th><th>Hinta</th><th>Peliosa</th></tr>'."\n";
+			$out .= '<th class="checkbox">[pid&auml;]</th><th class="landcardname">Kortti</th><th>Selitys</th><th class="squeeze">Specials</th><th>Hinta</th><th>Peliosa</th></tr>'."\n";
 		} else {
 			$out .= '<h3>OmenaProphecy</h3>'."\n";
 			$out .= '<table class="cardlist"><tr>'."\n";
-			$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti</th><th>Specials</th> <th>Peliosa</th></tr>'."\n";
+			$out .= '<th class="checkbox">[pid&auml;]</th><th class="landcardname">Kortti</th><th>Specials</th> <th>Peliosa</th></tr>'."\n";
 		}
 		while ($row = mysqli_fetch_assoc($result)) {
 			$checked = "";
 			$setup_tip = "";
 
 			$cardname = htmlspecialchars($row['name']);
+			$imagename = htmlspecialchars($row['imagename']);
 			$expansionname = htmlspecialchars($row['exp_name']);
 			$description = htmlspecialchars($row['description']);
 			$cardtype = htmlspecialchars($row['typename']);
@@ -428,7 +437,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			if (!$mobile) {
 				$out .= '<tr>'."\n";
 				$out .= '<td class="checkbox">'.add_landmark_kinput($row['id'], OMENA_ID_OFFSET, $checked).'</td>'."\n";
-				$out .= '<td>'.$cardname.'</td>'."\n";
+				$out .= '<td>'.add_landmark_cardpic($cardname, $imagename).'</td>'."\n";
 				$out .= '<td>'.$description.'</td>'."\n";
 				$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td>'."\n";
 				$out .= '<td>'.$cardtype.'</td>'."\n";
@@ -437,7 +446,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			} else {
 				$out .= '<tr>'."\n";
 				$out .= '<td class="checkbox">'.add_landmark_kinput($row['id'], OMENA_ID_OFFSET, $checked).'</td>'."\n";
-				$out .= '<td>'.$cardname.' ('.$cardtype.')</td>'."\n";
+				$out .= '<td>'.add_landmark_cardpic($cardname.' ('.$cardtype.')', $imagename).'</td>'."\n";
 				$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td>'."\n";
 				$out .= '<td>'.$expansionname.'</td>'."\n";
 				$out .= '</tr>'."\n";
@@ -447,7 +456,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 	} // If omena ends.
 
 	if ($event_exp_ids || $keep_event_ids) {
-		$query_base = "SELECT events.id, events.name, events.prize, events.debt, events.curses, setup.text, setup.id AS stupid, expansion.name AS exp_name ";
+		$query_base = "SELECT events.id, events.name, events.name_en, events.imagename, events.prize, events.debt, events.curses, setup.text, setup.id AS stupid, expansion.name AS exp_name ";
 		$query_base .= "FROM events AS events ";
 		$query_base .= "LEFT JOIN setup_extras AS setup ON events.setup_id = setup.id ";
 		$query_base .= "LEFT JOIN expansion AS expansion ON events.expansion_id = expansion.id ";
@@ -501,11 +510,11 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 		if (!$mobile) {
 			$out .= '<h3>Tapahtumat</h3>'."\n";
 			$out .= '<table class="cardlist"><tr>'."\n";
-			$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti</th><th class="squeeze">Specials</th><th>Hinta</th><th>Peliosa</th></tr>'."\n";
+			$out .= '<th class="checkbox">[pid&auml;]</th><th class="landcardname">Kortti</th><th class="squeeze">Specials</th><th>Hinta</th><th>Peliosa</th></tr>'."\n";
 		} else {
 			$out .= '<h3>Tapahtumat</h3>'."\n";
 			$out .= '<table class="cardlist"><tr>'."\n";
-			$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti</th><th>Specials</th> <th>Peliosa</th></tr>'."\n";
+			$out .= '<th class="checkbox">[pid&auml;]</th><th class="landcardname">Kortti</th><th>Specials</th> <th>Peliosa</th></tr>'."\n";
 		}
 
 		while ($row = mysqli_fetch_assoc($result)) {
@@ -522,6 +531,10 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 
 			$cardname = htmlspecialchars($row['name']);
 			$expansionname = htmlspecialchars($row['exp_name']);
+			$imagename = htmlspecialchars($row['imagename']);
+			$cardname_en = htmlspecialchars($row['name_en']);
+			if ($cardname_en && $cardname_en != $cardname)
+				$cardname .= " ($cardname_en)";
 
 			if ($row['text']) {
 				$setup_tip_text = htmlspecialchars($row['text']);
@@ -538,17 +551,17 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			}
 			if (!$mobile) {
 				//$prizetype = ($row['debt']) ? '(Velka)' : '(Raha)';
-				$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td>'.$cardname.'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$row['prize'].'</td><td>'.$expansionname.'</td></tr>'."\n";
+				$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td class="landcardname">'.add_landmark_cardpic($cardname, $imagename).'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$row['prize'].'</td><td>'.$expansionname.'</td></tr>'."\n";
 				//$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td>'.$cardname.'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$row['prize'].' '.$prizetype. '</td><td>'.$expansionname.'</td></tr>'."\n";
 			} else {
-				$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td>'.$cardname.'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$expansionname.'</td></tr>'."\n";
+				$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td class="landcardname">'.add_landmark_cardpic($cardname, $imagename).'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$expansionname.'</td></tr>'."\n";
 			}
 		} // while () MySQL results ends
 		$out .= '</table>';
 	} // if $event_exp_ids ends
 
 	if ($land_exp_ids || $keep_land_ids) {
-		$query = 'SELECT landmark.id, landmark.name, landmark.description, setup.text, expansion.name AS exp_name, etype.name AS typename ';
+		$query = 'SELECT landmark.id, landmark.name, landmark.name_en, landmark.imagename, landmark.description, setup.text, expansion.name AS exp_name, etype.name AS typename ';
 		$query .= 'FROM landmarks AS landmark ';
 		$query .= 'LEFT JOIN setup_extras AS setup ON landmark.setup_id = setup.id ';
 		$query .= 'LEFT JOIN expansion AS expansion ON landmark.expansion_id = expansion.id ';
@@ -577,11 +590,11 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 		if (!$mobile) {
 			$out .= '<h3>Muokkaukset</h3>'."\n";
 			$out .= '<table class="cardlist"><tr>'."\n";
-			$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti</th><th>Selitys</th><th class="squeeze">Specials</th><th>Tyyppi</th><th>Peliosa</th></tr>'."\n";
+			$out .= '<th class="checkbox">[pid&auml;]</th><th class="landcardname">Kortti</th><th>Selitys</th><th class="squeeze">Specials</th><th>Tyyppi</th><th>Peliosa</th></tr>'."\n";
 		} else {
 			$out .= '<h3>Muokkaukset</h3>'."\n";
 			$out .= '<table class="cardlist"><tr>'."\n";
-			$out .= '<th class="checkbox">[pid&auml;]</th><th>Kortti (tyyppi)</th><th>Specials</th><th>Peliosa</th></tr>'."\n";
+			$out .= '<th class="checkbox">[pid&auml;]</th><th class="landcardname">Kortti (tyyppi)</th><th>Specials</th><th>Peliosa</th></tr>'."\n";
 		}
 
 		while ($row = mysqli_fetch_assoc($result)) {
@@ -589,6 +602,10 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			$checked = "";
 
 			$cardname = htmlspecialchars($row['name']);
+			$imagename = htmlspecialchars($row['imagename']);
+			$cardname_en = htmlspecialchars($row['name_en']);
+			if ($cardname_en && $cardname_en != $cardname)
+				$cardname .= " ($cardname_en)";
 			$expansionname = htmlspecialchars($row['exp_name']);
 			$description = htmlspecialchars($row['description']);
 			$cardtype = htmlspecialchars($row['typename']);
@@ -606,7 +623,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			if (!$mobile) {
 				$out .= '<tr>'."\n";
 				$out .= '<td class="checkbox">'.add_landmark_kinput($row['id'], LAND_ID_OFFSET, $checked).'</td>'."\n";
-				$out .= '<td>'.$cardname.'</td>'."\n";
+				$out .= '<td class="landcardname">'. add_landmark_cardpic($cardname, $imagename).'</td>'."\n";
 				$out .= '<td>'.$description.'</td>'."\n";
 				$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td>'."\n";
 				$out .= '<td>'.$cardtype.'</td>'."\n";
@@ -615,7 +632,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			} else {
 				$out .= '<tr>'."\n";
 				$out .= '<td class="checkbox">'.add_landmark_kinput($row['id'], LAND_ID_OFFSET, $checked).'</td>'."\n";
-				$out .= '<td>'.$cardname.' ('.$cardtype.')</td>'."\n";
+				$out .= '<td class="landcardname">'.add_landmark_cardpic($cardname . "[$cardtype]", $imagename).'</td>'."\n";
 				$out .= '<td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td>'."\n";
 				$out .= '<td>'.$expansionname.'</td>'."\n";
 				$out .= '</tr>'."\n";
