@@ -58,6 +58,19 @@ echo '
     z-index: 11;
 }
 
+.landcardname-mobile {
+    min-width: 200px;
+}
+
+.landscape-card-img-mobile {
+    width: 250px;
+    height: auto;
+    cursor: auto;
+    z-index: 11;
+}
+
+
+
 .card-img {
     width: 200px;
     height: auto;
