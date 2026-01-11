@@ -61,6 +61,26 @@ echo '
 .landcardname-mobile {
     min-width: 200px;
 }
+.selectscreen {
+    cursor: auto;
+  border: 1px solid black;
+  border-radius: 10px;
+    display: block;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    height: auto;
+}
+.screenshot {
+    cursor: auto;
+  border: 1px solid black;
+  border-radius: 10px;
+    display: block;
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+    height: auto;
+}
 
 .landscape-card-img-mobile {
     width: 250px;
@@ -176,9 +196,21 @@ body {
   background-color: linen;
 }
 
+.landingpage p {
+  color: brown;
+}
+
+.landingpage h4 {
+  color: maroon;
+}
+
 h1 {
   color: maroon;
   margin-left: 40px;
+}
+
+h2 {
+  color: maroon;
 }
 
 h3 {
@@ -201,6 +233,17 @@ h3 {
   height: 80px;
   background: #555;
   cursor: auto;
+}
+
+.landingpage h1 {
+    align-items: center; /* Align vertically center */
+  text-align: center;
+}
+
+.listhead {
+    font-size: 24px;
+    font-weight: bold;
+  margin-left: 20px;
 }
 
 .header h1 {
