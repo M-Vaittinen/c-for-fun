@@ -60,11 +60,12 @@ Viimeisin, ja viel&auml; julkaisematon kehityskulku on ollut Android-applikaatio
 <img class="screenshot" src="img/Dominion-Android.png">
 <p>
 
--- 10.01.2026, Matti
+-- <a href="https://github.com/M-Vaittinen">Matti</a><br />
+Oulu, 10.01.2026
 </p>
 </div>
 
 <?php
 require '../include/footer.php';
-echo generate_footer(false, false);
+echo generate_footer(false, false, true);
 ?>

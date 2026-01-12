@@ -107,6 +107,6 @@ Palautetta ja kehitysehdotuksia voi laittaa s&auml;hk&ouml;postitse osoitteeseen
 
 <?php
 include 'include/footer.php';
-echo generate_footer(false, false);
+echo generate_footer(false, false, true);
 ?>
 

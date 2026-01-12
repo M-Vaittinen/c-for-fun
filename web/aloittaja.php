@@ -17,6 +17,11 @@ require 'include/header-suggest.php';
 //$SURPRIZE_TEST = 1;
 $quantity = 0;
 
+/*
+ * Show ADS by default, but set them off for error page(s)
+ */
+$showad = true;
+
 function output_starter_form()
 {
 
@@ -86,6 +91,7 @@ if (isset($_POST['yesspeed'])) {
 	if ($nospeed != "") {
 		$output = "<h1>Et Osannut P&auml;&auml;tt&auml;&auml; jaksatko?</h1>";
 		$output .= output_starter_form();
+		$showad = false;
 		goto out;
 	}
 	$nospeed = " WHERE surprize = 1 ";
@@ -100,6 +106,7 @@ if ($quantity) {
 	if ($quantity <= 1) {
 		echo "<h2>Oletko ihan tosissasi?</h2>";
 		$output = output_starter_form();
+		$showad = false;
 		goto out;
 	}
 
@@ -228,5 +235,5 @@ if ($added)
 
 /* Close connection, print (c) and send </body> </html> */
 require 'include/footer.php';
-generate_footer(false, true);
+generate_footer(false, true, $showad);
 ?>

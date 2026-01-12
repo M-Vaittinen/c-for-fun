@@ -478,6 +478,6 @@ echo '<p><h1><a href="aloittaja.php" target="_blank">Arvo my&ouml;s aloittaja?</
 
 /* Close connection, print (c) and send </body> </html> */
 require 'include/footer.php';
-generate_footer($mobile, false);
+generate_footer($mobile, false, true);
 
 ?>

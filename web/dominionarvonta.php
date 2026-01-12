@@ -20,6 +20,11 @@ define("OMENA_ID_OFFSET", 3000000);
 define("PRIZETYPE_ID_DEBT", 2);
 define("SETUP_ID_DEBT", 44);
 
+/*
+ * Show ADS by default. Turn em off later for error page(s)
+ */
+$showads = true;
+
 //$DBG=true;
 $DBG=false;
 $TESTING=false;
@@ -675,6 +680,7 @@ foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
 	debug_print("$foo cards fetched for ".htmlspecialchars($card_group_names[$i])." - selecting from those:\n");
 	if (count($card) < $num_cards_to_rand) {
 		echo '<h3>Ei riitt&auml;v&auml;sti hintaryhm&auml;n <i>"'.htmlspecialchars($card_group_names[$i]).'"</i>-kortteja.</h3> Valitse useampi (tai isompi) lis&auml;osa';
+		$showads = false;
 		goto page_end;
 	}
 	$selected = randomize_cards($card, $tuh_inafactor, $tup_inafactor, $nihilism, $kap_itafactor, $num_cards[$i] - $num_presel);
@@ -701,6 +707,6 @@ page_end:
 /* Close connection, print (c) and send </body> </html> */
 echo '<p><h1><a href="aloittaja.php" target="_blank">Arvo my&ouml;s aloittaja?</a></h1>';
 require 'include/footer.php';
-generate_footer($mobile, false);
+generate_footer($mobile, false, $showads);
 
 ?>
