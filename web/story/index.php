@@ -9,53 +9,53 @@ do_head("Kuinka arvontakone tehtiin...");
 
 <h3>Tausta</h3>
 <p>
-Kaikki alkoi Jouluna 2023, kun olimme porukalla kokoontuneet viettämään Joulua äitini luokse. Näihin Jouluihin kuuluu olennaisena osana yhdessä oleminen ja lautapelien pelaaminen. Nuoremman siskoni miehen Ollin myötä oli Dominion syrjäyttänyt Menolipun suosikkipelinä, ja uusina lisäosina oli Joulupukin tuoma Keisarikunta ja siskoni ja Ollin saama Nousukausi.
+Kaikki alkoi Jouluna 2023, kun olimme porukalla kokoontuneet viett&auml;m&auml;&auml;n Joulua &auml;itini luokse. N&auml;ihin Jouluihin kuuluu olennaisena osana yhdess&auml; oleminen ja lautapelien pelaaminen. Nuoremman siskoni miehen Ollin my&ouml;t&auml; oli Dominion syrj&auml;ytt&auml;nyt Menolipun suosikkipelin&auml;, ja uusina lis&auml;osina oli Joulupukin tuoma Keisarikunta ja siskoni ja Ollin saama Nousukausi.
 </p>
 <p>
-Kun ensimmäiset esimerkkipelit oli pelattu, alkoi korttien valinta seuraaviin peleihin muuttua aikaavieväksi. Tässä vaiheessa päätin, että äkkiäkös sitä koodataan 'arvontaohjelma', joka arpoo meille satunnaiset kortit. Ei muuta kun tuumasta toimeen...
+Kun ensimm&auml;iset esimerkkipelit oli pelattu, alkoi korttien valinta seuraaviin peleihin muuttua aikaaviev&auml;ksi. T&auml;ss&auml; vaiheessa p&auml;&auml;tin, ett&auml; &auml;kki&auml;k&ouml;s sit&auml; koodataan 'arvontaohjelma', joka arpoo meille satunnaiset kortit. Ei muuta kun tuumasta toimeen...
 </p>
-<h3>Ensimmäinen pikaversio</h3>
+<h3>Ensimm&auml;inen pikaversio</h3>
 <p>
-Vanha viidakon sanonta sanoo - jos sinulla on vasara, kaikki ongelmat muistuttavat nauloja. Teen työkseni Linux-kernel ajureita, ja olen koodannut 20-vuotta C-kielellä. Ei siis liene vaikeaa kuvitella, mikä minun vasarani on ;) Kovin montaa tuntia siinä ei vierähtänyt, kun koodi jo haki kortit ja korttien hinnat tekstitiedostosta - ja arpoi kortit.
-</p>
-<p>
-<img class="screenshot" src="img/dice.png" alt="Arvontakoneen ensimmäinen versio">
+Vanha viidakon sanonta sanoo - jos sinulla on vasara, kaikki ongelmat muistuttavat nauloja. Teen ty&ouml;kseni Linux-kernel ajureita, ja olen koodannut 20-vuotta C-kielell&auml;. Ei siis liene vaikeaa kuvitella, mik&auml; minun vasarani on ;) Kovin montaa tuntia siin&auml; ei vier&auml;ht&auml;nyt, kun koodi jo haki kortit ja korttien hinnat tekstitiedostosta - ja arpoi kortit.
 </p>
 <p>
-Kyseinen C-koodi löytyy yhä <a href="https://github.com/M-Vaittinen/c-for-fun/tree/5042ac85b4eb93da28cafc719dd8e654950d6c6d">git repositorystani</a>.
+<img class="screenshot" src="img/dice.png" alt="Arvontakoneen ensimm&auml;inen versio">
 </p>
 <p>
-Laiskalle ihmiselle ongelmaksi muodostuikin se, miten nuo kortit, hinnat ja lisäosat oikein saadaan sinne tekstitiedostoon. Lisäksi Linux-läppärin ottaminen mukaan pelipöytään arvontaa varten ... Noh, se nyt ei vaan ole käytännöllistä.
+Kyseinen C-koodi l&ouml;ytyy yh&auml; <a href="https://github.com/M-Vaittinen/c-for-fun/tree/5042ac85b4eb93da28cafc719dd8e654950d6c6d">git repositorystani</a>.
+</p>
+<p>
+Laiskalle ihmiselle ongelmaksi muodostuikin se, miten nuo kortit, hinnat ja lis&auml;osat oikein saadaan sinne tekstitiedostoon. Lis&auml;ksi Linux-l&auml;pp&auml;rin ottaminen mukaan pelip&ouml;yt&auml;&auml;n arvontaa varten ... Noh, se nyt ei vaan ole k&auml;yt&auml;nn&ouml;llist&auml;.
 </p>
 <h3>Dice-Admin ja MySQL</h3>
 <p>
-Niinpä oli aika loikata teknologioissa eteenpäin ja korvata kortit sisältävä tekstitiedosto MySQL tietokannalla. Tavoilleni uskollisena, koodailin tähän konvertointiin sopivan työkalun - milläpä muullakaan kuin C:llä. Näin sai alkunsa työkalu nimeltä 'dice-admin'. Ensimmäinen dice-adminin git-repooni tuonut committi löytyy <a href="https://github.com/M-Vaittinen/c-for-fun/commit/ca048c445b54773466bf02cd752c7a074549656b">täältä</a>.
+Niinp&auml; oli aika loikata teknologioissa eteenp&auml;in ja korvata kortit sis&auml;lt&auml;v&auml; tekstitiedosto MySQL tietokannalla. Tavoilleni uskollisena, koodailin t&auml;h&auml;n konvertointiin sopivan ty&ouml;kalun - mill&auml;p&auml; muullakaan kuin C:ll&auml;. N&auml;in sai alkunsa ty&ouml;kalu nimelt&auml; 'dice-admin'. Ensimm&auml;inen dice-adminin git-repooni tuonut committi l&ouml;ytyy <a href="https://github.com/M-Vaittinen/c-for-fun/commit/ca048c445b54773466bf02cd752c7a074549656b">t&auml;&auml;lt&auml;</a>.
 </p>
 <p>
-Dice-admin sai vielä monta päivitystä. Lopulta se toteutti ncurses-formeilla ja -menuilla, lomakepohjaisen UI:n, jossa tietoja oli esitäytetty tekstitiedostosta, ja katselmoinnin / mahdollisten muutosten jälkeen tiedot syötettiin MySQL-tietokantaan. Ikävä kyllä, dice-adminin muutoksia en koskaan tullut vieneeksi versionhallintaan, ja niinpä iso osa muutoksista on kadonnut historian hämärään.
+Dice-admin sai viel&auml; monta p&auml;ivityst&auml;. Lopulta se toteutti ncurses-formeilla ja -menuilla, lomakepohjaisen UI:n, jossa tietoja oli esit&auml;ytetty tekstitiedostosta, ja katselmoinnin / mahdollisten muutosten j&auml;lkeen tiedot sy&ouml;tettiin MySQL-tietokantaan. Ik&auml;v&auml; kyll&auml;, dice-adminin muutoksia en koskaan tullut vieneeksi versionhallintaan, ja niinp&auml; iso osa muutoksista on kadonnut historian h&auml;m&auml;r&auml;&auml;n.
 </p>
-<h3>Eläköön 2000-luku! MySQL, Apache ja PHP</h3>
+<h3>El&auml;k&ouml;&ouml;n 2000-luku! MySQL, Apache ja PHP</h3>
 <p>
-Se Joulu tuli ja meni, mutta Dominion-kuume jäi kytemään. Lisäosia tuli hankittua lisää, ja MySQL:n kanssa puuhastelu oli herättänyt muistoja 1990-luvun lopulta ja 2000-luvun alusta, kun yliopiston koneella istuessani koodailin harrastuksen vuoksi forum-softaa php:llä. Ja niin pitkästä aikaa asentelin koneelleni Apachen ja PHP:n MySQL:n lisäksi - ja jätin C-kielen tästä projektista... Tai, no melkein. 
+Se Joulu tuli ja meni, mutta Dominion-kuume j&auml;i kytem&auml;&auml;n. Lis&auml;osia tuli hankittua lis&auml;&auml;, ja MySQL:n kanssa puuhastelu oli her&auml;tt&auml;nyt muistoja 1990-luvun lopulta ja 2000-luvun alusta, kun yliopiston koneella istuessani koodailin harrastuksen vuoksi forum-softaa php:ll&auml;. Ja niin pitk&auml;st&auml; aikaa asentelin koneelleni Apachen ja PHP:n MySQL:n lis&auml;ksi - ja j&auml;tin C-kielen t&auml;st&auml; projektista... Tai, no melkein. 
 </p>
 <p>
-Pitihän minun jollain keinolla valmistautua tulevaan ja koettaa saada lisää tietoa korteista tietokantaan. Mielellään kaikki kortit kerralla. Pienen haeskelun jälkeen löysin netin syövereistä sivun, jolla oli (muun tekstin seassa) myös tietoja Dominion-korteista taulukossa! Vielä kerran setti C-koodia, bash-skriptejä ja reg-expejä, jotka hakivat tiedot verkosta ja poistivat HTML-muotoiluita yksi kerrallaan. Lopulta C-koodini sai ongittua kaikkien korttien nimet ja tekstipohjaisen kuvauksen tietokantaan, 'parsed_cards'-nimiseen tauluun. Jonkinlainen PHP-pohjainen 'dice-admin' oli syntynyt,
+Pitih&auml;n minun jollain keinolla valmistautua tulevaan ja koettaa saada lis&auml;&auml; tietoa korteista tietokantaan. Mielell&auml;&auml;n kaikki kortit kerralla. Pienen haeskelun j&auml;lkeen l&ouml;ysin netin sy&ouml;vereist&auml; sivun, jolla oli (muun tekstin seassa) my&ouml;s tietoja Dominion-korteista taulukossa! Viel&auml; kerran setti C-koodia, bash-skriptej&auml; ja reg-expej&auml;, jotka hakivat tiedot verkosta ja poistivat HTML-muotoiluita yksi kerrallaan. Lopulta C-koodini sai ongittua kaikkien korttien nimet ja tekstipohjaisen kuvauksen tietokantaan, 'parsed_cards'-nimiseen tauluun. Jonkinlainen PHP-pohjainen 'dice-admin' oli syntynyt,
 </p>
 <p>
 <img src="img/parsed_cards.png" class="screenshot">
 </p>
 <p>
-Tämän jälkeen alkoikin varsinaisen arvontasivun ja sille soveltuvan tietokantarakenteen kehitys. Seuraavan Dominionin-lisäosan hankittuani teinkin uuden PHP-pohjaisen 'admin'-sivun, joka luki 'parsed_cards'-taulukosta uuteen lisäosaani kuuluvien korttien tiedot. Löytyneiden avainsanojen perusteella, PHP esitäytti HTML-pohjaisen lomakkeen. Tarkistettuani uuden lisäosan korttien tiedot (ja korjattuani/lisättyäni muutamia tietoja), PHP täytti tiedot formista uuden arvontasivustoni tietokantarakenteeseen. Helppoa ja mukavaa, eikö :)
+T&auml;m&auml;n j&auml;lkeen alkoikin varsinaisen arvontasivun ja sille soveltuvan tietokantarakenteen kehitys. Seuraavan Dominionin-lis&auml;osan hankittuani teinkin uuden PHP-pohjaisen 'admin'-sivun, joka luki 'parsed_cards'-taulukosta uuteen lis&auml;osaani kuuluvien korttien tiedot. L&ouml;ytyneiden avainsanojen perusteella, PHP esit&auml;ytti HTML-pohjaisen lomakkeen. Tarkistettuani uuden lis&auml;osan korttien tiedot (ja korjattuani/lis&auml;tty&auml;ni muutamia tietoja), PHP t&auml;ytti tiedot formista uuden arvontasivustoni tietokantarakenteeseen. Helppoa ja mukavaa, eik&ouml; :)
 </p>
 <p>
-Nälkä kuitenkin kasvaa syödessä, ja jokainen lisäosa tuntui tuovan jotain uutta. Velkarahat, Suomen- ja Englanninkieliset kortit ("Katovuosien" myötä kun tarvitsin korttien nimet myös englanniksi; "Katovuodet"-lisäosaa kun en ole mistään suomenkielisenä löytänyt!), Maamerkit ja Tapahtumat, Potionit, sekä Omenit ja Prophecyt... Kaikki vaativat lisää tietoja tietokantarakenteeseen. Lopulta sain "äkistettyä" myös erilaisia ikoneita sekä korttien kuvat. Koodin historiatietoineen löytää tietystikin <a href="https://github.com/M-Vaittinen/c-for-fun/commits/c418a4d1a0d7e226c1f8234550bbf47074e9afed/">jälleen gitistä</a>, minne tämäkin sivu päätynee :)
+N&auml;lk&auml; kuitenkin kasvaa sy&ouml;dess&auml;, ja jokainen lis&auml;osa tuntui tuovan jotain uutta. Velkarahat, Suomen- ja Englanninkieliset kortit ("Katovuosien" my&ouml;t&auml; kun tarvitsin korttien nimet my&ouml;s englanniksi; "Katovuodet"-lis&auml;osaa kun en ole mist&auml;&auml;n suomenkielisen&auml; l&ouml;yt&auml;nyt!), Maamerkit ja Tapahtumat, Potionit, sek&auml; Omenit ja Prophecyt... Kaikki vaativat lis&auml;&auml; tietoja tietokantarakenteeseen. Lopulta sain "&auml;kistetty&auml;" my&ouml;s erilaisia ikoneita sek&auml; korttien kuvat. Koodin historiatietoineen l&ouml;yt&auml;&auml; tietystikin <a href="https://github.com/M-Vaittinen/c-for-fun/commits/c418a4d1a0d7e226c1f8234550bbf47074e9afed/">j&auml;lleen gitist&auml;</a>, minne t&auml;m&auml;kin sivu p&auml;&auml;tynee :)
 </p>
 <p>
 <img src="img/domppataulut.png" class="screenshot">
 </p>
-<h3>Mitäs sitten? Android?</h3>
+<h3>Mit&auml;s sitten? Android?</h3>
 <p>
-Viimeisin, ja vielä julkaisematon kehityskulku on ollut Android-applikaatio. Olisihan se hienoa saada tämä arvontamasiina Googlen Play-kauppaan, eikö? Toisaalta, useamman eri version ylläpito yhden miehen voimin ei oikein iske. Tämän tosin voi kätevästi taklata pienellä "huijauksella" - eli Android-applikaatiolla, joka näyttää arvontakoneen täältä nettisivulta :) Saa nähdä eteneekö tämä puuhastelu vielä uusiin suuntiin, vai joko tämä on nähty...
+Viimeisin, ja viel&auml; julkaisematon kehityskulku on ollut Android-applikaatio. Olisihan se hienoa saada t&auml;m&auml; arvontamasiina Googlen Play-kauppaan, eik&ouml;? Toisaalta, useamman eri version yll&auml;pito yhden miehen voimin ei oikein iske. T&auml;m&auml;n tosin voi k&auml;tev&auml;sti taklata pienell&auml; "huijauksella" - eli Android-applikaatiolla, joka n&auml;ytt&auml;&auml; arvontakoneen t&auml;&auml;lt&auml; nettisivulta :) Saa n&auml;hd&auml; eteneek&ouml; t&auml;m&auml; puuhastelu viel&auml; uusiin suuntiin, vai joko t&auml;m&auml; on n&auml;hty...
 <p>
 <img class="screenshot" src="img/Dominion-Android.png">
 <p>
