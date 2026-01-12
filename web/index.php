@@ -103,6 +103,7 @@ Teknisestä toteutuksesta kiinnostuneille on täällä myös <a href="story/inde
 <p>
 Palautetta ja kehitysehdotuksia voi laittaa s&auml;hk&ouml;postitse osoitteeseen: <i>mazziesaccount@gmail.com</i>. Kannattaa kuitenkin muistaa, ett&auml; t&auml;t&auml; tehd&auml;&auml;n harrastuspohjalta ja huvin vuoksi :) Kukaan ei maksa t&auml;st&auml; - p&auml;invastoin palvelintila ja domainit maksaa.
 </p>
+<p>Kurkkaa <a href="https://github.com/M-Vaittinen">Kuka Kumma T&auml;m&auml;n takana oikein on?</a></p>
 </div>
 
 <?php
