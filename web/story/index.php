@@ -9,7 +9,7 @@ do_head("Kuinka arvontakone tehtiin...");
 
 <h3>Tausta</h3>
 <p>
-Kaikki alkoi Jouluna 2023, kun olimme porukalla kokoontuneet viett&auml;m&auml;&auml;n Joulua &auml;itini luokse. N&auml;ihin Jouluihin kuuluu olennaisena osana yhdess&auml; oleminen ja lautapelien pelaaminen. Nuoremman siskoni miehen Ollin my&ouml;t&auml; oli Dominion syrj&auml;ytt&auml;nyt Menolipun suosikkipelin&auml;, ja uusina lis&auml;osina oli Joulupukin tuoma Keisarikunta ja siskoni ja Ollin saama Nousukausi.
+Kaikki alkoi Jouluna 2024, kun olimme porukalla kokoontuneet viett&auml;m&auml;&auml;n Joulua &auml;itini luokse. N&auml;ihin Jouluihin kuuluu olennaisena osana yhdess&auml; oleminen ja lautapelien pelaaminen. Nuoremman siskoni miehen Ollin my&ouml;t&auml; oli Dominion syrj&auml;ytt&auml;nyt Menolipun suosikkipelin&auml;, ja uusina lis&auml;osina oli Joulupukin tuoma Keisarikunta ja siskoni ja Ollin saama Nousukausi.
 </p>
 <p>
 Kun ensimm&auml;iset esimerkkipelit oli pelattu, alkoi korttien valinta seuraaviin peleihin muuttua aikaaviev&auml;ksi. T&auml;ss&auml; vaiheessa p&auml;&auml;tin, ett&auml; &auml;kki&auml;k&ouml;s sit&auml; koodataan 'arvontaohjelma', joka arpoo meille satunnaiset kortit. Ei muuta kun tuumasta toimeen...
