@@ -29,7 +29,7 @@ Laiskalle ihmiselle ongelmaksi muodostuikin se, miten nuo kortit, hinnat ja lis�
 </p>
 <h3>Dice-Admin ja MySQL</h3>
 <p>
-Niinpä oli aika loikata teknologioissa eteenpäin ja korvata kortit sisältävä tekstitiedosto MySQL tietokannalla. Tavoilleni uskollisena, koodailin tähän konvertointiin sopivan työkalun - milläpä muullakaan kuin C:llä. Näin sai alkunsa työkalu nimeltä 'dice-admin'. Ensimmäinen dice-adminin git-repooni tuonut committi löytyy <a href="ihttps://github.com/M-Vaittinen/c-for-fun/commit/ca048c445b54773466bf02cd752c7a074549656b">täältä</a>.
+Niinpä oli aika loikata teknologioissa eteenpäin ja korvata kortit sisältävä tekstitiedosto MySQL tietokannalla. Tavoilleni uskollisena, koodailin tähän konvertointiin sopivan työkalun - milläpä muullakaan kuin C:llä. Näin sai alkunsa työkalu nimeltä 'dice-admin'. Ensimmäinen dice-adminin git-repooni tuonut committi löytyy <a href="https://github.com/M-Vaittinen/c-for-fun/commit/ca048c445b54773466bf02cd752c7a074549656b">täältä</a>.
 </p>
 <p>
 Dice-admin sai vielä monta päivitystä. Lopulta se toteutti ncurses formeilla ja menuilla lomakepohjaisen UI:n, jossa tietoja oli esitäytetty tekstitiedostosta, ja katselmoinnin / mahdollisten muutosten jälkeen tiedot syötettiin MySQL tietokantaan. Ikävä kyllä, dice-adminin muutoksia en koskaan tullut vieneeksi versionhallintaan, ja niinpä iso osa muutoksista on kadonnut historian hämärään.
@@ -48,7 +48,7 @@ Pitihän minun jollain keinolla valmistautua tulevaan ja koettaa saada lisää t
 Tämän jälkeen alkoikin varsinaisen arvontasivun ja sille soveltuvan tietokantarakenteen kehitys. Seuraavan Dominionin lisäosan hankittuani, teinkin uuden PHP-pohjaisen 'admin' sivun, joka luki 'parsed_cards' taulukosta uuteen lisäosaani kuuluvien korttien tiedot, ja löytyneiden avainsanojen perusteella, PHP:lla esitäytti HTML-pohjaisen lomakkeen. Tarkistettuani uuden lisäosan korttien tiedot (ja korjattuani/lisättyäni muutamia tietoja), PHP täytti tiedot formista uuden arvontasivustoni tietokantarakenteeseen. Helppoa ja mukavaa, eikö :)
 </p>
 <p>
-Nälkä kuitenkin kasvaa syödessä, ja jokainen lisäosa tuntui tuovan jotain uutta. Velkarahat, Suomen ja Englanninkieliset kortit ("Katovuosien" myötä kun tarvitsin korttien nimet myös englanniksi "Katovuodet"-lisäosaa kun en ole mistään suomenkielisenä löytänyt!), Maamerkit ja Tapahtumat, Potionit, sekä Omenit ja prophecyt. Ja lopulta myös erilaisia ikoneita sekä korttien kuvat. Koodin historiatietoineen löytää tietystikin <a href="https://github.com/M-Vaittinen/c-for-fun/commits/dominion/?after=63e2e5290a581d7c34d467c2d94d8a153beefb15+69">jälleen gitistä</a>. Sinne tämäkin sivu päätynee :)
+Nälkä kuitenkin kasvaa syödessä, ja jokainen lisäosa tuntui tuovan jotain uutta. Velkarahat, Suomen ja Englanninkieliset kortit ("Katovuosien" myötä kun tarvitsin korttien nimet myös englanniksi "Katovuodet"-lisäosaa kun en ole mistään suomenkielisenä löytänyt!), Maamerkit ja Tapahtumat, Potionit, sekä Omenit ja prophecyt. Ja lopulta myös erilaisia ikoneita sekä korttien kuvat. Koodin historiatietoineen löytää tietystikin <a href="https://github.com/M-Vaittinen/c-for-fun/commits/c418a4d1a0d7e226c1f8234550bbf47074e9afed/">jälleen gitistä</a>. Sinne tämäkin sivu päätynee :)
 </p>
 <p>
 <img src="img/domppataulut.png" class="screenshot">
