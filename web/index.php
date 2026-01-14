@@ -4,12 +4,10 @@ require 'include/db.php';
 require 'include/header.php';
 do_head("Tervetuloa - Welcome");
 ?>
-<div class="landingpage">
-<div class="header">
+<div class="header nolink">
 <img src="img/dominion-app-icon-4x4.jpg" alt="logo">
 <h1>Suffle.fi / Dominionkortit.fi</h1>
 </div>
-<div><br /></div>
 <h2>Oikopolut (n&auml;it&auml; luultavasti etsit)</h2>
 
 <ul>
@@ -66,7 +64,7 @@ Kolikonheitto on niin mennytt&auml; aikaa. Kuka edes k&auml;ytt&auml;&auml; en&a
 <p>
 Arvontamyllyn arvonnat sopii kahdenlaisiin tilanteisiin. Niihin, joissa jaksaa, ja niihin, joissa ei. Otetaan aluksi tilanteet joissa Ei Vaan Jaksa (koska t&auml;ll&auml; i&auml;ll&auml; n&auml;it&auml; on enemm&auml;n).
 </p>
-<p><b>Ei Vaan Jaksa:</b></p>
+<h4>Ei Vaan Jaksa:</h4>
 <p>
 Aloittajan arvonnassa aloittaja p&auml;&auml;tet&auml;&auml;n kahden tekij&auml;n perusteella. Ensimm&auml;isen&auml; on jokin satunnainen ominaisuus, vaikkapa pelaajan pituus. Arvonta voi p&auml;&auml;ty&auml; vaikka pisimp&auml;&auml;n (tai lyhimp&auml;&auml;n) pelaajaan.
 </p>
@@ -76,7 +74,7 @@ T&auml;m&auml; on kuitenkin napsun verran ep&auml;reilua heille, jotka ovat kesk
 <p>
 Tilanteissa, joissa Todellakin Jaksaa, voidaan k&auml;ytt&auml;&auml; napsun kilpailullisempaa versiota:
 </p>
-<p><b>Todellakin Jaksaa:</b></p>
+<h4>Todellakin Jaksaa:</h4>
 <p>
 T&auml;ss&auml; arvonnassa ratkaisee nopeus. Aseta siis arvontalaite niin, ett&auml; kaikki pelaajat n&auml;kev&auml;t sen, ja paina arvontanappia. Hetkisen odottelun j&auml;lkeen arvontakone n&auml;ytt&auml;&auml; aloittajan, joka on nyt yleens&auml; joku, joka tekee jotain ensimm&auml;isen&auml;. Esimerkiksi vaikka n&auml;ytt&auml;&auml; ensimm&auml;isen&auml; kielt&auml;&auml;n.
 </p>
@@ -104,7 +102,6 @@ Teknisestä toteutuksesta kiinnostuneille on täällä myös <a href="story/inde
 Palautetta ja kehitysehdotuksia voi laittaa s&auml;hk&ouml;postitse osoitteeseen: <i>mazziesaccount@gmail.com</i>. Kannattaa kuitenkin muistaa, ett&auml; t&auml;t&auml; tehd&auml;&auml;n harrastuspohjalta ja huvin vuoksi :) Kukaan ei maksa t&auml;st&auml; - p&auml;invastoin palvelintila ja domainit maksaa.
 </p>
 <p>Kurkkaa <a href="https://github.com/M-Vaittinen">Kuka Kumma T&auml;m&auml;n takana oikein on?</a></p>
-</div>
 
 <?php
 include 'include/footer.php';

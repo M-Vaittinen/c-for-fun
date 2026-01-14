@@ -71,6 +71,7 @@ echo '
     margin-right: auto;
     height: auto;
 }
+
 .screenshot {
     cursor: auto;
   border: 1px solid black;
@@ -82,14 +83,23 @@ echo '
     height: auto;
 }
 
+.mypic {
+    cursor: auto;
+    border: 1px solid black;
+    border-radius: 10px;
+    display: block;
+    width: 50%;
+/*    margin-left: auto; */
+    margin-right: auto;
+    height: auto;
+}
+
 .landscape-card-img-mobile {
     width: 250px;
     height: auto;
     cursor: auto;
     z-index: 11;
 }
-
-
 
 .card-img {
     width: 200px;
@@ -101,6 +111,22 @@ echo '
 .rohto-img {
     width: auto;
     height: 30px;
+}
+
+.footer {
+    color: black;
+}
+
+.ometers {
+    color: black;
+}
+
+.tuhinatext {
+    color: black;
+}
+
+.expansionform {
+    color: black;
 }
 
 .image-container:hover .hover-text,
@@ -194,28 +220,20 @@ SPAN.td
 
 body {
   background-color: linen;
-}
-
-.landingpage p {
   color: brown;
 }
 
-.landingpage h4 {
-  color: maroon;
-}
 
 h1 {
-  color: maroon;
   margin-left: 40px;
 }
 
-h2 {
+h1, h2, h3, h4 {
   color: maroon;
 }
 
-h3 {
-  color: maroon;
-  /* margin-left: 40px; */
+.imglink {
+  cursor: pointer;
 }
 
 .settitle h3 {
@@ -226,30 +244,29 @@ h3 {
 /*  margin-left: 20px; */
   color: maroon;
 }
+.nolink img {
+    cursor: auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+}
 
 .header img {
-  float: left;
   width: 80px;
   height: 80px;
   background: #555;
-  cursor: auto;
 }
 
-.landingpage h1 {
-    align-items: center; /* Align vertically center */
-  text-align: center;
+.header h1 {
+  margin-left: 10px;
 }
 
 .listhead {
     font-size: 24px;
     font-weight: bold;
   margin-left: 20px;
-}
-
-.header h1 {
-  position: relative;
-  top: 18px;
-  left: 10px;
 }
 
 table.structure {

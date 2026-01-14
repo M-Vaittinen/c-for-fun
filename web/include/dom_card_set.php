@@ -145,7 +145,7 @@ class dom_card_set {
 				$out .= '</tr>';
 			}
 			$out .= "</table>"."\n";
-			$out .= "Tuhina " . $tuhinasum."\n";
+			$out .= '<div class="tuhinatext">Tuhina ' . $tuhinasum."</div>\n";
 		}
 		echo $out;
 

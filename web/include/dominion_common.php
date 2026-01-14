@@ -121,7 +121,8 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	/* Output the form table */
 
 	$output = '<form action="" method="post" id="theform">'."\n";
-	$output .= '<div><br /></div>';
+	$output .= '<div><br /></div>'."\n";
+	$output .= '<div class="expansionform">'."\n";
 	$output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
 
 	$output .= '<td><div class="help-tip">'."\n".'
@@ -205,6 +206,8 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	}
 	$output .= '</table>'."\n"; // expansion table
 
+	$output .= '</div>'."\n"; // Expansion checkbox styling (black text)
+
 	if ($onloads) {
 		$output .= '<script>';
 		$output .= 'window.onload = function() {'."\n";
@@ -214,6 +217,7 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	}
 
 	/*	$output .= '<h3>Painotukset</h3>'; */
+	$output .= '<div class="ometers">'."\n";
 	/* ...Tuhina cell: */
 	$output .= '<br /><table><tr><td>';
 	/* $output .= '<span class="ometer"><b>Tuhina\'o-meter</b></span>'."\n"; */
@@ -279,6 +283,7 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
   </div>
   <span class="label">+10</span>
 </div>'."\n";
+	$output .= '</div>'."\n"; // class="ometers" ends
 
 	$output .= '<input type="submit" value="Arvo kortit">'."\n";
 	$output .= '</form>'."\n";

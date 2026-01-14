@@ -3,9 +3,10 @@ require '../include/db.php';
 require '../include/header.php';
 do_head("Kuinka arvontakone tehtiin...");
 ?>
-
-<div class="landingpage">
+<div class="header">
+<a href="../index.php"><img src="../img/dominion-app-icon-4x4.jpg" alt="logo"></a>
 <h1>Kuinka Suffle.fi tehtiin</h1>
+</div>
 
 <h3>Tausta</h3>
 <p>
@@ -53,6 +54,16 @@ N&auml;lk&auml; kuitenkin kasvaa sy&ouml;dess&auml;, ja jokainen lis&auml;osa tu
 <p>
 <img src="img/domppataulut.png" class="screenshot">
 </p>
+<h3>K&auml;ytetyt ty&ouml;kalut</h3>
+<p>
+Moni muu ammattilainen vannoo modernien IDE:jen (Integrated Development Environment) kuten Visual Studio nimeen. Olen vuosien varrella koettanut tehostaa tekemist&auml;ni useammallakin ty&ouml;kalulla. Koodia on aikoinaan syntynyt ainakin Eclipsell&auml;, NetBeansilla, QT-Creatorilla, Visual Studiolla ja luultavasti joillain muillakin. Silti, ennemmin tai my&ouml;hemmin olen aina palannut vim-editoriin ja ctags:iin. N&auml;m&auml;kin sivut on siis 100% "koodattu k&auml;sin", vimi&auml; k&auml;ytt&auml;en.
+</p>
+<p>
+Se v&auml;h&auml;inen kuvak&auml;sittely mit&auml; olen tehnyt, on tehty GIMP kuvank&auml;sittelyohjelmalla. Tietokantamodifikaatiot on tehty p&auml;&auml;osin mysql-komentoriviclientill&auml; ja PHP:lla. Toki, kuten ylemp&auml;n&auml; on kerrottu, aluksi my&ouml;s C:ll&auml;. Sivujen kehitys ja testaus tapahtuu omalla koneellani, jossa k&auml;ytt&ouml;j&auml;rjestelm&auml;n&auml; on Fedora Linux. Sivut siin&auml; Firefoxille tarjoilee Apache-palvelin.
+</p>
+<p>
+Uutena tulokkaana kehityksess&auml; oli minullakin nyt ensimm&auml;ist&auml; kertaa teko&auml;ly. Hieman enemm&auml;n siit&auml; <a href="ai.php">t&auml;&auml;ll&auml;</a>. Mielenkiintoinen kokeilu, mutta p&auml;iv&auml;ty&ouml;ss&auml;ni teko&auml;ly ei ainakaan t&auml;ll&auml;hetkell&auml; <i>koodia</i> kirjoita.
+</p>
 <h3>Mit&auml;s sitten? Android?</h3>
 <p>
 Viimeisin, ja viel&auml; julkaisematon kehityskulku on ollut Android-applikaatio. Olisihan se hienoa saada t&auml;m&auml; arvontamasiina Googlen Play-kauppaan, eik&ouml;? Toisaalta, useamman eri version yll&auml;pito yhden miehen voimin ei oikein iske. T&auml;m&auml;n tosin voi k&auml;tev&auml;sti taklata pienell&auml; "huijauksella" - eli Android-applikaatiolla, joka n&auml;ytt&auml;&auml; arvontakoneen t&auml;&auml;lt&auml; nettisivulta :) Saa n&auml;hd&auml; eteneek&ouml; t&auml;m&auml; puuhastelu viel&auml; uusiin suuntiin, vai joko t&auml;m&auml; on n&auml;hty...
@@ -63,7 +74,6 @@ Viimeisin, ja viel&auml; julkaisematon kehityskulku on ollut Android-applikaatio
 -- <a href="https://github.com/M-Vaittinen">Matti</a><br />
 Oulu, 10.01.2026
 </p>
-</div>
 
 <?php
 require '../include/footer.php';

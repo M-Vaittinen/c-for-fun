@@ -124,7 +124,7 @@ else
 	$mobile = isMobileDevice();
 
 do_head("Dominion - korttiarvonta v2");
-echo '<div class="header">'."\n";
+echo '<div class="header nolink">'."\n";
 echo '    <img src="img/dominion-app-icon-4x4.jpg" alt="logo">'."\n";
 echo '    <h1>Dominion - Arvo kortit v2</h1>'."\n";
 echo '</div>'."\n";

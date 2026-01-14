@@ -20,6 +20,7 @@ function generate_footer($mobile, $suggest, $showad = false)
 	}
 
 	echo "\n".'<hr style="height:10px;border-width:0;color:#d2691e;background-color:#d2691e">'."\n";
+	echo '<div class="footer">'."\n";
 	echo '<table class="structure"><tr><td>'."\n";
 	echo 'Copyright (c) 2025, Matti Vaittinen mazziesaccount (at) gmail com'."\n";
 	if (!$suggest) {
@@ -38,6 +39,7 @@ function generate_footer($mobile, $suggest, $showad = false)
 		echo ' -- Card Images from '.$link_dominioncg.'dominioncg.fandom.com'.$endlink.' and '.$link_dominionstrategy.'wiki.dominionstrategy.com'.$endlink.'. Images available under '.$link_cc_license.'CC-BY-NC-SA'.$endlink."\n";
 	}
 	echo '</td></tr></table>'."\n";
+	echo '</div>'."\n"; // footer styling ends
 	echo "</body> </html>";
 }
 ?>
