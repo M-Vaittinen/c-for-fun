@@ -263,6 +263,27 @@ h1, h2, h3, h4 {
   margin-left: 10px;
 }
 
+.shufflesubmit {
+  background-color: #d2691e;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-family: sans-serif;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.shufflesubmit:hover {
+  background-color: maroon;
+}
+
+.shufflesubmit:active {
+  background-color: #330006;
+  transform: scale(0.97);
+}
+
 .listhead {
     font-size: 24px;
     font-weight: bold;
