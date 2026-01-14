@@ -22,6 +22,7 @@ Kun siirr&auml;n omat mielipiteeni syrj&auml;&auml;n, paljastuu alta pari faktaa
 <ul>
   <li>Tiedonhakuni on muuttunut.</li>
   <li>Voin tehd&auml; asioita joita en osaa, kuten tuottaa kuvia.</li>
+</ul>
 </p>
 <p>
 <b>Tiedonhaun muutos</b> voi n&auml;ky&auml; siin&auml;, miten pyrin ratkaisemaan jonkin erityisen ongelman alueella, jolla minulla ei ole osaamista. Aiemmin olisin hakukoneen avulla etsinyt sivustoja, joilla asiaa olisi k&auml;sitelty. Sen j&auml;lkeen olisin vieraillut ko. sivuilla ja yritt&auml;nyt koettanut soveltaa lukemiani ohjeita omaan ongelmaani. Oli my&ouml;s ajanjakso jolloin saatoin lopulta kysy&auml; neuvoa vaikkapa internet-foorumilla.
