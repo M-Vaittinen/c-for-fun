@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 09, 2026 at 11:56 AM
+-- Generation Time: Jan 16, 2026 at 11:12 AM
 -- Server version: 8.0.44-cll-lve
 -- PHP Version: 8.4.16
 
@@ -394,6 +394,32 @@ INSERT INTO `cards` (`id`, `dual_top_of_id`, `dual_below_id`, `setup_extras_id`,
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `cardsets`
+--
+
+DROP TABLE IF EXISTS `cardsets`;
+CREATE TABLE `cardsets` (
+  `id` int UNSIGNED NOT NULL,
+  `card0` int UNSIGNED NOT NULL,
+  `card1` int UNSIGNED NOT NULL,
+  `card2` int UNSIGNED NOT NULL,
+  `card3` int UNSIGNED NOT NULL,
+  `card4` int UNSIGNED NOT NULL,
+  `card5` int UNSIGNED NOT NULL,
+  `card6` int UNSIGNED NOT NULL,
+  `card7` int UNSIGNED NOT NULL,
+  `card8` int UNSIGNED NOT NULL,
+  `card9` int UNSIGNED NOT NULL,
+  `land0` int UNSIGNED NOT NULL DEFAULT '0',
+  `land1` int UNSIGNED NOT NULL DEFAULT '0',
+  `event0` int UNSIGNED NOT NULL DEFAULT '0',
+  `event1` int UNSIGNED NOT NULL DEFAULT '0',
+  `prophecy` int UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `cardtype`
 --
 
@@ -426,79 +452,81 @@ CREATE TABLE `events` (
   `expansion_id` int UNSIGNED NOT NULL,
   `setup_id` int UNSIGNED DEFAULT NULL,
   `name` varchar(255) NOT NULL,
+  `name_en` varchar(255) DEFAULT NULL,
   `prize` int UNSIGNED DEFAULT '0',
   `debt` tinyint(1) DEFAULT '0',
-  `curses` tinyint(1) DEFAULT '0'
+  `curses` tinyint(1) DEFAULT '0',
+  `imagename` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `events`
 --
 
-INSERT INTO `events` (`id`, `event_type_id`, `expansion_id`, `setup_id`, `name`, `prize`, `debt`, `curses`) VALUES
-(1, 1, 11, NULL, 'Valloitus', 6, 0, 0),
-(2, 1, 11, NULL, 'Juomingit', 3, 0, 0),
-(3, 1, 11, NULL, 'Nöyryytys', 14, 0, 0),
-(4, 1, 11, NULL, 'Rituaali', 4, 0, 1),
-(5, 1, 11, 27, 'Verotus', 2, 0, 0),
-(6, 1, 11, NULL, 'Lahjoitus', 8, 1, 0),
-(7, 1, 11, NULL, 'Häät', 7, 1, 0),
-(8, 1, 11, NULL, 'Voitonjuhla', 5, 1, 0),
-(9, 1, 11, NULL, 'Pakkoliitos', 8, 1, 0),
-(10, 1, 11, NULL, 'Onnenkantamoinen', 5, 0, 0),
-(11, 1, 11, NULL, 'Kaivanto', 2, 0, 0),
-(12, 1, 11, NULL, 'Ylennys', 0, 0, 0),
-(13, 1, 11, NULL, 'Myrkytetty Maa', 4, 0, 0),
-(14, 1, 18, NULL, 'Continue', 8, 1, 0),
-(15, 1, 18, NULL, 'Amass', 2, 0, 0),
-(16, 1, 18, NULL, 'Ascetism', 2, 0, 0),
-(17, 1, 18, 33, 'Credit', 2, 0, 0),
-(18, 1, 18, NULL, 'Foresight', 2, 0, 0),
-(19, 1, 18, NULL, 'Kintsugi', 3, 0, 0),
-(20, 1, 18, NULL, 'Practice', 3, 0, 0),
-(21, 1, 18, NULL, 'Sea Trade', 4, 0, 0),
-(22, 1, 18, NULL, 'Receive Tribute', 5, 0, 0),
-(23, 1, 18, NULL, 'Gather', 7, 0, 0),
-(24, 1, 14, NULL, 'Delay', 0, 0, 0),
-(25, 1, 14, NULL, 'Desperation', 0, 0, 1),
-(26, 1, 14, NULL, 'Gamble', 2, 0, 0),
-(27, 1, 14, NULL, 'Pursue', 2, 0, 0),
-(28, 1, 14, NULL, 'Toil', 2, 0, 0),
-(29, 1, 14, 26, 'Ride', 2, 0, 0),
-(30, 1, 14, NULL, 'Enchance', 3, 0, 0),
-(31, 1, 14, NULL, 'March', 3, 0, 0),
-(32, 1, 14, 25, 'Transport', 3, 0, 0),
-(33, 1, 14, 25, 'Banish', 4, 0, 0),
-(34, 1, 14, 26, 'Bargain', 4, 0, 0),
-(35, 1, 14, 25, 'Invest', 4, 0, 0),
-(36, 1, 14, NULL, 'Seize The Day', 4, 0, 0),
-(37, 1, 14, NULL, 'Commerce', 5, 0, 0),
-(38, 1, 14, 26, 'Demand', 5, 0, 0),
-(39, 1, 14, 26, 'Stampede', 5, 0, 0),
-(40, 1, 14, NULL, 'Reap', 7, 0, 0),
-(41, 1, 14, 25, 'Enclave', 8, 0, 0),
-(42, 1, 14, NULL, 'Alliance', 10, 0, 0),
-(43, 1, 14, NULL, 'Populate', 10, 0, 0),
-(44, 1, 10, 21, 'Pyhiinvaellus', 4, 0, 0),
-(45, 1, 10, NULL, 'Almut', 0, 0, 0),
-(46, 1, 10, 24, 'Tanssiaiset', 5, 0, 0),
-(47, 1, 10, NULL, 'Kokko', 3, 0, 0),
-(48, 1, 10, 24, 'Vippi', 0, 0, 0),
-(49, 1, 10, NULL, 'Tutkimusmatka', 3, 0, 0),
-(50, 1, 10, 34, 'Lautta', 3, 0, 0),
-(51, 1, 10, 35, 'Perintö', 7, 0, 0),
-(52, 1, 10, 39, 'Merireitti', 5, 0, 0),
-(53, 1, 10, 36, 'Unohdetut Kyvyt', 6, 0, 0),
-(54, 1, 10, 37, 'Reitin Etsintä', 8, 0, 0),
-(55, 1, 10, 38, 'Suunnitelma', 3, 0, 0),
-(56, 1, 10, NULL, 'Tehtävä', 4, 0, 0),
-(57, 1, 10, NULL, 'Kiertelevät Markkinat', 2, 0, 0),
-(58, 1, 10, 40, 'Koulutus', 6, 0, 0),
-(59, 1, 10, NULL, 'Vaihtokauppa', 5, 0, 0),
-(60, 1, 10, NULL, 'Tiedustelupartio', 2, 0, 0),
-(61, 1, 10, NULL, 'Säästöt', 1, 0, 0),
-(62, 1, 10, 41, 'Ryöstöretki', 5, 0, 0),
-(63, 1, 10, NULL, 'Seikkailu', 0, 0, 0);
+INSERT INTO `events` (`id`, `event_type_id`, `expansion_id`, `setup_id`, `name`, `name_en`, `prize`, `debt`, `curses`, `imagename`) VALUES
+(1, 1, 11, NULL, 'Valloitus', 'Conquest', 6, 0, 0, 'Conquest.jpg'),
+(2, 1, 11, NULL, 'Juomingit', 'Banquet', 3, 0, 0, 'Banquet.jpg'),
+(3, 1, 11, NULL, 'Nöyryytys', 'Dominate', 14, 0, 0, 'Dominate.jpg'),
+(4, 1, 11, NULL, 'Rituaali', 'Ritual', 4, 0, 1, 'Ritual.jpg'),
+(5, 1, 11, 27, 'Verotus', 'Tax', 2, 0, 0, 'Tax.jpg'),
+(6, 1, 11, NULL, 'Lahjoitus', 'Donate', 8, 1, 0, 'Donate.jpg'),
+(7, 1, 11, NULL, 'Häät', 'Wedding', 7, 1, 0, 'Wedding.jpg'),
+(8, 1, 11, NULL, 'Voitonjuhla', 'Triumph', 5, 1, 0, 'Triumph.jpg'),
+(9, 1, 11, NULL, 'Pakkoliitos', 'Annex', 8, 1, 0, 'Annex.jpg'),
+(10, 1, 11, NULL, 'Onnenkantamoinen', 'Windfall', 5, 0, 0, 'Windfall.jpg'),
+(11, 1, 11, NULL, 'Kaivanto', 'Delve', 2, 0, 0, 'Delve.jpg'),
+(12, 1, 11, NULL, 'Ylennys', 'Advance', 0, 0, 0, 'Advance.jpg'),
+(13, 1, 11, NULL, 'Myrkytetty Maa', 'Salt the Earth', 4, 0, 0, 'Salt_the_Earth.jpg'),
+(14, 1, 18, NULL, 'Continue', 'Continue', 8, 1, 0, 'Continue.jpg'),
+(15, 1, 18, NULL, 'Amass', 'Amass', 2, 0, 0, 'Amass.jpg'),
+(16, 1, 18, NULL, 'Asceticism', 'Asceticism', 2, 0, 0, 'Asceticism.jpg'),
+(17, 1, 18, 33, 'Credit', 'Credit', 2, 0, 0, 'Credit.jpg'),
+(18, 1, 18, NULL, 'Foresight', 'Foresight', 2, 0, 0, 'Foresight.jpg'),
+(19, 1, 18, NULL, 'Kintsugi', 'Kintsugi', 3, 0, 0, 'Kintsugi.jpg'),
+(20, 1, 18, NULL, 'Practice', 'Practice', 3, 0, 0, 'Practice.jpg'),
+(21, 1, 18, NULL, 'Sea Trade', 'Sea Trade', 4, 0, 0, 'Sea_Trade.jpg'),
+(22, 1, 18, NULL, 'Receive Tribute', 'Receive Tribute', 5, 0, 0, 'Receive_Tribute.jpg'),
+(23, 1, 18, NULL, 'Gather', 'Gather', 7, 0, 0, 'Gather.jpg'),
+(24, 1, 14, NULL, 'Delay', 'Delay', 0, 0, 0, 'Delay.jpg'),
+(25, 1, 14, NULL, 'Desperation', 'Desperation', 0, 0, 1, 'Desperation.jpg'),
+(26, 1, 14, NULL, 'Gamble', 'Gamble', 2, 0, 0, 'Gamble.jpg'),
+(27, 1, 14, NULL, 'Pursue', 'Pursue', 2, 0, 0, 'Pursue.jpg'),
+(28, 1, 14, NULL, 'Toil', 'Toil', 2, 0, 0, 'Toil.jpg'),
+(29, 1, 14, 26, 'Ride', 'Ride', 2, 0, 0, 'Ride.jpg'),
+(30, 1, 14, NULL, 'Enhance', 'Enhance', 3, 0, 0, 'Enhance.jpg'),
+(31, 1, 14, NULL, 'March', 'March', 3, 0, 0, 'March.jpg'),
+(32, 1, 14, 25, 'Transport', 'Transport', 3, 0, 0, 'Transport.jpg'),
+(33, 1, 14, 25, 'Banish', 'Banish', 4, 0, 0, 'Banish.jpg'),
+(34, 1, 14, 26, 'Bargain', 'Bargain', 4, 0, 0, 'Bargain.jpg'),
+(35, 1, 14, 25, 'Invest', 'Invest', 4, 0, 0, 'Invest.jpg'),
+(36, 1, 14, NULL, 'Seize The Day', 'Seize The Day', 4, 0, 0, 'Seize_the_Day.jpg'),
+(37, 1, 14, NULL, 'Commerce', 'Commerce', 5, 0, 0, 'Commerce.jpg'),
+(38, 1, 14, 26, 'Demand', 'Demand', 5, 0, 0, 'Demand.jpg'),
+(39, 1, 14, 26, 'Stampede', 'Stampede', 5, 0, 0, 'Stampede.jpg'),
+(40, 1, 14, NULL, 'Reap', 'Reap', 7, 0, 0, 'Reap.jpg'),
+(41, 1, 14, 25, 'Enclave', 'Enclave', 8, 0, 0, 'Enclave.jpg'),
+(42, 1, 14, NULL, 'Alliance', 'Alliance', 10, 0, 0, 'Alliance.jpg'),
+(43, 1, 14, NULL, 'Populate', 'Populate', 10, 0, 0, 'Populate.jpg'),
+(44, 1, 10, 21, 'Pyhiinvaellus', 'Pilgrimage', 4, 0, 0, 'Pilgrimage.jpg'),
+(45, 1, 10, NULL, 'Almut', 'Alms', 0, 0, 0, 'Alms.jpg'),
+(46, 1, 10, 24, 'Tanssiaiset', 'Ball', 5, 0, 0, 'Ball.jpg'),
+(47, 1, 10, NULL, 'Kokko', 'Bonfire', 3, 0, 0, 'Bonfire.jpg'),
+(48, 1, 10, 24, 'Vippi', 'Borrow', 0, 0, 0, 'Borrow.jpg'),
+(49, 1, 10, NULL, 'Tutkimusmatka', 'Expedition', 3, 0, 0, 'Expedition.jpg'),
+(50, 1, 10, 34, 'Lautta', 'Ferry', 3, 0, 0, 'Ferry.jpg'),
+(51, 1, 10, 35, 'Perintö', 'Inheritance', 7, 0, 0, 'Inheritance.jpg'),
+(52, 1, 10, 39, 'Merireitti', 'Seaway', 5, 0, 0, 'Seaway.jpg'),
+(53, 1, 10, 36, 'Unohdetut Kyvyt', 'Lost Arts', 6, 0, 0, 'Lost_Arts.jpg'),
+(54, 1, 10, 37, 'Reitin Etsintä', 'Pathfinding', 8, 0, 0, 'Pathfinding.jpg'),
+(55, 1, 10, 38, 'Suunnitelma', 'Plan', 3, 0, 0, 'Plan.jpg'),
+(56, 1, 10, NULL, 'Tehtävä', 'Mission', 4, 0, 0, 'Mission.jpg'),
+(57, 1, 10, NULL, 'Kiertelevät Markkinat', 'Travelling Fair', 2, 0, 0, 'Travelling_Fair.jpg'),
+(58, 1, 10, 40, 'Koulutus', 'Training', 6, 0, 0, 'Training.jpg'),
+(59, 1, 10, NULL, 'Vaihtokauppa', 'Trade', 5, 0, 0, 'Trade.jpg'),
+(60, 1, 10, NULL, 'Tiedustelupartio', 'Scouting Party', 2, 0, 0, 'Scouting_Party.jpg'),
+(61, 1, 10, NULL, 'Säästöt', 'Save', 1, 0, 0, 'Save.jpg'),
+(62, 1, 10, 41, 'Ryöstöretki', 'Raid', 5, 0, 0, 'Raid.jpg'),
+(63, 1, 10, NULL, 'Seikkailu', 'Quest', 0, 0, 0, 'Quest.jpg');
 
 -- --------------------------------------------------------
 
@@ -575,56 +603,58 @@ CREATE TABLE `landmarks` (
   `expansion_id` int UNSIGNED NOT NULL,
   `type_id` int UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL,
+  `name_en` varchar(255) DEFAULT NULL,
   `description` varchar(1024) DEFAULT NULL,
-  `setup_id` int UNSIGNED DEFAULT '0'
+  `setup_id` int UNSIGNED DEFAULT '0',
+  `imagename` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `landmarks`
 --
 
-INSERT INTO `landmarks` (`id`, `expansion_id`, `type_id`, `name`, `description`, `setup_id`) VALUES
-(1, 11, 2, 'Muuri', 'Pistelasku: -1 pts jokaisesta yli 15 kortista jotka sinulla on pakassasi.', 0),
-(2, 11, 2, 'Viinitila', 'Pistelasku: +4 pts Jokaista eri nimistä toimintakorttia kohti, joita sinulla on vähintään 3 kappaletta', 0),
-(3, 11, 2, 'Palatsi', 'Pistelasku: +3 pts jokaista kulta-hopea-kupari -settiä kohti jotka sinulla on', 0),
-(4, 11, 2, 'Toivomuslähde', 'Pistelasku: +15 pts jos sinulla on vähintään 10 kuparia', 0),
-(5, 11, 2, 'Sudenpesä', 'Pistelasku: -3 pts jokaista korttia kohden joita sinulla on 1 kappale', 0),
-(6, 11, 2, 'Rosvojen Linnake', 'Pistelasku: -2 pts jokaista pakassasi olevaa kultaa ja hopeaa kohden', 0),
-(7, 11, 2, 'Linnake', 'Pistelasku: +5 pts jokaista eri nimistä Rahakorttia kohden, joita sinulla on eniten tai yhtä monta kuin seuraavaksi eniten omaavalla on', 0),
-(8, 11, 2, 'Museo', 'Pistelasku: +2 pts jokaista eri nimistä korttiasi kohden', 0),
-(9, 11, 2, 'Torni', 'Pistelasku: +1 pts per kortti(si), joka ei ole Pistekortti ja jonka varastopino on tyhjentynyt', 0),
-(10, 11, 2, 'Riemukaari', 'Pistelasku: +3 pts jokaista toiseksi yleisintä toimintakorttiasi kohden. Jos tasamäärä, valitse kumpi vain', 0),
-(11, 11, 2, 'Obeliski', 'Pistelasku: +2 pts jokaista korttia kohden, joka sinulla (alkutoimien aikana, sattumanvaraisesti) valitusta toimintakorttien varastopinosta', 28),
-(12, 11, 2, 'Taistelutanner', 'Kun otat Pistekortin, ota maamerkiltä 2 pts, (Joita alkutoimien aikana laitettu 6 per pelaaja)', 29),
-(13, 11, 2, 'Pylväskäytävä', 'Kun otat Toimintakortin ja sinulla on sellainen myös pelissä, ota maamerkiltä 2 pts. (Joita alkutoimien aikana laitettu 6 per pelaaja)', 29),
-(14, 11, 2, 'Häväisty Pyhättö', 'Kun otat toimintakortin, siirrä sen kasan päältä 1 pts tälle maamerkille. Kun otat kirouksen, ota pisteet tältä maamerkiltä.', 31),
-(15, 11, 2, 'Akvedukti', 'Kun ostat Rahakortin, siirrä sen varastopinon päältä 1 pts tämän kortin päälle. Kun otat Pistekortin, ota pisteet tältä maamerkiltä.', 32),
-(16, 11, 2, 'Basilika', 'Kun otat kortin ja sinulla jää 2 rahaa tai enemmän, ota 2 pts tältä maamerkiltä.', 29),
-(17, 11, 2, 'Labyrintti', 'Kun omalla vuorollasin otat vuorosi toisen kortin, ota 2 pts tältä maamerkiltä.', 29),
-(18, 11, 2, 'Vuoristoreitti', 'Kun ensimmäisen pelaajan joka ottaa läänin vuoro loppuu, käydään huutokauppa. Aktiiviseen pelaajaan loppuen, (muut???) pelaajat tarjoavat enintään 40-velkaa. Korkeimman tarjouksen tehnyt saa 8 pts ja tarjoamansa velan.', 33),
-(19, 11, 2, 'Hauta', 'Kun tuhoat kortin, +1 pts.', 0),
-(20, 11, 2, 'Kylpylä', 'Ota 2 pistettä tältä maamerkiltä, jos lopetat vuorosi ottamatta korttiakaan.', 29),
-(21, 11, 2, 'Areena', 'Ostovuorosi alussa voit poistaa toimintakortin kädestäsi. Jos teet niin, ota 2 pts tältä maamerkiltä.', 29),
-(22, 14, 3, 'Way of the Pig', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 kortti, +1 Action', 0),
-(23, 14, 3, 'Way of the Rat', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Discard a Treasure to gain a copy of this (this = toimintakortti)', 0),
-(24, 14, 3, 'Way of the Seal', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Raha, This turn, when you gain a card, you may put it onto your deck', 0),
-(25, 14, 3, 'Way of the Sheep', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Rahaa', 0),
-(26, 14, 3, 'Way of the Squirrel', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Cards at the end of this turn', 0),
-(27, 14, 3, 'Way of the Turtle', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Set this (this = toimintakortti) aside. If you did, play it at the start of your next turn.', 0),
-(28, 14, 3, 'Way of the Worm', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Exile an estate from the Supply', 25),
-(29, 14, 3, 'Way of the Mole', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Action, Discard your hand. +3 Cards', 0),
-(30, 14, 3, 'Way of the Monkey', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Buy, +1 Raha', 0),
-(31, 14, 3, 'Way of the Mouse', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Play the set-aside card (set-aside during setup), leaving it there', 42),
-(32, 14, 3, 'Way of the Mule', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Action, +1 Raha', 0),
-(33, 14, 3, 'Way of the Otter', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Cards', 0),
-(34, 14, 3, 'Way of the Owl', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Draw until you have 6 cards in hand', 0),
-(35, 14, 3, 'Way of the Ox', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Actions', 0),
-(36, 14, 3, 'Way of the Butterfly', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): You may return this (this = Tomintakortti) to it\'s pile to gain a card costing exactly 1 more than it', 0),
-(37, 14, 3, 'Way of the Camel', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Exile a Gold from the Supply', 25),
-(38, 14, 3, 'Way of the Chameleon', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Follow this card\'s (this card = Toimintokortti) instructions; each time that would give you +Cards, take +Rahaa instead, and vice-versa', 0),
-(39, 14, 3, 'Way of the Frog', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Action, When you discard this (this = Toimintakortti) from play this turn, put it onto your deck', 0),
-(40, 14, 3, 'Way of the Goat', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Trash a card from your hand', 0),
-(41, 14, 3, 'Way of the Horse', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Cards, +1 Action, Return this (this = Toimintakortti) to its pile', 0);
+INSERT INTO `landmarks` (`id`, `expansion_id`, `type_id`, `name`, `name_en`, `description`, `setup_id`, `imagename`) VALUES
+(1, 11, 2, 'Muuri', 'Wall', 'Pistelasku: -1 pts jokaisesta yli 15 kortista jotka sinulla on pakassasi.', 0, 'Wall.jpg'),
+(2, 11, 2, 'Viinitila', 'Orchard', 'Pistelasku: +4 pts Jokaista eri nimistä toimintakorttia kohti, joita sinulla on vähintään 3 kappaletta', 0, 'Orchard.jpg'),
+(3, 11, 2, 'Palatsi', 'Palace', 'Pistelasku: +3 pts jokaista kulta-hopea-kupari -settiä kohti jotka sinulla on', 0, 'Palace.jpg'),
+(4, 11, 2, 'Toivomuslähde', 'Fountain', 'Pistelasku: +15 pts jos sinulla on vähintään 10 kuparia', 0, 'Fountain.jpg'),
+(5, 11, 2, 'Sudenpesä', 'Wolf Den', 'Pistelasku: -3 pts jokaista korttia kohden joita sinulla on 1 kappale', 0, 'Wolf_Den.jpg'),
+(6, 11, 2, 'Rosvojen Linnake', 'Bandit Fort', 'Pistelasku: -2 pts jokaista pakassasi olevaa kultaa ja hopeaa kohden', 0, 'Bandit_Fort.jpg'),
+(7, 11, 2, 'Linnake', 'Keep', 'Pistelasku: +5 pts jokaista eri nimistä Rahakorttia kohden, joita sinulla on eniten tai yhtä monta kuin seuraavaksi eniten omaavalla on', 0, 'Keep.jpg'),
+(8, 11, 2, 'Museo', 'Museum', 'Pistelasku: +2 pts jokaista eri nimistä korttiasi kohden', 0, 'Museum.jpg'),
+(9, 11, 2, 'Torni', 'Tower', 'Pistelasku: +1 pts per kortti(si), joka ei ole Pistekortti ja jonka varastopino on tyhjentynyt', 0, 'Tower.jpg'),
+(10, 11, 2, 'Riemukaari', 'Triumphal Arch', 'Pistelasku: +3 pts jokaista toiseksi yleisintä toimintakorttiasi kohden. Jos tasamäärä, valitse kumpi vain', 0, 'Triumphal_Arch.jpg'),
+(11, 11, 2, 'Obeliski', 'Obelisk', 'Pistelasku: +2 pts jokaista korttia kohden, joka sinulla (alkutoimien aikana, sattumanvaraisesti) valitusta toimintakorttien varastopinosta', 28, 'Obelisk.jpg'),
+(12, 11, 2, 'Taistelutanner', 'Battlefield', 'Kun otat Pistekortin, ota maamerkiltä 2 pts, (Joita alkutoimien aikana laitettu 6 per pelaaja)', 29, 'Battlefield.jpg'),
+(13, 11, 2, 'Pylväskäytävä', 'Colonnade', 'Kun otat Toimintakortin ja sinulla on sellainen myös pelissä, ota maamerkiltä 2 pts. (Joita alkutoimien aikana laitettu 6 per pelaaja)', 29, 'Colonnade.jpg'),
+(14, 11, 2, 'Häväisty Pyhättö', 'Defiled Shrine', 'Kun otat toimintakortin, siirrä sen kasan päältä 1 pts tälle maamerkille. Kun otat kirouksen, ota pisteet tältä maamerkiltä.', 31, 'Defiled_Shrine.jpg'),
+(15, 11, 2, 'Akvedukti', 'Aqueduct', 'Kun ostat Rahakortin, siirrä sen varastopinon päältä 1 pts tämän kortin päälle. Kun otat Pistekortin, ota pisteet tältä maamerkiltä.', 32, 'Aqueduct.jpg'),
+(16, 11, 2, 'Basilika', 'Basilica', 'Kun otat kortin ja sinulla jää 2 rahaa tai enemmän, ota 2 pts tältä maamerkiltä.', 29, 'Basilica.jpg'),
+(17, 11, 2, 'Labyrintti', 'Labyrinth', 'Kun omalla vuorollasin otat vuorosi toisen kortin, ota 2 pts tältä maamerkiltä.', 29, 'Labyrinth.jpg'),
+(18, 11, 2, 'Vuoristoreitti', 'Mountain Pass', 'Kun ensimmäisen pelaajan joka ottaa läänin vuoro loppuu, käydään huutokauppa. Aktiiviseen pelaajaan loppuen, (muut???) pelaajat tarjoavat enintään 40-velkaa. Korkeimman tarjouksen tehnyt saa 8 pts ja tarjoamansa velan.', 33, 'Mountain_Pass.jpg'),
+(19, 11, 2, 'Hauta', 'Tomb', 'Kun tuhoat kortin, +1 pts.', 0, 'Tomb.jpg'),
+(20, 11, 2, 'Kylpylä', 'Baths', 'Ota 2 pistettä tältä maamerkiltä, jos lopetat vuorosi ottamatta korttiakaan.', 29, 'Baths.jpg'),
+(21, 11, 2, 'Areena', 'Arena', 'Ostovuorosi alussa voit poistaa toimintakortin kädestäsi. Jos teet niin, ota 2 pts tältä maamerkiltä.', 29, 'Arena.jpg'),
+(22, 14, 3, 'Way of the Pig', 'Way of the Pig', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 kortti, +1 Action', 0, 'Way_of_the_Pig.jpg'),
+(23, 14, 3, 'Way of the Rat', 'Way of the Rat', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Discard a Treasure to gain a copy of this (this = toimintakortti)', 0, 'Way_of_the_Rat.jpg'),
+(24, 14, 3, 'Way of the Seal', 'Way of the Seal', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Raha, This turn, when you gain a card, you may put it onto your deck', 0, 'Way_of_the_Seal.jpg'),
+(25, 14, 3, 'Way of the Sheep', 'Way of the Sheep', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Rahaa', 0, 'Way_of_the_Sheep.jpg'),
+(26, 14, 3, 'Way of the Squirrel', 'Way of the Squirrel', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Cards at the end of this turn', 0, 'Way_of_the_Squirrel.jpg'),
+(27, 14, 3, 'Way of the Turtle', 'Way of the Turtle', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Set this (this = toimintakortti) aside. If you did, play it at the start of your next turn.', 0, 'Way_of_the_Turtle.jpg'),
+(28, 14, 3, 'Way of the Worm', 'Way of the Worm', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Exile an estate from the Supply', 25, 'Way_of_the_Worm.jpg'),
+(29, 14, 3, 'Way of the Mole', 'Way of the Mole', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Action, Discard your hand. +3 Cards', 0, 'Way_of_the_Mole.jpg'),
+(30, 14, 3, 'Way of the Monkey', 'Way of the Monkey', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Buy, +1 Raha', 0, 'Way_of_the_Monkey.jpg'),
+(31, 14, 3, 'Way of the Mouse', 'Way of the Mouse', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Play the set-aside card (set-aside during setup), leaving it there', 42, 'Way_of_the_Mouse.jpg'),
+(32, 14, 3, 'Way of the Mule', 'Way of the Mule', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Action, +1 Raha', 0, 'Way_of_the_Mule.jpg'),
+(33, 14, 3, 'Way of the Otter', 'Way of the Otter', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Cards', 0, 'Way_of_the_Otter.jpg'),
+(34, 14, 3, 'Way of the Owl', 'Way of the Owl', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Draw until you have 6 cards in hand', 0, 'Way_of_the_Owl.jpg'),
+(35, 14, 3, 'Way of the Ox', 'Way of the Ox', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Actions', 0, 'Way_of_the_Ox.jpg'),
+(36, 14, 3, 'Way of the Butterfly', 'Way of the Butterfly', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): You may return this (this = Tomintakortti) to it\'s pile to gain a card costing exactly 1 more than it', 0, 'Way_of_the_Butterfly.jpg'),
+(37, 14, 3, 'Way of the Camel', 'Way of the Camel', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Exile a Gold from the Supply', 25, 'Way_of_the_Camel.jpg'),
+(38, 14, 3, 'Way of the Chameleon', 'Way of the Chameleon', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Follow this card\'s (this card = Toimintokortti) instructions; each time that would give you +Cards, take +Rahaa instead, and vice-versa', 0, 'Way_of_the_Chameleon.jpg'),
+(39, 14, 3, 'Way of the Frog', 'Way of the Frog', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +1 Action, When you discard this (this = Toimintakortti) from play this turn, put it onto your deck', 0, 'Way_of_the_Frog.jpg'),
+(40, 14, 3, 'Way of the Goat', 'Way of the Goat', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): Trash a card from your hand', 0, 'Way_of_the_Goat.jpg'),
+(41, 14, 3, 'Way of the Horse', 'Way of the Horse', 'Voit korvata Toimintakortin toiminnon (muista jakoviivasääntö!): +2 Cards, +1 Action, Return this (this = Toimintakortti) to its pile', 0, 'Way_of_the_Horse.jpg');
 
 -- --------------------------------------------------------
 
@@ -1562,30 +1592,45 @@ CREATE TABLE `prophecies` (
   `type_id` int UNSIGNED NOT NULL DEFAULT '6',
   `name` varchar(255) DEFAULT NULL,
   `description` varchar(1024) DEFAULT NULL,
-  `setup_id` int UNSIGNED DEFAULT '0'
+  `setup_id` int UNSIGNED DEFAULT '0',
+  `imagename` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `prophecies`
 --
 
-INSERT INTO `prophecies` (`id`, `expansion_id`, `type_id`, `name`, `description`, `setup_id`) VALUES
-(1, 18, 6, 'Kind Emperor', 'At the start of your turn, and when you remove the last omen: Gain an Action to your hand', 0),
-(2, 18, 6, 'Approaching Army', 'After you play an Attack card, +1 Raha', 43),
-(3, 18, 6, 'Biding Time', 'At the start of the Clean-up, set aside your hand face down. At the start of your next turn, put those cards in your hand', 0),
-(4, 18, 6, 'Bureaucracy', 'When you gain a card that doesn\'t cost 0, gain a copper', 0),
-(5, 18, 6, 'Divine Wind', 'When you remove the last omen, remove all Kingdom card piles from the Supply, and set-up 10 new random piles', 0),
-(6, 18, 6, 'Enlightenment', 'Treasures are also Actions. When you play a Treasure in Action phase, instead of following it\'s instructions, +1 Card and +1 Action', 0),
-(7, 18, 6, 'Flourishing Trade', 'Cards cost 1 Raha less. You may use Action plays as Buys', 0),
-(8, 18, 6, 'Good Harvest', 'The first time you play each differently named Treasure each turn, first, +1 Buy and +1 Raha', 0),
-(9, 18, 6, 'Great Leader', 'After each Action card you play, +1 Action', 0),
-(10, 18, 6, 'Growth', 'When you gain a Treasure, gain a cheaper card', 0),
-(11, 18, 6, 'Harsh Winter', 'When you gain a card on your turn, if there\'s velkaa on it\'s pile, take it; othervice put 2 velkaa on its pile', 33),
-(12, 18, 6, 'Kind Emperor', 'At the start of your turn, and when you remove the last omen: Gain an Action to your hand', 0),
-(13, 18, 6, 'Panic', 'When you play a Treasure, +2 Buys, and when you discard one from play, return it to its pile', 0),
-(14, 18, 6, 'Progress', 'When you gain a card, put it onto your deck', 0),
-(15, 18, 6, 'Rapid Expansion', 'When you gain an Action or Treasure, set it aside and play it at the start of your next turn', 0),
-(16, 18, 6, 'Sickness', 'At the start of your turn, choose one: Gain a curse onto your deck; or discard 3 cards', 44);
+INSERT INTO `prophecies` (`id`, `expansion_id`, `type_id`, `name`, `description`, `setup_id`, `imagename`) VALUES
+(1, 18, 6, 'Kind Emperor', 'At the start of your turn, and when you remove the last omen: Gain an Action to your hand', 0, 'Kind_Emperor.jpg'),
+(2, 18, 6, 'Approaching Army', 'After you play an Attack card, +1 Raha', 43, 'Approaching_Army.jpg'),
+(3, 18, 6, 'Biding Time', 'At the start of the Clean-up, set aside your hand face down. At the start of your next turn, put those cards in your hand', 0, 'Biding_Time.jpg'),
+(4, 18, 6, 'Bureaucracy', 'When you gain a card that doesn\'t cost 0, gain a copper', 0, 'Bureaucracy.jpg'),
+(5, 18, 6, 'Divine Wind', 'When you remove the last omen, remove all Kingdom card piles from the Supply, and set-up 10 new random piles', 0, 'Divine_Wind.jpg'),
+(6, 18, 6, 'Enlightenment', 'Treasures are also Actions. When you play a Treasure in Action phase, instead of following it\'s instructions, +1 Card and +1 Action', 0, 'Enlightenment.jpg'),
+(7, 18, 6, 'Flourishing Trade', 'Cards cost 1 Raha less. You may use Action plays as Buys', 0, 'Flourishing_Trade.jpg'),
+(8, 18, 6, 'Good Harvest', 'The first time you play each differently named Treasure each turn, first, +1 Buy and +1 Raha', 0, 'Good_Harvest.jpg'),
+(9, 18, 6, 'Great Leader', 'After each Action card you play, +1 Action', 0, 'Great_Leader.jpg'),
+(10, 18, 6, 'Growth', 'When you gain a Treasure, gain a cheaper card', 0, 'Growth.jpg'),
+(11, 18, 6, 'Harsh Winter', 'When you gain a card on your turn, if there\'s velkaa on it\'s pile, take it; othervice put 2 velkaa on its pile', 33, 'Harsh_Winter.jpg'),
+(12, 18, 6, 'Kind Emperor', 'At the start of your turn, and when you remove the last omen: Gain an Action to your hand', 0, 'Kind_Emperor.jpg'),
+(13, 18, 6, 'Panic', 'When you play a Treasure, +2 Buys, and when you discard one from play, return it to its pile', 0, 'Panic.jpg'),
+(14, 18, 6, 'Progress', 'When you gain a card, put it onto your deck', 0, 'Progress.jpg'),
+(15, 18, 6, 'Rapid Expansion', 'When you gain an Action or Treasure, set it aside and play it at the start of your next turn', 0, 'Rapid_Expansion.jpg'),
+(16, 18, 6, 'Sickness', 'At the start of your turn, choose one: Gain a curse onto your deck; or discard 3 cards', 44, 'Sickness.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `setratings`
+--
+
+DROP TABLE IF EXISTS `setratings`;
+CREATE TABLE `setratings` (
+  `id` int UNSIGNED NOT NULL,
+  `setid` int UNSIGNED NOT NULL,
+  `rating` tinyint NOT NULL DEFAULT '0',
+  `numrates` int UNSIGNED NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -1712,7 +1757,8 @@ INSERT INTO `starter` (`id`, `aloittaja`, `surprize`) VALUES
 (39, 'Ensimmäisenä peukkua näyttävä pelaaja', 1),
 (40, 'Ensimmäisenä kieltä näyttävä pelaaja', 1),
 (41, 'Ensimmäisenä jotain haukkaava pelaaja', 1),
-(42, 'Pelaaja joka sanoo ensin 5 kertaa mustankissanpaksutposket', 1);
+(42, 'Pelaaja joka sanoo ensin 5 kertaa mustankissanpaksutposket', 1),
+(43, 'Viimeksi jauhelihaa ostanut pelaaja', 0);
 
 -- --------------------------------------------------------
 
@@ -1746,7 +1792,7 @@ INSERT INTO `suggestions` (`id`, `added`, `rejected`, `ehdotus`) VALUES
 (12, 1, 0, 'Viimeksi suihkussa käynyt henkilö'),
 (13, 1, 0, 'Henkilö jolla on ollut viimeksi syntymäpäivät'),
 (14, 1, 0, 'Ensimmäinen joka koskee jotain vihreää'),
-(15, 0, 0, 'Kuka on viimeksi ostanut jauhelihaa');
+(15, 1, 0, 'Kuka on viimeksi ostanut jauhelihaa');
 
 --
 -- Indexes for dumped tables
@@ -1757,6 +1803,13 @@ INSERT INTO `suggestions` (`id`, `added`, `rejected`, `ehdotus`) VALUES
 --
 ALTER TABLE `cards`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `cardsets`
+--
+ALTER TABLE `cardsets`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniqueset` (`card0`,`card1`,`card2`,`card3`,`card4`,`card5`,`card6`,`card7`,`card8`,`card9`,`land0`,`land1`,`event0`,`event1`,`prophecy`);
 
 --
 -- Indexes for table `cardtype`
@@ -1813,6 +1866,13 @@ ALTER TABLE `prophecies`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `setratings`
+--
+ALTER TABLE `setratings`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniquerating` (`setid`,`rating`);
+
+--
 -- Indexes for table `setup_extras`
 --
 ALTER TABLE `setup_extras`
@@ -1839,6 +1899,12 @@ ALTER TABLE `suggestions`
 --
 ALTER TABLE `cards`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=339;
+
+--
+-- AUTO_INCREMENT for table `cardsets`
+--
+ALTER TABLE `cardsets`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `cardtype`
@@ -1895,6 +1961,12 @@ ALTER TABLE `prophecies`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
+-- AUTO_INCREMENT for table `setratings`
+--
+ALTER TABLE `setratings`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `setup_extras`
 --
 ALTER TABLE `setup_extras`
@@ -1904,7 +1976,7 @@ ALTER TABLE `setup_extras`
 -- AUTO_INCREMENT for table `starter`
 --
 ALTER TABLE `starter`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `suggestions`
