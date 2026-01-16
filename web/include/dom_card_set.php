@@ -75,6 +75,21 @@ class dom_card_set {
 				$this->all_ids .= ', '.$c->dual_top_of_id;
 
 	}
+	public function get_all_prizes()
+	{
+		foreach($this->cards AS $card)
+			$prz[] = $card->prize;
+
+		return $prz;
+	}
+	public function get_all_ids()
+	{
+		foreach($this->cards AS $card)
+			$ids[] = $card->id;
+
+		return $ids;
+	}
+
 	public function get_cards()
 	{
 		debug_print("$this->all_ids");

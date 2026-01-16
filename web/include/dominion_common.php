@@ -120,7 +120,11 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 
 	/* Output the form table */
 
-	$output = '<form action="" method="post" id="theform">'."\n";
+	$url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+	if (!$url)
+		die('malformed URL');
+
+	$output = '<form action="'.$url.'" method="post" id="theform">'."\n";
 	$output .= '<div><br /></div>'."\n";
 	$output .= '<div class="expansionform">'."\n";
 	$output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';

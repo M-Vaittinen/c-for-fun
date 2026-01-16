@@ -14,6 +14,8 @@
  * Kapita'o-meter => Rahaa!
  *
  */
+define("SET_RATE_MIN", -10);
+define("SET_RATE_MAX", 10);
 define("LAND_ID_OFFSET", 1000000);
 define("EVENT_ID_OFFSET", 2000000);
 define("OMENA_ID_OFFSET", 3000000);
@@ -25,6 +27,8 @@ define("SETUP_ID_DEBT", 44);
  */
 $showads = true;
 
+$allids = null;
+
 //$DBG=true;
 $DBG=false;
 $TESTING=false;
@@ -35,15 +39,32 @@ $preselected = null;
 $keep_land_ids = null;
 $keep_event_ids = null;
 $keep_omena_ids = null;
+
+
+if (isset($_GET['keepid']) && !isset($_POST['keepid']))
+	$_POST['keepid'] = $_GET['keepid'];
+
+$rate = null;
+
 if (isset($_POST['keepid'])) {
+	if (isset($_POST['rate'])) {
+		$rate = $_POST['rate'];
+		if (!is_numeric($rate))
+			die('Non numeric rate');
+		if ($rate < SET_RATE_MIN || $rate > SET_RATE_MAX)
+			die('bad rate');
+		if (count($_POST['keepid']) < 10)
+			die('Only full set can be rated');
+	}
+
 	foreach ($_POST['keepid'] AS $keepid) {
 		if (!is_numeric($keepid))
 			die('Non numeric KID');
 
 		if ($keepid < LAND_ID_OFFSET) { /* Regular Kingdom card */
-			if (!isset($_POST['keepprize'.$keepid]))
+			if (!isset($_POST['keepprize'.$keepid]) && !isset($_GET['keepprize'.$keepid]))
 				die('Prizeless KID');
-			$kidprize = $_POST['keepprize'.$keepid];
+			$kidprize = (isset($_POST['keepprize'.$keepid])) ? $_POST['keepprize'.$keepid] : $_GET['keepprize'.$keepid];
 			if (!is_numeric($kidprize))
 				die('KID is not a number');
 			if ($kidprize < 4) {
@@ -85,6 +106,196 @@ if (isset($_POST['expansion'])) {
 		$exp = 0;
 }
 
+function add_val_eq_col_query($vals, $colname, $separator, $append_colnum = false)
+{
+	$i = 0;
+	$query = '';
+	$numcards = count($vals);
+
+	foreach($vals AS $val) {
+		$col = $colname;
+		if ($append_colnum)
+			$col .= $i;
+		if ($i == $numcards - 1)
+			$query .= ' '.$col.' = '.$val;
+		else
+			$query .= ' '.$col.' = '.$val.' '.$separator;
+
+		$i++;
+	}
+	return $query;
+}
+
+function add_rate_where_clause($idarr, $colbase, $numcol)
+{
+	$numcards = count($idarr);
+	sort($idarr);
+
+	if ($numcol > 1)
+		$append_colid = true;
+	else
+		$append_colid = false;
+
+	return add_val_eq_col_query($idarr, $colbase, 'AND', $append_colid);
+}
+
+function add_carsdet_insert_into_clause($idarr, $colbase, $append_colnum = true)
+{
+	/* Checks are already done in the add_rate_where_clause() */
+	sort($idarr);
+
+	return add_val_eq_col_query($idarr, $colbase, ',', $append_colnum);
+}
+
+function add_cardset_to_table($conn, $ratecards, $keep_land_ids, $keep_event_ids, $keep_omena_ids)
+{
+	$query = 'INSERT INTO cardsets SET';
+
+	$query .= add_carsdet_insert_into_clause($ratecards, 'card', true);
+	if ($keep_land_ids) {
+		$query .= ',';
+		$query .= add_carsdet_insert_into_clause($keep_land_ids, 'land', true);
+
+	}
+	if ($keep_event_ids) {
+		$query .= ',';
+		$query .= add_carsdet_insert_into_clause($keep_event_ids, 'event', true);
+	}
+	if ($keep_omena_ids) {
+		$query .= ',';
+		$query .= add_carsdet_insert_into_clause($keep_omena_ids, 'prophecy', false);
+	}
+
+	try {
+		$result = mysqli_query($conn, $query);
+	}catch (Exception $e)
+	{
+		debug_print("Couldn't add card set: ".$e->getMessage());
+		return 0;
+	}
+
+	return mysqli_insert_id($conn);
+}
+
+function add_rate_to_table($conn, $id, $rate)
+{
+	/* The setratings has UNIQUE(setid, rating) constraint */
+	$query = "INSERT INTO setratings SET setid = $id, rating = $rate ON DUPLICATE KEY UPDATE numrates=numrates+1";
+
+	$result = mysqli_query($conn, $query);
+	if (!$result)
+		die(mysql_error($conn));
+}
+
+function rate_sanitycheck_twoid_arr($arr)
+{
+	if ($arr) {
+		$numvals = count($arr);
+		if ($numvals > 2 || $numvals < 1)
+			return -1;
+		if ($numvals == 2)
+			if ($arr[0] == $arr[1])
+				return -1;
+	}
+
+	return 0;
+}
+
+function rating_insanity_check($ratecards, $keep_land_ids, $keep_event_ids, $keep_omena_ids) {
+	if (count($ratecards) != 10) {
+		debug_print("Num ratecards");
+		return -1;
+	}
+
+	$ret = rate_sanitycheck_twoid_arr($keep_land_ids);
+	$ret += rate_sanitycheck_twoid_arr($keep_event_ids);
+
+	if (!$ret && $keep_omena_ids) {
+		if (count($keep_omena_ids) != 1) {
+			debug_print("NUM omenaIDS");
+			return -1;
+		}
+	}
+
+	return $ret;
+}
+
+function store_rates($conn, $rate, $preselected, $keep_land_ids, $keep_event_ids, $keep_omena_ids)
+{
+	global $DBG;
+
+	/* Spam check. Bot's usually fill all the input fields */
+	if ((isset($_POST['foterarm']) && $_POST['foterarm'] != "") ||
+	    (isset($_GET['foterarm']) && $_GET['foterarm'] != "")) {
+		return;
+	}
+
+	if (count($preselected[0]) != 3 ||
+	    count($preselected[1]) != 3 ||
+	    count($preselected[2]) != 4)
+	{
+		if ($DBG) {
+			echo "prize < 4 <br />";
+			var_dump($preselected[0]);
+			echo "<br />prize = 4<br />";
+			var_dump($preselected[1]);
+			echo "<br />prize > 4<br />";
+			var_dump($preselected[2]);
+		}
+		die ('unexpected prizes');
+	}
+
+	/* See if card-set exists */
+	$tmparr = array_merge($preselected[0], $preselected[1]);
+	$ratecards = array_unique(array_merge($tmparr, $preselected[2]));
+
+	if (rating_insanity_check($ratecards, $keep_land_ids, $keep_event_ids, $keep_omena_ids)) {
+		debug_print("Sanitychecks failed");
+		return;
+	}
+	/*
+	 * The cardset table should have UNIQUE() constraint for cards in set
+	 * Hence, we should not need to check if the set already exists but we
+	 * can just try adding it. If adding fails, we fetch the ID.
+	 *
+	 * TODO: If the amount of sets grows so that it will be likely the set
+	 * is alrady added, then we can slightly optimize by trying to find the
+	 * ID first, and try adding only if ID does not exist.
+	 */
+	$id = add_cardset_to_table($conn, $ratecards, $keep_land_ids, $keep_event_ids, $keep_omena_ids);
+	if (!$id) {
+		/* Adding failed. Perhaps we already have the set? */
+		$query = 'SELECT id FROM cardsets WHERE';
+		$query .= add_rate_where_clause($ratecards, 'card', 10);
+
+		if ($keep_land_ids)
+			$query .= add_rate_where_clause($keep_land_ids, 'land', 2);
+
+		if ($keep_event_ids)
+			$query .= add_rate_where_clause($keep_event_ids, 'event', 2);
+
+		if ($keep_omena_ids)
+			$query .= add_rate_where_clause($keep_omena_ids, 'prophecy', 1);
+
+		$result = mysqli_query($conn, $query);
+		if (!$result) {
+			debug_print($query.' '.mysql_error($conn));
+			die();
+		}
+
+		if (mysqli_num_rows($result)) {
+			$row = mysqli_fetch_assoc($result);
+			if (!isset($row['id']))
+				die('internal error');
+			$id = $row['id'];
+		} else {
+			die('Internal error - ID not found');
+		}
+	}
+
+	add_rate_to_table($conn, $id, $rate);
+}
+
 $tuh_inafactor = 0;
 if (isset($_POST['tuhinarange']) && is_numeric($_POST['tuhinarange'])) {
 	if ($_POST['tuhinarange'] <= 10 && $_POST['tuhinarange'] >= -10)
@@ -123,7 +334,11 @@ if ($TEST_MOBILE)
 else
 	$mobile = isMobileDevice();
 
-do_head("Dominion - korttiarvonta v2");
+if ($rate != null) {
+	store_rates($conn, $rate, $preselected, $keep_land_ids, $keep_event_ids, $keep_omena_ids);
+}
+
+do_head("Dominion - korttiarvonta v2", $mobile);
 echo '<div class="header nolink">'."\n";
 echo '    <img src="img/dominion-app-icon-4x4.jpg" alt="logo">'."\n";
 echo '    <h1>Dominion - Arvo kortit v2</h1>'."\n";
@@ -373,7 +588,7 @@ function add_landmark_cardpic($cardname, $imagename, $mobile)
 /* TODO: Refactor this. Make a generic function which can be separately called for
  * all of the different types of cards
  */
-function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $all_exp_ids, $mobile = true)
+function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $all_exp_ids, &$all_ids, $mobile = true)
 {
 	$out = "";
 
@@ -428,6 +643,8 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			$expansionname = htmlspecialchars($row['exp_name']);
 			$description = htmlspecialchars($row['description']);
 			$cardtype = htmlspecialchars($row['typename']);
+
+			$all_ids[] = $row['id'] + OMENA_ID_OFFSET;
 
 			if ($keep_omena_ids)
 				if ($keep_omena_ids[0] == $row['id'])
@@ -539,6 +756,8 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 				}
 			}
 
+			$all_ids[] = $row['id'] + EVENT_ID_OFFSET;
+
 			$cardname = htmlspecialchars($row['name']);
 			$expansionname = htmlspecialchars($row['exp_name']);
 			$imagename = htmlspecialchars($row['imagename']);
@@ -560,9 +779,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 				$setup_tip .= '</div>'."\n";
 			}
 			if (!$mobile) {
-				//$prizetype = ($row['debt']) ? '(Velka)' : '(Raha)';
 				$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td class="landcardname">'.add_landmark_cardpic($cardname, $imagename, $mobile).'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$row['prize'].'</td><td>'.$expansionname.'</td></tr>'."\n";
-				//$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td>'.$cardname.'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$row['prize'].' '.$prizetype. '</td><td>'.$expansionname.'</td></tr>'."\n";
 			} else {
 				$out .= '<tr><td class="checkbox">'.add_landmark_kinput($row['id'], EVENT_ID_OFFSET, $checked).'</td><td class="landcardname-mobile">'.add_landmark_cardpic($cardname, $imagename, $mobile).'</td><td>'. (($setup_tip != '') ? $setup_tip : '--') .'</td><td>'.$expansionname.'</td></tr>'."\n";
 			}
@@ -620,6 +837,8 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 			$description = htmlspecialchars($row['description']);
 			$cardtype = htmlspecialchars($row['typename']);
 
+			$all_ids[] = $row['id'] + LAND_ID_OFFSET;
+
 			if ($keep_land_ids)
 				if ($keep_land_ids[0] == $row['id'])
 					$checked = "checked";
@@ -656,6 +875,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 
 $i = 0;
 foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
+	$selected = null;
 	$exp_where = SQL_add_expansion_where('c.expansion_id', $exp);
 
 	$query = $QUERY_BASE.$PRIZE_LIMIT;
@@ -671,19 +891,22 @@ foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
 	}
 	$num_cards_to_rand = $num_cards[$i] - $num_presel;
 
-	$result = query_cards($conn, $query);
-	$foo = 0;
-	while ($row = mysqli_fetch_assoc($result)) {
-		$foo++;
-		$card[] = dom_card::from_partial_row($row);
+	if ($num_cards_to_rand) {
+
+		$result = query_cards($conn, $query);
+		$foo = 0;
+		while ($row = mysqli_fetch_assoc($result)) {
+			$foo++;
+			$card[] = dom_card::from_partial_row($row);
+		}
+		debug_print("$foo cards fetched for ".htmlspecialchars($card_group_names[$i])." - selecting from those:\n");
+		if (count($card) < $num_cards_to_rand) {
+			echo '<h3>Ei riitt&auml;v&auml;sti hintaryhm&auml;n <i>"'.htmlspecialchars($card_group_names[$i]).'"</i>-kortteja.</h3> Valitse useampi (tai isompi) lis&auml;osa';
+			$showads = false;
+			goto page_end;
+		}
+		$selected = randomize_cards($card, $tuh_inafactor, $tup_inafactor, $nihilism, $kap_itafactor, $num_cards_to_rand);
 	}
-	debug_print("$foo cards fetched for ".htmlspecialchars($card_group_names[$i])." - selecting from those:\n");
-	if (count($card) < $num_cards_to_rand) {
-		echo '<h3>Ei riitt&auml;v&auml;sti hintaryhm&auml;n <i>"'.htmlspecialchars($card_group_names[$i]).'"</i>-kortteja.</h3> Valitse useampi (tai isompi) lis&auml;osa';
-		$showads = false;
-		goto page_end;
-	}
-	$selected = randomize_cards($card, $tuh_inafactor, $tup_inafactor, $nihilism, $kap_itafactor, $num_cards[$i] - $num_presel);
 	if ($num_presel)
 		add_existing($selected, $preselected[$i]);
 
@@ -694,14 +917,45 @@ foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
 
 	debug_print("bucket $i: $PRIZE_LIMIT");
 }
-
 $card_set->get_cards();
+$allids = $card_set->get_all_ids();
+$allprizes = $card_set->get_all_prizes();
 $omena = $card_set->show_sets($preselected, $mobile);
 
 if ($land_exp || $event_exp || $keep_land_ids || $keep_event_ids || $omena) {
-	show_eventland($conn, $event_exp, $land_exp, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $exp, $mobile);
+	show_eventland($conn, $event_exp, $land_exp, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $exp, $allids, $mobile);
 }
 
+$allink = '';
+$url = 'https://';
+if ($_SERVER['SERVER_PORT'] != '80')
+  $url .= $_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$_SERVER['PHP_SELF'];
+else
+	$url .= $_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
+
+foreach($allids AS $aid) {
+	if ($allink == '')
+		$allink = "$url?keepid[]=$aid";
+	else
+		$allink .= "&keepid[]=$aid";
+}
+
+$i=0;
+
+foreach($allprizes AS $aip) {
+	$allink .= '&keepprize'.$allids[$i]."=$aip";
+	$i++;
+}
+
+require 'include/share.php';
+echo '<p>Piditkö n&auml;ist&auml; korteista? Jaa arpomasi setti kaverillesikin</p>';
+echo sharebtn(urlencode($allink), $allink);
+
+require 'include/ratebtn.php';
+//echo "<!--";
+echo '<p>Korttisettien arviointi on kokeellinen ominaisuus. Voit antaa pelin j&auml;lkeen 1-5 t&auml;hte&auml; arvotuille korteille sen mukaan, miten setti mielest&auml;si toimi. T&auml;ll&auml;hetkell&auml; annetut arvosanat eiv&auml;t n&auml;y miss&auml;&auml;n mutta tavoitteena on jatkossa lis&auml;t&auml; suosittuja valmiita settej&auml; valittavaksi, satunnaisesti arvottujen lis&auml;ksi.</p>';
+echo ratebtn($allids, $allprizes);
+//echo "-->";
 page_end:
 
 /* Close connection, print (c) and send </body> </html> */

@@ -11,13 +11,28 @@
  */
 
 /* Sigh. A desperate attempt to squeeze down some expences. */
+
 $AD_ID = '
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2999778840133894"
      crossorigin="anonymous"></script>
 ';
 
-function do_head($title)
+function do_head($title, $mobile = false)
 {
+	global $AD_ID;
+
+	/* Different size of rate starts for mobile and web */
+	$mvacont_width = ($mobile) ? '80%' : '40%';
+	$mvacont_height = ($mobile) ? '40%' : '20%';
+
+	/*
+	 * The 'arvostele' -button needs different placing on
+	 * mobile and web. The star label may overlap it on mobile,
+	 * or the space will be ridiculously large on web version.
+	 */
+	$mva_height = ($mobile) ? '50vh' : '25vh';
+	$mvacont_top = ($mobile) ? '10%' : '20%';
+
 echo '
 <!DOCTYPE html>
 <html>
@@ -25,6 +40,103 @@ echo '
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 
+:root{
+  --star-colour: hsl(38 90% 55%);
+}
+
+.mva {
+  overflow: hidden;
+  
+  width: 50vw;
+  height: '.$mva_height.';
+  background: linen;
+  font-family: sans-serif;
+  color: #fff;
+  /*
+  */
+}
+
+.mvacontainer{
+  position: relative;
+  top: '.$mvacont_top.';
+  left: 50%;
+  
+  width: '.$mvacont_width.';
+  height: '.$mvacont_height.';
+  
+  transform: translate(-50%, -50%) rotateY(180deg);
+}
+
+.mvacontainer .mvacontainer__items{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  gap: 0 .5em;
+  
+  width: 100%;
+  height: 100%;
+}
+
+.mvacontainer .mvacontainer__items input{
+  display: none;
+}
+
+.mvacontainer .mvacontainer__items label{
+  width: 20%;
+  aspect-ratio: 1;
+  cursor: pointer;
+}
+
+.mvacontainer__items label .star-stroke{
+  transition: .3s;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: maroon; 
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.mvacontainer__items label .star-stroke .star-fill{
+  width: 70%;
+  aspect-ratio: 1;
+  background: linen;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.mvacontainer__items input:hover ~ label .star-stroke,.container .mvacontainer__items input:checked ~ label .star-stroke{
+  background: var(--star-colour);
+}
+
+.mvacontainer__items input:checked ~ label .star-stroke .star-fill{
+  background: var(--star-colour);
+}
+
+
+.mvacontainer__items label:hover .label-description::after{
+  transition: .3s;
+  box-sizing: border-box;
+  content: attr(data-content);
+  position: fixed;
+  left: 0;
+  right: 0;
+  
+  margin-top: 1em;
+  margin-inline: auto;
+  
+  width: 100%;
+  height: 2em;
+  
+  /* color: #fff; */
+  color: brown;
+  
+  text-align: center;
+  font-size: 2rem;
+  
+  transform: rotateY(180deg);
+}
 
 /* Setup help text to be shown when hovered on image */
 
