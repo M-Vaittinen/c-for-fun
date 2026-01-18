@@ -28,7 +28,7 @@ function show_suggestion($conn, $num_to_show)
 
 function num_suggestions($conn)
 {
-	$query = "select count(1) FROM suggestions";
+	$query = "select count(1) FROM suggestions WHERE added = 0 AND rejected = 0";
 	$result = mysqli_query($conn, $query);
 	$row = mysqli_fetch_array($result);
 
