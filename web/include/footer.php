@@ -36,7 +36,7 @@ function generate_footer($mobile, $suggest, $showad = false)
 			$link_cc_license = '';
 		}
 
-		echo ' -- Card Images from '.$link_dominioncg.'dominioncg.fandom.com'.$endlink.' and '.$link_dominionstrategy.'wiki.dominionstrategy.com'.$endlink.'. Images available under '.$link_cc_license.'CC-BY-NC-SA'.$endlink."\n";
+		echo ' -- Korttien kuvat on alunperin p&ouml;llitty '.$link_dominioncg.'dominioncg.fandom.com'.$endlink.' ja '.$link_dominionstrategy.'wiki.dominionstrategy.com'.$endlink.' -sivustoilta. Lisensoitu '.$link_cc_license.'CC-BY-NC-SA'.$endlink." -lisenssill&auml;. (Vinkkaathan jos l&ouml;yd&auml;t k&auml;ytett&auml;viss&auml;olevia suomenkielisten korttien kuvia)\n";
 	}
 	echo '</td></tr></table>'."\n";
 	echo '</div>'."\n"; // footer styling ends
