@@ -175,7 +175,7 @@ class dom_card
 			return $this->potion_out;
 
 		if ($this->potion)
-			$this->potion_out = image_with_explanation("img/potion.png", "Rohto", 'Rohto', ($mobile)?'':'rohto-img');
+			$this->potion_out = image_with_explanation("img/potion.png", "Rohto", 'Rohto', 'rohto-img');
 		else
 			$this->potion_out = '';
 
