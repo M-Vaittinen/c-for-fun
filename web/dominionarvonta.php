@@ -22,6 +22,12 @@ define("OMENA_ID_OFFSET", 3000000);
 define("PRIZETYPE_ID_DEBT", 2);
 define("SETUP_ID_DEBT", 44);
 
+require 'include/db.php';
+require 'include/header.php';
+require 'include/dominion_common.php';
+require 'include/card.php';
+require 'include/dom_card_set.php';
+
 /*
  * Show ADS by default. Turn em off later for error page(s)
  */
@@ -40,21 +46,32 @@ $keep_land_ids = null;
 $keep_event_ids = null;
 $keep_omena_ids = null;
 
+/*
+ * Handling of card rating and deck sharing is a hack. It uses same post/get data
+ * structure as 'keeping' part of the cards when re-randomizing. For re-randomizing
+ * we want to keep the 'keep this card'-box checked for cards user has already
+ * selected. However, for shared deck or for the rating we may not want to do this.
+ *
+ * Add a global for indicating if the selections for 'kept cards' should be checked.
+ * Default to yes, and change to no if the 'keepid'-data came from rating/sharing.
+ */
+$g_check_boxes = true;
 
-if (isset($_GET['keepid']) && !isset($_POST['keepid']))
+if (isset($_GET['keepid']) && !isset($_POST['keepid'])) {
 	$_POST['keepid'] = $_GET['keepid'];
+	/* User has probably followed a link to a shared deck because forms use post. */
+	$g_check_boxes = false;
+}
 
 $rate = null;
 
 if (isset($_POST['keepid'])) {
 	if (isset($_POST['rate'])) {
-		$rate = $_POST['rate'];
-		if (!is_numeric($rate))
-			die('Non numeric rate');
-		if ($rate < SET_RATE_MIN || $rate > SET_RATE_MAX)
-			die('bad rate');
+		$rate = check_post_numeric_die('rate', SET_RATE_MIN, SET_RATE_MAX);
 		if (count($_POST['keepid']) < 10)
 			die('Only full set can be rated');
+		/* Page was load as a result of rating. Don't pre-select 'keep'-checkboxes */
+		$g_check_boxes = false;
 	}
 
 	foreach ($_POST['keepid'] AS $keepid) {
@@ -87,57 +104,21 @@ if (isset($_POST['keepid'])) {
 	}
 }
 
-if (isset($_POST['event_expansions']))
-	$event_exp = $_POST['event_expansions'];
-else
-	$event_exp = 0;
-
-if (isset($_POST['landmark_expansions']))
-	$land_exp = $_POST['landmark_expansions'];
-else
-	$land_exp = 0;
-
-if (isset($_POST['expansion'])) {
-	$exp = $_POST['expansion'];
-} else {
-	if ($TESTING)
-		$exp = array(3,4,5,6, 15);
-	else
-		$exp = 0;
-}
+$event_exp = return_post_numeric_array_or_zero('event_expansions');
+$land_exp = return_post_numeric_array_or_zero('landmark_expansions');
+$exp = return_post_numeric_array_or_zero('expansion');
 
 require 'include/rating.php';
 
-$tuh_inafactor = 0;
-if (isset($_POST['tuhinarange']) && is_numeric($_POST['tuhinarange'])) {
-	if ($_POST['tuhinarange'] <= 10 && $_POST['tuhinarange'] >= -10)
-		$tuh_inafactor = $_POST['tuhinarange'];
-}
-
-$tup_inafactor = 0;
-if (isset($_POST['tupinarange']) && is_numeric($_POST['tupinarange'])) {
-	if ($_POST['tupinarange'] <= 10 && $_POST['tupinarange'] >= -10)
-		$tup_inafactor = $_POST['tupinarange'];
-}
+$tuh_inafactor = return_post_numeric_or_zero('tuhinarange', -10, 10);
+$tup_inafactor = return_post_numeric_or_zero('tupinarange', -10, 10);
+$kap_itafactor = return_post_numeric_or_zero('kapitarange', -10, 10);
 
 if (isset($_POST['add_nihilism'])) {
 	$nihilism = true;
 } else {
 	$nihilism = false;
 }
-
-$kap_itafactor = 0;
-if (isset($_POST['kapitarange']) && is_numeric($_POST['kapitarange'])) {
-	if ($_POST['kapitarange'] <= 10 && $_POST['kapitarange'] >= -10)
-		$kap_itafactor = $_POST['kapitarange'];
-}
-
-
-require 'include/db.php';
-require 'include/header.php';
-require 'include/dominion_common.php';
-require 'include/card.php';
-require 'include/dom_card_set.php';
 
 debug_print("Recv'd tuhina: $tuh_inafactor, Tupina: $tup_inafactor (nihilism $nihilism), Kapita: $kap_itafactor");
 /* On a mobile device we try to fit the tables on a screen */
