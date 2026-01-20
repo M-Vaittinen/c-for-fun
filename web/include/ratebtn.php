@@ -1,5 +1,44 @@
 <?php
 
+/*
+ * Create the 'star rating' form. The form displays 5 rating stars and
+ * a textual description for the rating. The selected amount of stars
+ * is converted to 'rate' post data as follows:
+ * Stars:	rate:
+ * 1	=>	-10
+ * 2	=>	-5
+ * 3	=>	0
+ * 4	=>	5
+ * 5	=>	10
+ *
+ * The IDs of the cards that were rated, are added to the 'keepids',
+ * post data which is already existing mechanism for displaying a
+ * shared set of cards and also for 'keeping' some/all of the cards
+ * when doing "re-randomizing". NOTE: It would probably be much
+ * cleaner to have different post vars for the rating, keeping and
+ * sharing, which would allow doing things differently if needed. This,
+ * however, was the easy, quick'n dirty way. Currently the 'keep' and
+ * 'share / rate' -options have no difference in post data handling,
+ * thus all the cards will be 'selected' in UI when card set is rated
+ * or shared card set is opened.
+ *
+ * NOTE: We can differentiate the sharing/rating and selecting use-cases
+ * if we want. If 'rate' post-data exists, then this was rating (and
+ * checkboxes could default unchecked). If deck was shared, the keepids
+ * and keepprizes will not be in post-data but in get-data. We could
+ * detect this as well and again, default checkboxes unchecked.
+ *
+ * @allids: an array of card IDs. Landmark, event and omen card-IDs should
+ *	    have the defined ID offset applied so receiving side can separate
+ *	    them from regular kingdom cards. allids array should be ordered so
+ *	    that the ID in array index [X] will match the prize in @allprizes
+ *	    array index [x]. NOTE: landmark, event and omen cards don't need to
+ *	    have matching prize. Hence, the kingdom cards must be first in the
+ *	    array, landmark, event and omen cards should be after them.
+ * @allprizes: an array of kingdom card prizes. array should be ordered so
+ *          that the prize in array index [X] will match the ID in @allids
+ *          index [x].
+ */
 function ratebtn($allids, $allprizes)
 {
 	$output = '<form action="" method="post" id="rateform">'."\n";

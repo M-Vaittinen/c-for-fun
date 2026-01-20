@@ -25,51 +25,25 @@ $showad = true;
 function output_starter_form()
 {
 
-$output = '<form action="" method="post">';
-$output .= '
-	<input id="yesspeed" type="checkbox" name="yesspeed" value="1">
-	<label for="yesspeed">Nyt Tod Jaksaa!</label>
-	<input id="nospeed" type="checkbox" name="nospeed" value="1">
-	<label for="nospeed">Nyt Ei Jaksa</label>
-	<button type="submit" name="players" value="1">1 player</button>
-	<button type="submit" name="players" value="2">2 players</button>
-	<button type="submit" name="players" value="3">3 players</button>
-	<button type="submit" name="players" value="4">4 players</button>
-	<button type="submit" name="players" value="5">5 players</button>
-	<label for="quantity">No montako sitten? (6..10):</label>
-	<input type="number" id="quantity" name="quantity" min="6" max="10">
-	<input type="submit" value="Submit">
-	</form>';
-/*$output .= '<table><tr><th colspan="6">
-		Montako pelaajaa?	
-	</th></tr>
-	<tr><td>
-	<button type="submit" name="players" value="1">1 player</button>
-	</td><td>
-	<button type="submit" name="players" value="2">2 players</button>
+	$output = '<form action="" method="post">';
+	$output .= '
+		<input id="yesspeed" type="checkbox" name="yesspeed" value="1">
+		<label for="yesspeed">Nyt Tod Jaksaa!</label>
+		<input id="nospeed" type="checkbox" name="nospeed" value="1">
+		<label for="nospeed">Nyt Ei Jaksa</label>
+		<button type="submit" name="players" value="1">1 player</button>
+		<button type="submit" name="players" value="2">2 players</button>
+		<button type="submit" name="players" value="3">3 players</button>
+		<button type="submit" name="players" value="4">4 players</button>
+		<button type="submit" name="players" value="5">5 players</button>
+		<label for="quantity">No montako sitten? (6..10):</label>
+		<input type="number" id="quantity" name="quantity" min="6" max="10">
+		<input type="submit" value="Submit">
+		</form>';
 
-	</td><td>
-
-	<button type="submit" name="players" value="3">3 players</button>
-
-	</td><td>
-
-	<button type="submit" name="players" value="4">4 players</button>
-
-	</td><td>
-	<button type="submit" name="players" value="5">5 players</button>
-
-	</td><td>
-	<label for="quantity">No montako sitten? (6..10):</label>
-	<input type="number" id="quantity" name="quantity" min="6" max="10">
-	<input type="submit" value="Submit">
-	</td></tr></table></form>';
- */
-/* Output form */
-return $output;
+	/* Output form */
+	return $output;
 }
-
-
 
 if (isset($_POST['quantity']))
 	if (is_numeric($_POST['quantity']))
@@ -81,7 +55,6 @@ if (!$quantity)
 		if (is_numeric($_POST['players']))
 			if ($_POST['players'] < 6 && $_POST['players'] > 0)
 				$quantity = $_POST['players'];
-
 
 $nospeed = "";
 if (isset($_POST['nospeed']))
@@ -99,9 +72,12 @@ if (isset($_POST['yesspeed'])) {
 
 do_head("Aloittajan arvonta");
 
-echo "<h1>Aloittaja-arvonta... </h1>";
-if (!$quantity)
-	echo '<table class="cardlist"><tr><td> Aloittaja arvonta antaa pelin aloittajan kaksiosaisena arvontana. Ensin arvotaan yksi henkilö, jonka jälkeen annetaan tarkennus. Tarkennus voi kertoa aloittajan olevan edellä arvottu henkilö itse, tai se voi kertoa aloittajan olevan joku muu, kuitenkin siten että aloittaja määräytyy edellä arvotun henkilön mukaan. (Esim, arvotun henkilön vasemmalla puolella oleva pelaaja). Äsh, vaikea selittää, helpompi vain kun painat sitä nappia ja katsot mitä tapahtuu!<br /> <br /> Ps. Älä ota tätä liian vakavasti :) Jos asiassa on liikaa tulkinnanvaraa niin arvo rohkeasti uudelleen - tai heitä vaikka kolikkoa.</td></tr></table>';
+if (!$quantity) {
+	echo "<h1>Aloittaja-arvonta... </h1>";
+	echo '<table class="cardlist"><tr><td>';
+	echo 'Aloittaja arvonta antaa pelin aloittajan kaksiosaisena arvontana. Ensin arvotaan yksi henkilö, jonka jälkeen annetaan tarkennus. Tarkennus voi kertoa aloittajan olevan edellä arvottu henkilö itse, tai se voi kertoa aloittajan olevan joku muu, kuitenkin siten että aloittaja määräytyy edellä arvotun henkilön mukaan. (Esim, arvotun henkilön vasemmalla puolella oleva pelaaja). Äsh, vaikea selittää, helpompi vain kun painat sitä nappia ja katsot mitä tapahtuu!<br /> <br /> Ps. Älä ota tätä liian vakavasti :) Jos asiassa on liikaa tulkinnanvaraa niin arvo rohkeasti uudelleen - tai heitä vaikka kolikkoa.';
+	echo '</td></tr></table>';
+}
 if ($quantity) {
 	if ($quantity <= 1) {
 		echo "<h2>Oletko ihan tosissasi?</h2>";
@@ -164,48 +140,29 @@ if ($quantity) {
 
 	} else { $aloittaja = 'itse!'; }
 
+	$output_table = '<table class="aarvonta"><tr>'."\n";
 	if ($row['surprize'] || $SURPRIZE_TEST) {
 		$extraclass = "sfade-in";
-		$output_table = '<h1>Aseta n&auml;ytt&ouml; niin ett&auml; kaikki pelaajat n&auml;kev&auml;t sen</h1>';
+		$output_table .= '<th colspan="3">Aseta n&auml;ytt&ouml; niin ett&auml; kaikki pelaajat n&auml;kev&auml;t sen</th></tr><tr>';
 	} else {
 		$extraclass = "svisible";
-		$output_table = '';
 	}
-	/*
-	if (!$row['surprize'] && !$SURPRIZE_TEST) {
-		$output_table = '<table class="aarvonta"><tr><th>Alustava aloittaja..</th></tr>'."\n";
-		$output_table .= '<tr><td>'."\n";
-		$output_table .= "$aloittaja_initial";
-		$output_table .= '</td><tr>'."\n";
-		$output_table .= '</table>'."\n";
 
-		$output_table .= '<table class="aarvonta"><tr><th>...tarkennus</th></tr>';
-		$output_table .= '<tr><td>'."\n";
-		$output_table .= "$aloittaja";
-		$output_table .= '</td><tr>'."\n";
-		$output_table .= '</table>'."\n";
-	} else {
-	 */
-		$output_table .= '<table class="aarvonta"><tr>'."\n";
-		$output_table .= '<td colspan="3"><div class="'.$extraclass.' stop"><h3>'.$aloittaja_initial.'</h3><h3>'.$aloittaja.'</h3></div><div class="stop">Aloittaja: </div></td>'."\n";
-		$output_table .= '</tr><tr>'."\n";
-		$output_table .= '<td class="sleft">Aloittaja: <div class="'.$extraclass.'"><h3>'.$aloittaja_initial.'</h3><h3>'.$aloittaja."</h3></div></td>\n";
-		$output_table .= '<td class="startform">'.output_starter_form().'</td>'."\n";
-		$output_table .= '<td class="sright"><div class="'.$extraclass.'"><h3>'.$aloittaja.' </h3><h3> '.$aloittaja_initial.'</h3></div>Aloittaja: </td>'."\n";
-		$output_table .= '</tr><tr>'."\n";
-		$output_table .= '<td colspan="3">Aloittaja: <div class="'.$extraclass.'"><h3>'."$aloittaja_initial </h3><h3> $aloittaja\n </h3></div></td>";
-		$output_table .= '</tr></table>'."\n";
-//		$output_table .= '<p class="sfade-in-top">'."$aloittaja_initial \n";
-//		$output_table .= '<p class="sfade-in-left">'."$aloittaja_initial \n";
-//		$output_table .= '<p class="sfade-in-right">'."$aloittaja_initial \n";
-//		$output_table .= '<p class="sfade-in-bottom">'."$aloittaja_initial \n";
-//	}
+	$output_table .= '<td colspan="3"><div class="'.$extraclass.' stop"><h3>'.$aloittaja_initial.'</h3><h3>'.$aloittaja.'</h3></div><div class="stop">Aloittaja: </div></td>'."\n";
+	$output_table .= '</tr><tr>'."\n";
+	$output_table .= '<td class="sleft">Aloittaja: <div class="'.$extraclass.'"><h3>'.$aloittaja_initial.'</h3><h3>'.$aloittaja."</h3></div></td>\n";
+	$output_table .= '<td class="startform">'.output_starter_form().'</td>'."\n";
+	$output_table .= '<td class="sright"><div class="'.$extraclass.'"><h3>'.$aloittaja.' </h3><h3> '.$aloittaja_initial.'</h3></div>Aloittaja: </td>'."\n";
+	$output_table .= '</tr><tr>'."\n";
+	$output_table .= '<td colspan="3">Aloittaja: <div class="'.$extraclass.'"><h3>'."$aloittaja_initial </h3><h3> $aloittaja\n </h3></div></td>";
+	$output_table .= '</tr></table>'."\n";
 
-	$output = $output_table;
+	$output = '<div class="arvontakont">' . $output_table . '</div>'."\n";
 
 	$output .= '<hr style="height:20px;border-width:0;color:#d2691e;background-color:#d2691e">';
-} else
+} else {
 	$output = output_starter_form();
+}
 
 out:
 
