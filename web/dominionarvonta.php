@@ -383,6 +383,7 @@ function add_landmark_cardpic($cardname, $imagename, $mobile)
  */
 function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $all_exp_ids, &$all_ids, $mobile = true)
 {
+	global $g_check_boxes;
 	$out = "";
 
 	if (!($event_exp_ids || $land_exp_ids || $keep_land_ids || $keep_event_ids || $omena))
@@ -439,7 +440,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 
 			$all_ids[] = $row['id'] + OMENA_ID_OFFSET;
 
-			if ($keep_omena_ids)
+			if ($g_check_boxes && $keep_omena_ids)
 				if ($keep_omena_ids[0] == $row['id'])
 					$checked = "checked";
 			if ($row['text'] && $row['stupid'] != SETUP_ID_DEBT) {
@@ -540,7 +541,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 		while ($row = mysqli_fetch_assoc($result)) {
 			$checked = "";
 			$setup_tip = "";
-			if ($keep_event_ids) {
+			if ($g_check_boxes && $keep_event_ids) {
 				foreach($keep_event_ids AS $kid) {
 					if ($kid == $row['id']) {
 						$checked = "checked";
@@ -632,7 +633,7 @@ function show_eventland($conn, $event_exp_ids, $land_exp_ids, $keep_land_ids, $k
 
 			$all_ids[] = $row['id'] + LAND_ID_OFFSET;
 
-			if ($keep_land_ids)
+			if ($g_check_boxes && $keep_land_ids)
 				if ($keep_land_ids[0] == $row['id'])
 					$checked = "checked";
 			if ($row['text']) {
@@ -713,7 +714,7 @@ foreach($PRIZEBUCKETS as $PRIZE_LIMIT) {
 $card_set->get_cards();
 $allids = $card_set->get_all_ids();
 $allprizes = $card_set->get_all_prizes();
-$omena = $card_set->show_sets($preselected, $mobile);
+$omena = $card_set->show_sets($preselected, $g_check_boxes, $mobile);
 
 if ($land_exp || $event_exp || $keep_land_ids || $keep_event_ids || $omena) {
 	show_eventland($conn, $event_exp, $land_exp, $keep_land_ids, $keep_event_ids, $omena, $keep_omena_ids, $exp, $allids, $mobile);

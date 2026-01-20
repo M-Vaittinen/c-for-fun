@@ -149,7 +149,7 @@ class dom_card_set {
 
 		return $out;
 	}
-	public function show_sets($keepids, $mobile = 0) {
+	public function show_sets($keepids, $check_selected, $mobile = 0) {
 		$vals_on_sets = array(3,3,4);
 		$omena = false;
 
@@ -179,7 +179,7 @@ class dom_card_set {
 					$omena = true;
 
 				$checked = "";
-				if (isset($keepids[$i])) {
+				if ($check_selected && isset($keepids[$i])) {
 					foreach($keepids[$i] AS $keep) {
 						if ($c->id == $keep)
 							$checked = " checked";
