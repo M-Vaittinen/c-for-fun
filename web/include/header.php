@@ -40,6 +40,97 @@ echo '
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 
+/* Navigation bar dropdowns */
+ /* Navbar container */
+.mvanavbar {
+  overflow: hidden;
+  background-color: #d2691e;
+  font-family: Arial;
+}
+
+/* Links inside the navbar */
+.mvanavbar a {
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Place the "yhteystiedot" to far right */
+
+/* The dropdown container */
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+
+.mvaright a {
+	float: right;
+  	align-items: right;
+}
+.mvaright {
+	float: right;
+  	align-items: right;
+}
+
+/* Dropdown button */
+.dropdown .dropbutton {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit; /* Important for vertical align on mobile phones */
+  margin: 0; /* Important for vertical align on mobile phones */
+}
+
+.mvanavbar ul {
+	list-style-type: none;
+}
+
+/* Add a red background color to navbar links on hover */
+.mvanavbar a:hover, .dropdown:hover .dropbutton {
+  background-color: maroon;
+}
+
+.mvaright a:hover, .dropdown:hover .dropbutton {
+  background-color: maroon;
+}
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+/* Add a grey background color to dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Rating stars */
+
 :root{
   --star-colour: hsl(38 90% 55%);
 }

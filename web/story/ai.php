@@ -1,7 +1,9 @@
 <?php
 require '../include/db.php';
 require '../include/header.php';
+require '../include/nav_bar.php';
 do_head("Teko&auml;lyhoi!");
+echo get_navlist("..");
 ?>
 
 <div class="header">

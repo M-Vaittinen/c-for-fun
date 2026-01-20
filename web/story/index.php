@@ -1,7 +1,9 @@
 <?php
 require '../include/db.php';
 require '../include/header.php';
+require '../include/nav_bar.php';
 do_head("Kuinka arvontakone tehtiin...");
+echo get_navlist("..");
 ?>
 <div class="header">
 <a href="../index.php"><img src="../img/dominion-app-icon-4x4.jpg" alt="logo"></a>

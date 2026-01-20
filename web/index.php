@@ -2,7 +2,10 @@
 
 require 'include/db.php';
 require 'include/header.php';
+require 'include/nav_bar.php';
+
 do_head("Tervetuloa - Welcome");
+echo get_navlist(); 
 ?>
 <div class="header nolink">
 <img src="img/dominion-app-icon-4x4.jpg" alt="logo">
@@ -19,7 +22,7 @@ do_head("Tervetuloa - Welcome");
 
 <hr style="height:10px;border-width:0;color:#d2691e;background-color:#d2691e">
 
-<a href="dominionarvonta.php"><h3>Dominion korttiarvonta</h3></a>
+<a href="dominionarvonta.php"><h3 id="dominfo">Dominion korttiarvonta</h3></a>
 <p>
 Korttiarvonnassa voit arpoa Dominion-peliss&auml; k&auml;ytett&auml;v&auml;t varastokortit sek&auml; joillekin lis&auml;osille my&ouml;s Tapahtuma, Maamerkki, Way ja Omen kortit. Hyv&auml;ksikoettu aloitussetuppi on sekoitus eri hintaisia kortteja siten, ett&auml; settiin sis&auml;ltyy halpoja ja keskihintaisia kortteja alkupeli&auml; varten sek&auml; kalliimpia kortteja. Arvontakone arpookin aina 3 halpaa (alle 4-rahaa), 3 keskihintaista (4 rahaa) ja 4 n&auml;it&auml; kalliimpaa korttia.
 <p>
@@ -54,7 +57,7 @@ Viimeisimp&auml;n&auml; s&auml;&auml;t&ouml;n&auml; s&auml;&auml;dell&auml;&auml
 
 <hr style="height:10px;border-width:0;color:#d2691e;background-color:#d2691e">
 
-<a href="aloittaja.php"><h3>Aloittajan arvonta</h3></a>
+<a href="aloittaja.php"><h3 id="starterinfo">Aloittajan arvonta</h3></a>
 <p>
 Kolikonheitto on niin mennytt&auml; aikaa. Kuka edes k&auml;ytt&auml;&auml; en&auml;&auml; k&auml;teist&auml;? Pankkikorttia taas ei kannata heitell&auml;, ainakaan jos lautalattiassa on rakoja. Niinp&auml; tarvittiin uusi arvontamuoto. Ja koska kyse on peleist&auml;, on tietysti j&auml;rkev&auml;&auml; pelillist&auml;&auml; my&ouml;s arvonta ;)
 </p>
