@@ -69,11 +69,29 @@ class dom_card_set {
 			$this->all_ids .= ', '.$tmp;
 		else
 			$this->all_ids .= $tmp;
-		/* Hack to handle dual decks */
+		/*
+		 * Hack to handle dual decks
+		 *
+		 * This hack was an optimization. We queried the dual_top_of_id()
+		 * already in randomizer query - so we did not need another query
+		 * for dual_top_of_id() for selected cards.
+		 *
+		 * This, however, is not done for the 'kept (when re-randomizing)',
+		 * 'rated' or 'shared' cards, where only the top-card ID is coming
+		 * in via the POST/GET data.
+		 *
+		 * So, in order to avoid extra complexity, always perform second
+		 * query for the bottom card IDs (dual_top_of_id) after cards have
+		 * been selected. (Other, more complex option would be adding the
+		 * bottom IDs for randomized cards here, and then finding the
+		 * dual_top_of_ids separately only if rate/share/keep data is found.
+		 * That would require additional logic also for preventing the bottom
+		 * cards to be added twice, once here and once later.
+		 *
 		foreach($skeleton_cards AS $c)
 			if ($c->dual_top_of_id)
 				$this->all_ids .= ', '.$c->dual_top_of_id;
-
+		 */
 	}
 	public function get_all_prizes()
 	{
@@ -90,8 +108,21 @@ class dom_card_set {
 		return $ids;
 	}
 
+	private function hack_bottoms_for_fixed()
+	{
+		$query = "SELECT dual_top_of_id FROM cards WHERE id IN ($this->all_ids) AND dual_top_of_id != 0";
+		$result = mysqli_query($this->conn, $query);
+		if (!$result || !mysqli_num_rows($result))
+			return;
+
+		while ($row = mysqli_fetch_assoc($result))
+			$this->all_ids .= ', '.$row['dual_top_of_id'];
+	}
+
 	public function get_cards()
 	{
+		/* Add 'bottom card' IDs */
+		$this->hack_bottoms_for_fixed();
 		debug_print("$this->all_ids");
 
 		$query = "SELECT c.*, e.name AS expansion_name, pt.name AS prizetype_name, ct.name AS type_name, setup.text AS setup_text FROM cards AS c ";
