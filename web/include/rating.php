@@ -154,7 +154,7 @@ function add_cardset_to_table($conn, $ratecards, $keep_land_ids, $keep_event_ids
 function add_rate_to_table($conn, $id, $rate)
 {
 	/* The setratings has UNIQUE(setid, rating) constraint */
-	$query = "INSERT INTO setratings SET setid = $id, rating = $rate ON DUPLICATE KEY UPDATE numrates=numrates+1";
+	$query = "INSERT INTO setratings SET setid = $id, rating = $rate ON DUPLICATE KEY UPDATE numrates=numrates+1, time = NOW()";
 
 	$result = mysqli_query($conn, $query);
 	if (!$result)
