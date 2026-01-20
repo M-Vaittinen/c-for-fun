@@ -1,4 +1,13 @@
 <?php
+/*
+ * Dominon card randomizer.
+ * Uses MySQL database.
+ *
+ * AUTHOR: Matti Vaittinen <mazziesaccount@gmail.com>
+ *
+ * Written just for fun. No Warranty. Use at your own risk!
+ * Copyright 2026, Matti Vaittinen mazziesaccount@gmail.com>
+ */
 
 /*
  * Create the 'star rating' form. The form displays 5 rating stars and

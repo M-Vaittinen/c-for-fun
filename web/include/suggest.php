@@ -1,4 +1,14 @@
 <?php
+/*
+ * 'Game starter' randomizer, suggest a new randomization string.
+ * Uses MySQL database.
+ *
+ * AUTHOR: Matti Vaittinen <mazziesaccount@gmail.com>
+ *
+ * Written just for fun. No Warranty. Use at your own risk!
+ * Copyright 2026, Matti Vaittinen mazziesaccount@gmail.com>
+ */
+
 
 
 function show_suggestion($conn, $num_to_show)
