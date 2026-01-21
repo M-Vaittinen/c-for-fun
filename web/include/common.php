@@ -5,4 +5,7 @@ define("OMENA_ID_OFFSET", 3000000);
 define("SET_RATE_MIN", -10);
 define("SET_RATE_MAX", 10);
 
+$DBG=true;
+//$DBG=false;
+
 ?>

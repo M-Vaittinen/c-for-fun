@@ -34,8 +34,6 @@ $showads = true;
 
 $allids = null;
 
-//$DBG=true;
-$DBG=false;
 $TESTING=false;
 $TEST_MOBILE = false;
 //$TEST_MOBILE = true;
