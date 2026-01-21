@@ -1,4 +1,14 @@
 <?php
+/*
+ * Site around Dominon card randomizer.
+ * Uses MySQL database.
+ *
+ * AUTHOR: Matti Vaittinen <mazziesaccount@gmail.com>
+ *
+ * Written just for fun. No Warranty. Use at your own risk!
+ *
+ * Copyright 2026, Matti Vaittinen mazziesaccount@gmail.com>
+ */
 
 require 'include/db.php';
 require 'include/header.php';
