@@ -14,11 +14,9 @@
  * Kapita'o-meter => Rahaa!
  *
  */
-define("SET_RATE_MIN", -10);
-define("SET_RATE_MAX", 10);
-define("LAND_ID_OFFSET", 1000000);
-define("EVENT_ID_OFFSET", 2000000);
-define("OMENA_ID_OFFSET", 3000000);
+
+require_once 'include/common.php';
+
 define("PRIZETYPE_ID_DEBT", 2);
 define("SETUP_ID_DEBT", 44);
 
@@ -27,6 +25,7 @@ require 'include/header.php';
 require 'include/dominion_common.php';
 require 'include/card.php';
 require 'include/dom_card_set.php';
+require_once 'include/rating.php';
 
 /*
  * Show ADS by default. Turn em off later for error page(s)
@@ -108,7 +107,6 @@ $event_exp = return_post_numeric_array_or_zero('event_expansions');
 $land_exp = return_post_numeric_array_or_zero('landmark_expansions');
 $exp = return_post_numeric_array_or_zero('expansion');
 
-require 'include/rating.php';
 
 $tuh_inafactor = return_post_numeric_or_zero('tuhinarange', -10, 10);
 $tup_inafactor = return_post_numeric_or_zero('tupinarange', -10, 10);
