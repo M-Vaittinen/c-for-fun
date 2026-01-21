@@ -1,30 +1,26 @@
 <?php
-function do_head($title)
+/*
+ * Dominon card randomizer.
+ * Uses MySQL database.
+ *
+ * AUTHOR: Matti Vaittinen <mazziesaccount@gmail.com>
+ *
+ * Written just for fun. No Warranty. Use at your own risk!
+ * Copyright 2026, Matti Vaittinen mazziesaccount@gmail.com>
+ */
+
+function do_head($title, $mobile)
 {
-echo '
+	$verttxxcell_height = ($mobile) ? '' : '45vh';
+$out = '
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-
 
 /* Setup help text to be shown when hovered on image */
 
 /* The table stuff for admin forms to work in "one form / row" way, which shouldn\'t be done using real tables */
-
-DIV.table 
-{
-    display:table;
-}
-FORM.tr, DIV.tr
-{
-    display:table-row;
-}
-SPAN.td
-{
-    display:table-cell;
-}
 
 body {
   background-color: linen;
@@ -35,32 +31,8 @@ h1 {
   margin-left: 40px;
 }
 
-table.structure {
-  width: 100%;
-  border: none;
-  text-align: left;
-  vertical-align: top;
-}
-.structure td {
-  border: none;
-  text-align: left;
-  padding-left: 30px;
-  padding-right: 30px;
-  vertical-align: top;
-}
-.structure th {
-  text-align: left;
-  padding-left: 30px;
-  padding-right: 30px;
-}
-.structure {
-  border: none;
-  text-align: left;
-  vertical-align: top;
-}
-
 table.cardlist {
-  width: 100%;
+ /* width: 100%; */
   border: 1px solid black;
   border-radius: 10px;
   border-collapse: collapse;
@@ -74,18 +46,6 @@ table.cardlist {
   background-color: #d2691e;
   color: white;
   border-collapse: collapse;
-}
-.cardlist th.squeeze {
-	width:200px;
-}
-.cardlist td.squeeze {
-	width:200px;
-}
-.cardlist th.checkbox {
-	width:50px;
-}
-.cardlist td.checkbox {
-	width:50px;
 }
 .cardlist td {
   border: 1px solid black;
@@ -101,10 +61,10 @@ table.cardlist {
 
 table.aarvonta {
 	border: none;
-	width: 100%;
+	table-layout: auto;
+	page-break-inside:auto;
 }
 .aarvonta th {
-/*  height: 70px; */
   text-align: center;
   vertical-align: top;
   background-color: #d2691e;
@@ -112,8 +72,9 @@ table.aarvonta {
   border-collapse: collapse;
 }
 .aarvonta td {
-  font-size: 1rem;
-  font-weight: 600;
+/*  font-size: 1rem;
+  font-weight: 600; */
+/*  font-size: min(1rem, 2vw); */
 
   border: thin brown solid;
   border-collapse: collapse;
@@ -124,17 +85,15 @@ table.aarvonta {
   background-color: ##ffdead;
   color: brown;
   border-radius: 10px;
+white-space: normal;
+word-break: break-word;
+font-size: 1vw;
 }
 
 .mandatory {
     border: thin red solid;
 }
 
-/*
- * .visible-top {
-  transform: scale(-1, -1);
-}
-*/
 /* Suggestions: */
 
 .stop {
@@ -154,22 +113,31 @@ table.aarvonta {
 }
 
 td.startform {
-	height: 100%;
+	/* height: 100%; */
 	text-align: center;
 	vertical-align: middle;
 }
 
 .sleft {
   width: 1%;
-#  white-space: nowrap;
   writing-mode: vertical-rl;
+height: '. $verttxxcell_height .';
 }
 
 .sright {
-  writing-mode: vertical-lr;
-  width: 1%;
-#  white-space: nowrap;
-  transform: scale(-1, -1);
+/* height:' . $verttxxcell_height .'; */
+    height: auto;
+    width: auto;
+/*  writing-mode: vertical-lr; */
+ /* width: 1%; */
+  /* transform: scale(-1, -1); */
+    filter:  progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083);  /* IE6,IE7 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083)"; /* IE8 */
+    -moz-transform: rotate(-90.0deg);  /* FF3.5+ */
+    -ms-transform: rotate(-90.0deg);  /* IE9+ */
+    -o-transform: rotate(-90.0deg);  /* Opera 10.5 */
+    -webkit-transform: rotate(-90.0deg);  /* Safari 3.1+, Chrome */
+  transform: rotate(-90.0deg);
 }
 
 @keyframes fadeIn {
@@ -191,6 +159,9 @@ td.startform {
 <title>' . $title . '</title>
 </head>
 <body>';
+
+echo $out;
+
 }
 
 /* Stolen from the web https://www.geeksforgeeks.org/how-to-detect-a-mobile-device-using-php/ */

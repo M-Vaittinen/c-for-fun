@@ -14,6 +14,8 @@
 require 'include/db.php';
 require 'include/header-suggest.php';
 
+$mobile = isMobileDevice();
+
 //$SURPRIZE_TEST = 1;
 $quantity = 0;
 
@@ -70,7 +72,7 @@ if (isset($_POST['yesspeed'])) {
 	$nospeed = " WHERE surprize = 1 ";
 }
 
-do_head("Aloittajan arvonta");
+do_head("Aloittajan arvonta", $mobile);
 
 if (!$quantity) {
 	echo "<h1>Aloittaja-arvonta... </h1>";
