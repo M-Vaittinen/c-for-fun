@@ -1,7 +1,9 @@
 <?php
-require '../include/db.php';
-require '../include/header.php';
-require '../include/nav_bar.php';
+define("MVAROOTPATH", "../");
+require MVAROOTPATH.'include/db.php';
+require MVAROOTPATH.'include/header.php';
+require MVAROOTPATH.'include/nav_bar.php';
+
 do_head("Teko&auml;lyhoi!");
 echo get_navlist("..");
 ?>
@@ -60,6 +62,6 @@ T&auml;m&auml; pist&auml;&auml; my&ouml;s miettim&auml;&auml;n sit&auml;, mik&au
 Loppukaneettina kuitenkin lienee se, ett&auml; sill&auml; pid&auml;nk&ouml; teko&auml;lyst&auml; vaiko en ei ole mit&auml;&auml;n v&auml;li&auml;. On naiivia kuvitella ett&auml; teko&auml;lyn k&auml;ytt&ouml; tai kehitys jotenkin loppuisi. Teko&auml;ly on tullut j&auml;&auml;d&auml;kseen ja meid&auml;n on vain l&ouml;ydett&auml;v&auml; parhaat keinot sen kanssa el&auml;miseen. Tehk&auml;&auml;mme jokainen omat ratkaisumme sen suhteen mihin ja miss&auml; sit&auml; k&auml;yt&auml;mme - tulevaisuus n&auml;ytt&auml;nee sen, ketk&auml; siit&auml; lopulta hy&ouml;tyv&auml;t ja ketk&auml; h&auml;vi&auml;v&auml;t. Ehk&auml; n&auml;m&auml;kin lauseet j&auml;&auml;v&auml;t leijumaan, kenenk&auml;&auml;n koskaan lukematta, teko&auml;lyn autioittaman netin laitamille.
 </p>
 <?php
-require '../include/footer.php';
+require MVAROOTPATH.'include/footer.php';
 echo generate_footer(false, false, true);
 ?>

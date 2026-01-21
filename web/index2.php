@@ -16,6 +16,8 @@
  * Öky'o-meter => Priorisoi isoja rahoja
  */
 
+define("MVAROOTPATH", "");
+
 $DBG=false;
 //$DBG=true;
 

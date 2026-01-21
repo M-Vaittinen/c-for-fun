@@ -10,6 +10,7 @@
  * Copyright 2025, Matti Vaittinen mazziesaccount@gmail.com>
  */
 
+define("MVAROOTPATH", "");
 
 require 'include/db.php';
 require 'include/header-suggest.php';

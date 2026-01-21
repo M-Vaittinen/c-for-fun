@@ -10,9 +10,11 @@
  * Copyright 2026, Matti Vaittinen mazziesaccount@gmail.com>
  */
 
-require 'include/db.php';
-require 'include/header.php';
-require 'include/nav_bar.php';
+define("MVAROOTPATH", "");
+
+require MVAROOTPATH.'include/db.php';
+require MVAROOTPATH.'include/header.php';
+require MVAROOTPATH.'include/nav_bar.php';
 
 do_head("Tervetuloa - Welcome");
 echo get_navlist(); 
@@ -117,7 +119,7 @@ Palautetta ja kehitysehdotuksia voi laittaa s&auml;hk&ouml;postitse osoitteeseen
 <p>Kurkkaa <a href="https://github.com/M-Vaittinen">Kuka Kumma T&auml;m&auml;n takana oikein on?</a></p>
 
 <?php
-include 'include/footer.php';
+include MVAROOTPATH.'include/footer.php';
 echo generate_footer(false, false, true);
 ?>
 

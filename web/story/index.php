@@ -10,9 +10,11 @@
  * Copyright 2026, Matti Vaittinen mazziesaccount@gmail.com>
  */
 
-require '../include/db.php';
-require '../include/header.php';
-require '../include/nav_bar.php';
+define("MVAROOTPATH", "../");
+
+require MVAROOTPATH.'include/db.php';
+require MVAROOTPATH.'include/header.php';
+require MVAROOTPATH.'include/nav_bar.php';
 do_head("Kuinka arvontakone tehtiin...");
 echo get_navlist("..");
 ?>
@@ -89,6 +91,6 @@ Oulu, 10.01.2026
 </p>
 
 <?php
-require '../include/footer.php';
+require MVAROOTPATH.'include/footer.php';
 echo generate_footer(false, false, true);
 ?>

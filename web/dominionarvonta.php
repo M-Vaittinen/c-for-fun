@@ -15,17 +15,18 @@
  *
  */
 
-require_once 'include/common.php';
+define("MVAROOTPATH", "");
+require_once MVAROOTPATH.'include/common.php';
 
 define("PRIZETYPE_ID_DEBT", 2);
 define("SETUP_ID_DEBT", 44);
 
-require 'include/db.php';
-require 'include/header.php';
-require 'include/dominion_common.php';
-require 'include/card.php';
-require 'include/dom_card_set.php';
-require_once 'include/rating.php';
+require MVAROOTPATH.'include/db.php';
+require MVAROOTPATH.'include/header.php';
+require MVAROOTPATH.'include/dominion_common.php';
+require MVAROOTPATH.'include/card.php';
+require MVAROOTPATH.'include/dom_card_set.php';
+require_once MVAROOTPATH.'include/rating.php';
 
 /*
  * Show ADS by default. Turn em off later for error page(s)
