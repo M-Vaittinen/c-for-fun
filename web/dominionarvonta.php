@@ -54,11 +54,13 @@ $keep_omena_ids = null;
  * Default to yes, and change to no if the 'keepid'-data came from rating/sharing.
  */
 $g_check_boxes = true;
+$g_shared_rated = false;
 
 if (isset($_GET['keepid']) && !isset($_POST['keepid'])) {
 	$_POST['keepid'] = $_GET['keepid'];
 	/* User has probably followed a link to a shared deck because forms use post. */
 	$g_check_boxes = false;
+	$g_shared_rated = true;
 }
 
 $rate = null;
@@ -131,10 +133,16 @@ if ($rate != null) {
 do_head("Dominion - korttiarvonta v2", $mobile);
 echo '<div class="header nolink">'."\n";
 echo '    <img src="img/dominion-app-icon-4x4.jpg" alt="logo">'."\n";
-echo '    <h1>Dominion - Arvo kortit v2</h1>'."\n";
+if ($g_shared_rated) {
+	echo '<h1>Dominion: Jaettu korttisetti</h1>';
+} else {
+	echo '<h1>Dominion - Arvo kortit v2</h1>'."\n";
+}
 echo '</div>'."\n";
-
-echo output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_inafactor, $tup_inafactor, $kap_itafactor);
+if ($rate)
+	echo '<h2>Kiitos arvionnista!</h2>';
+if (!$g_shared_rated)
+	echo output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_inafactor, $tup_inafactor, $kap_itafactor);
 
 function random_card_from_array(&$card, $min_weight)
 {
@@ -739,12 +747,17 @@ foreach($allprizes AS $aip) {
 }
 
 require 'include/share.php';
-echo '<p>Piditkö n&auml;ist&auml; korteista? Jaa arpomasi setti kaverillesikin</p>';
+echo '<p>Piditkö n&auml;ist&auml; korteista? Jaa setti kaverillesikin</p>';
 echo sharebtn(urlencode($allink), $allink);
 
 //echo "<!--";
 echo '<p>Korttisettien arviointi on kokeellinen ominaisuus. Voit antaa pelin j&auml;lkeen 1-5 t&auml;hte&auml; arvotuille korteille sen mukaan, miten setti mielest&auml;si toimi. T&auml;ll&auml;hetkell&auml; annetut arvosanat eiv&auml;t n&auml;y miss&auml;&auml;n mutta tavoitteena on jatkossa lis&auml;t&auml; suosittuja valmiita settej&auml; valittavaksi, satunnaisesti arvottujen lis&auml;ksi.</p>';
 echo ratebtn($allids, $allprizes);
+
+if ($g_shared_rated) {
+	echo '<h2>Arvo uudet</h2>';
+	echo output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_inafactor, $tup_inafactor, $kap_itafactor);
+}
 //echo "-->";
 page_end:
 
