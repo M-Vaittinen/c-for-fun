@@ -11,11 +11,11 @@
 
 define("MVAROOTPATH", "");
 
-require 'include/common.php';
-require 'include/db.php';
-require 'include/header.php';
-require 'include/nav_bar.php';
-require 'include/rating.php';
+require_once 'include/common.php';
+require_once 'include/db.php';
+require_once 'include/header.php';
+require_once 'include/nav_bar.php';
+require_once 'include/rating.php';
 
 do_head("Dominion - arvostellut korttisetit");
 $out = get_navlist(); 
