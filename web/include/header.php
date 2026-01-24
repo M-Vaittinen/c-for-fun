@@ -718,8 +718,10 @@ function getKeepPrizeIDs()
 	const keepids = document.querySelectorAll(`input[name="keepid[]"]`);
 	const idset = new Set();
 	keepids.forEach(input => {
+/*
 		console.log(input.name);
 		console.log(input.value);
+*/
 		if (!idset.has(input.value)) {
 			idset.add(input.value);
 			// Encode the parameter and push to the params array
@@ -730,8 +732,10 @@ function getKeepPrizeIDs()
 	const pridset = new Set();
 	const keepprizes = document.querySelectorAll(`input[name^="keepprize"]`);
 	keepprizes.forEach(input => {
+/*
             console.log(input.name);
-            console.log(input.value);
+	    console.log(input.value);
+*/
 		if (!pridset.has(input.name)) {
 			pridset.add(input.value);
 			// Encode the parameter and push to the params array
@@ -880,9 +884,6 @@ function updateCardRow(cardId, data) {
 
 function replaceCard(cardId, cardPrize) {
     // Retrieve checked expansion IDs
-/*    const keepIDinputs = document.querySelectorAll(\'input[name="keepid[]"\');
-    const keepIDs = Array.from(keepIDinputs).map(input => input.value); */
-
     const keepIDs = Array.from(document.querySelectorAll(\'input[name="keepid[]"]\')).map(input => input.value);
 
     const expansionCheckboxes = document.querySelectorAll(\'input[name="expansion[]"]:checked\');
@@ -892,7 +893,7 @@ function replaceCard(cardId, cardPrize) {
     if (expansions.length === 0) {
         expansions.push(\'0\'); // Send 0 for no expansions checked
     }
-    console.log("expansions" + expansions);
+    //console.log("expansions: "+expansions.join(\',\'));
 
     const tmp = keepIDs.join(\',\');
     console.log("IDs" + tmp);
@@ -911,7 +912,7 @@ function replaceCard(cardId, cardPrize) {
         })
     })
 // Debugging
-//    .then(res => { console.log(res); return res.text(); })
+//   .then(res => { console.log(res); return res.text(); })
  //   .then(txt => console.log(txt))
 // Debugging ends
     .then(response => response.json())
