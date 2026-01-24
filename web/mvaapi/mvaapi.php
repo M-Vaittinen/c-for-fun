@@ -53,9 +53,21 @@ foreach($expid_list AS $expid) {
 
 function do_list($arr, $field, $comparison, $andor)
 {
-	$out = '';
-	foreach($arr AS $a)
-		$out .= ' '.$andor.' '.$field.' '.$comparison.' '.$a;
+	if (!$arr)
+		return;
+
+	$num_items = count($arr);
+
+	if ($num_items < 1)
+		return;
+
+	$out = ' '.$field.' '.$comparison.' '.$arr[0];
+
+	for ($i = 0; $i < $num_items; $i++)
+		$out .= ' '.$andor.' '.$field.' '.$comparison.' '.$arr[$i];
+
+//	foreach($arr AS $a)
+//		$out .= ' '.$andor.' '.$field.' '.$comparison.' '.$a;
 
 	return $out;
 }
@@ -110,7 +122,7 @@ function do_query($id, $cid_list, $prize)
 		$query_base .= "LEFT JOIN prizetype AS pt ON c.prizetype_id = pt.id ";
 		$query_base .= "LEFT JOIN setup_extras AS setup ON c.setup_extras_id = setup.id WHERE";
 		$query_base .= " c.prize $prizelimit";
-		$query_base .= do_and_list($cid_list, 'c.id', '!=');
+		$query_base .= ' AND'.do_and_list($cid_list, 'c.id', '!=');
 
 	} else if (card_id_is_landmark($id)) {
 		$query_base = "SELECT c.*, e.name AS expansion_name, ct.name AS type_name, setup.text AS setup_text FROM landmarks AS c ";
@@ -149,9 +161,11 @@ function get_card_row($conn, $replid, $cid_list, $expid_list, $prize)
 	$query = do_query($replid, $cid_list, $prize);
 
 	if ($expid_list[0] != 0)
-		$query .= do_or_list($expid_list, 'c.expansion_id', '=');
+		$query .= ' AND ('.do_or_list($expid_list, 'c.expansion_id', '=') .')';
 	
 	$query .= " ORDER BY RAND() LIMIT 1";
+
+//	echo $query;
 
 	$result = mysqli_query($conn, $query);
 	if (!$result)
