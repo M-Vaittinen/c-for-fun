@@ -9,7 +9,7 @@
  * Copyright 2026, Matti Vaittinen mazziesaccount@gmail.com>
  */
 
-require MVAROOTPATH.'include/ratebtn.php';
+require_once MVAROOTPATH.'include/ratebtn.php';
 require_once MVAROOTPATH.'include/common.php';
 
 function create_seturl_from_row($conn, $row)
@@ -272,6 +272,8 @@ function is_bot_spam()
 
 function combine_presel($preselected)
 {
+	global $DBG;
+
 	if (count($preselected[0]) != 3 ||
 	    count($preselected[1]) != 3 ||
 	    count($preselected[2]) != 4)

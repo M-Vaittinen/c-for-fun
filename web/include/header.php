@@ -40,6 +40,15 @@ echo '
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 
+/* Lets try implementing the swipe ... */
+.card-row {
+    transition: transform 0.3s ease;
+    touch-action: pan-y; /* Prevent vertical scrolling */
+}
+.swiped {
+    transform: translateX(100%); /* Adjust as needed */
+}
+
 /* Navigation bar dropdowns */
  /* Navbar container */
 .mvanavbar {
@@ -697,6 +706,247 @@ table.aarvonta {
 </style>
 ' . $AD_ID .'
 <script>
+
+/* The swiping and AJAX stuff */
+
+/* This should update the card information. Lets see how I manage the setup tip stuff */
+
+function getKeepPrizeIDs()
+{
+	// Select all elements with the given name
+	const params = [];
+	const keepids = document.querySelectorAll(`input[name="keepid[]"]`);
+	const idset = new Set();
+	keepids.forEach(input => {
+		console.log(input.name);
+		console.log(input.value);
+		if (!idset.has(input.value)) {
+			idset.add(input.value);
+			// Encode the parameter and push to the params array
+			params.push(`${encodeURIComponent(input.name)}=${encodeURIComponent(input.value)}`);
+		}
+	});
+
+	const pridset = new Set();
+	const keepprizes = document.querySelectorAll(`input[name^="keepprize"]`);
+	keepprizes.forEach(input => {
+            console.log(input.name);
+            console.log(input.value);
+		if (!pridset.has(input.name)) {
+			pridset.add(input.value);
+			// Encode the parameter and push to the params array
+			params.push(`${encodeURIComponent(input.name)}=${encodeURIComponent(input.value)}`);
+		}
+	});
+
+	return params;
+}
+
+function getShareUrl()
+{
+const params = getKeepPrizeIDs();
+
+	// Join the parameters to create the query string
+	const queryString = params.join(\'&\');
+
+	console.log(params);
+	// Construct the full GET request URL
+	const baseURL = window.location.origin + window.location.pathname;
+
+	return `${baseURL}?${queryString}`;
+}
+
+function updateShareUrls()
+{
+	const mailtoElement = document.getElementById(\'mailto-share-link\');
+	const newUrl = encodeURIComponent(getShareUrl());
+	mailtoElement.href = `mailto:?subject=Kokeilemani Dominionkortit&body=${newUrl}`;
+
+	const tumbLinkElement = document.getElementById(\'tumblr-share-link\');
+	tumbLinkElement.href = `https://www.tumblr.com/widgets/share/tool?canonicalUrl=${newUrl}`;
+
+	const shareLinkElement = document.getElementById(\'facebook-share-link\');
+	shareLinkElement.href = `https://www.tumblr.com/widgets/share/tool?canonicalUrl=${newUrl}`;
+
+	const redditElement = document.getElementById(\'reddit-share-link\');
+	redditElement.href = `https://www.reddit.com/submit?url=${newUrl}`;
+
+	const waElement = document.getElementById(\'wa-share-link\');
+	waElement.href = `https://wa.me/?text=${newUrl}`;
+
+	const dcElement = document.getElementById(\'dc-share-link\');
+	dcElement.href = `discord://send?message=${newUrl}`;
+}
+
+function updateInputValues(oldId, newId, newPrize) {
+	const dataids = document.querySelectorAll(`input[data-cardid="${oldId}"]`);
+	console.log("Updating IDs, old: " + oldId + "new: " + newId);
+
+	dataids.forEach(input => {
+		if (input.value === oldId.toString()) {
+input.value = newId;
+			console.log("Updating data-cardid");
+		}
+	});
+	// Update keepid[] inputs
+	const keepIdInputs = document.querySelectorAll(`input[name="keepid[]"]`);
+	keepIdInputs.forEach(input => {
+		console.log("keepid[] " + input.value);
+		if (input.value === oldId.toString()) {
+			console.log("CHANGING " + input.value + " => " + newId);
+			input.value = newId; // Change value to new ID
+		} else {
+			console.log("not match");
+		}
+	});
+
+	// Update keepprize{oldId} inputs
+	const keepPrizeInputs = document.querySelectorAll(`input[name^="keepprize"]`);
+	keepPrizeInputs.forEach(input => {
+		if (input.name === `keepprize${oldId}`) {
+			input.name = `keepprize${newId}`; // Rename to keepprize + new ID
+			input.value = newPrize; // Change value to the new card\'s prize
+		}
+	});
+}
+
+function updateCardRow(cardId, data) {
+	// Find the specific row to replace
+	const row = document.querySelector(`tr.card-row[data-cardid="${cardId}"]`);
+
+	updateInputValues(cardId, data.id, data.prize);
+
+	if (row) {
+		// Get number of cells on row. Mobile view has 3, web view more.
+		const cells = row.getElementsByTagName(\'td\');
+
+		 // Update the hidden input for keeping prize
+	        const prizeInput = row.querySelector(`input[type="hidden"][name^="keepprize"]`);
+	        if (prizeInput) {
+			prizeInput.name = `keepprize${data.id}`; // Change input name to keepprize + new card ID
+			prizeInput.value = data.prize; // Update the value to the new card\'s prize
+		}
+		if (cells.length === 3) {
+			// Mobile display with only 3 cells
+			// Update the second cell with formatted content
+			let cardImageHtml = `
+			    <div class="image-container">
+			        <p tabindex="0">${data.name}<div class="hover-text"><img class="card-img" src="cardpics/${data.imagename}"></div></p>`;
+
+			// Check for potion and attack images
+			if (data.potion == 1) {
+			    cardImageHtml += `
+			        <div class="image-container">
+			            <img src="img/potion.png" alt="Rohto" class="rohto-img" tabindex="0">
+			            <div class="hover-text">Rohto</div>
+			        </div>`;
+			}
+			if (data.curses == 1) {
+			    cardImageHtml += `
+			        <div class="image-container">
+			            <img src="img/curse_100x100.png" alt="Kirous" tabindex="0">
+			            <div class="hover-text">Kiroukset</div>
+			        </div>`;
+			}
+			if (data.attack == 1) {
+			    cardImageHtml += `
+			        <div class="image-container">
+			            <img src="img/speargoblin_200x200.png" alt="Goblin" tabindex="0">
+			            <div class="hover-text">Hy&ouml;kk&auml;yskortti</div>
+			        </div>`;
+			}
+			if (data.setup_text) {
+				cardImageHtml += `
+			        <div class="image-container">
+			            <img src="img/peasant_200x200.png" alt="Valmistelut" tabindex="0">
+				    <div class="hover-text">`;
+				cardImageHtml += data.setup_text;
+				cardImageHtml += `</div>
+			        </div>`;
+			}
+//			cardImageHtml += `</div>`;
+			cells[1].innerHTML = cardImageHtml; // Update the second cell
+			cells[2].textContent = data.expansion_name; // Update expansion name
+		} else {
+			// Update the necessary cells (assuming these keys match your PHP response)
+			row.querySelector(\'.checkbox input\').value = data.id; // update checkbox value
+			row.querySelector(\'td:nth-child(2) div p\').textContent = data.name; // update card name
+			row.querySelector(\'td:nth-child(2) .card-img\').src = `cardpics/${data.imagename}`; // update card image
+			row.querySelector(\'td:nth-child(5)\').textContent = data.prize; // update card prize
+			row.querySelector(\'td:nth-child(6)\').textContent = data.expansion_name; // update expansion name
+		}
+	}
+}
+
+function replaceCard(cardId, cardPrize) {
+    // Retrieve checked expansion IDs
+/*    const keepIDinputs = document.querySelectorAll(\'input[name="keepid[]"\');
+    const keepIDs = Array.from(keepIDinputs).map(input => input.value); */
+
+    const keepIDs = Array.from(document.querySelectorAll(\'input[name="keepid[]"]\')).map(input => input.value);
+
+    const expansionCheckboxes = document.querySelectorAll(\'input[name="expansion[]"]:checked\');
+    const expansions = Array.from(expansionCheckboxes).map(checkbox => checkbox.value); // Get values of checked boxes
+
+    // Check if no expansions are selected and set the ID to 0 if so
+    if (expansions.length === 0) {
+        expansions.push(\'0\'); // Send 0 for no expansions checked
+    }
+    console.log("expansions" + expansions);
+
+    const tmp = keepIDs.join(\',\');
+    console.log("IDs" + tmp);
+
+    // Make an AJAX call to your server
+    fetch(\'mvapi/mvaapi.php\', {
+        method: \'POST\', // Use POST method
+        headers: {
+            \'Content-Type\': \'application/x-www-form-urlencoded\', // Set content type
+        },
+        body: new URLSearchParams({
+	    cardid: cardId,        // Card ID to replace
+	    cardids: keepIDs.join(\',\'),	// All Card IDs to prevent duplicates
+	    cardprize: cardPrize,		// Prize of the card
+            expansions: expansions.join(\',\')	// Join the array as a comma-separated string
+        })
+    })
+// Debugging
+//    .then(res => { console.log(res); return res.text(); })
+ //   .then(txt => console.log(txt))
+// Debugging ends
+    .then(response => response.json())
+    .then(data => {
+        // Update the DOM with the new card info
+        updateCardRow(cardId, data);
+	updateShareUrls();
+    })
+    .catch(error => console.error(\'Error:\', error)); // Handle any errors
+}
+
+function startSwipe(event) {
+    startX = event.touches[0].clientX;
+}
+
+function endSwipe(event) {
+    const endX = event.changedTouches[0].clientX;
+    const diffX = endX - startX;
+
+    if (Math.abs(diffX) > 50) { // Swipe threshold
+        const row = event.currentTarget;
+        if (diffX > 0) {
+                const cardId = row.getAttribute(\'data-cardid\');
+		const cardPrize = row.getAttribute(\'data-cardprize\');
+            // Swipe Right
+//            row.classList.add(\'swiped\');
+            // Add logic to replace card, e.g., randomizing new card
+            replaceCard(cardId, cardPrize);
+        }
+    }
+}
+
+
+/* Swipe and ajax stuff ends */
+
 /* Toggle checkbox visibility to display expansion specific options (for selected expansions) */
 function toggleCheckboxes(checkbox, relatedClass) {
 	var relatedCheckboxes = document.getElementsByClassName(relatedClass);

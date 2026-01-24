@@ -139,6 +139,16 @@ class dom_card_set {
 			else
 				$this->bottom_cards[] = dom_card::from_full_row($row);
 	}
+	private function add_card_row_swipe_info($id, $prize)
+	{
+		$out = 'data-cardid="'.$id.'" ';
+		$out .= 'data-cardprize="'.$prize.'" ';
+		$out .= 'class="card-row" ';
+		$out .= 'onTouchStart="startSwipe(event)" ';
+		$out .= 'onTouchEnd="endSwipe(event)"';
+
+		return $out;
+	}
 	private function set_table_start($mobile)
 	{
 		$card_table_headers = dom_card::get_card_tablehead($mobile);
@@ -186,7 +196,8 @@ class dom_card_set {
 					}
 				}
 
-				$out .= '<tr><td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>'."\n";
+				$out .= '<tr '.$this->add_card_row_swipe_info($c->id, $c->prize).'>';
+				$out .= '<td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>'."\n";
 				$out .= $c->get_card_row($mobile);
 				$out .= '</tr>';
 			}
