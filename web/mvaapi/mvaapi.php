@@ -120,7 +120,7 @@ function do_query($id, $cid_list, $prize)
         	$query_base .= "LEFT JOIN expansion AS e ON c.expansion_id = e.id ";
 		$query_base .= "LEFT JOIN cardtype AS ct ON c.type_id = ct.id ";
 		$query_base .= "LEFT JOIN prizetype AS pt ON c.prizetype_id = pt.id ";
-		$query_base .= "LEFT JOIN setup_extras AS setup ON c.setup_extras_id = setup.id WHERE";
+		$query_base .= "LEFT JOIN setup_extras AS setup ON c.setup_extras_id = setup.id WHERE (c.dual_below_id = 0 OR c.dual_below_id IS NULL) AND";
 		$query_base .= " c.prize $prizelimit";
 		$query_base .= ' AND'.do_and_list($cid_list, 'c.id', '!=');
 
@@ -156,6 +156,20 @@ function do_query($id, $cid_list, $prize)
 	return $query_base;
 }
 
+function add_bottom_card($conn, $row)
+{
+	$query = 'SELECT name AS bottom_name, imagename AS bottom_imagename FROM cards WHERE id = '.$row['dual_top_of_id'];
+
+	$result = mysqli_query($conn, $query);
+	if (!$result) {
+		debug_print("Bottom not found");
+		return;
+	}
+	$row2 = mysqli_fetch_assoc($result);
+
+	return $row = [...$row, ...$row2];
+}
+
 function get_card_row($conn, $replid, $cid_list, $expid_list, $prize)
 {
 	$query = do_query($replid, $cid_list, $prize);
@@ -174,6 +188,11 @@ function get_card_row($conn, $replid, $cid_list, $expid_list, $prize)
 		die("still no cards");
 
 	$row = mysqli_fetch_assoc($result);
+
+	if (isset($row['dual_top_of_id']) && $row['dual_top_of_id'] != 0)
+	{
+		$row = add_bottom_card($conn, $row);
+	}
 
 	return $row;
 }

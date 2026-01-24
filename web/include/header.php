@@ -814,9 +814,70 @@ input.value = newId;
 	});
 }
 
+function gen_card_name_html(data)
+{
+	let cardImageHtml = `
+	    <div class="image-container">
+	        <p tabindex="0">${data.name}<div class="hover-text"><img class="card-img" src="../cardpics/${data.imagename}"></div></p></div>`;
+	if (data.bottom_name) {
+		cardImageHtml += `
+	    <div class="image-container">
+	        <p tabindex="0"><i>--&gt; ${data.bottom_name}</i><div class="hover-text"><img class="card-img" src="../cardpics/${data.bottom_imagename}"></div></p></div>`;
+	}
+
+	return cardImageHtml;
+}
+
+function gen_card_specials_html(data, nodash)
+{
+	let cardImageHtml = \'\';
+
+	if (data.potion == 1) {
+	    cardImageHtml += `
+	        <div class="image-container">
+	            <img src="../img/potion.png" alt="Rohto" class="rohto-img" tabindex="0">
+	            <div class="hover-text">Rohto</div>
+	        </div>`;
+		nodash = true;
+	}
+	if (data.curses == 1) {
+	    cardImageHtml += `
+	        <div class="image-container">
+	            <img src="../img/curse_100x100.png" alt="Kirous" tabindex="0">
+	            <div class="hover-text">Kiroukset</div>
+	        </div>`;
+		nodash = true;
+	}
+	if (data.attack == 1) {
+	    cardImageHtml += `
+	        <div class="image-container">
+	            <img src="../img/speargoblin_200x200.png" alt="Goblin" tabindex="0">
+	            <div class="hover-text">Hy&ouml;kk&auml;yskortti</div>
+	        </div>`;
+		nodash = true;
+	}
+	if (data.setup_text) {
+		cardImageHtml += `
+	        <div class="image-container">
+	            <img src="../img/peasant_200x200.png" alt="Valmistelut" tabindex="0">
+		    <div class="hover-text">`;
+		cardImageHtml += data.setup_text;
+		cardImageHtml += `</div>
+	        </div>`;
+		nodash = true;
+	}
+	if (!nodash)
+		cardImageHtml += `--`;
+
+	return cardImageHtml;
+}
+
 function updateCardRow(cardId, data) {
 	// Find the specific row to replace
 	const row = document.querySelector(`tr.card-row[data-cardid="${cardId}"]`);
+
+	row.setAttribute("data-cardid", data.id);
+	row.setAttribute("data-cardprize", data.prize);
 
 	updateInputValues(cardId, data.id, data.prize);
 
@@ -832,50 +893,21 @@ function updateCardRow(cardId, data) {
 		}
 		if (cells.length === 3) {
 			// Mobile display with only 3 cells
-			// Update the second cell with formatted content
-			let cardImageHtml = `
-			    <div class="image-container">
-			        <p tabindex="0">${data.name}<div class="hover-text"><img class="card-img" src="cardpics/${data.imagename}"></div></p>`;
-
-			// Check for potion and attack images
-			if (data.potion == 1) {
-			    cardImageHtml += `
-			        <div class="image-container">
-			            <img src="img/potion.png" alt="Rohto" class="rohto-img" tabindex="0">
-			            <div class="hover-text">Rohto</div>
-			        </div>`;
-			}
-			if (data.curses == 1) {
-			    cardImageHtml += `
-			        <div class="image-container">
-			            <img src="img/curse_100x100.png" alt="Kirous" tabindex="0">
-			            <div class="hover-text">Kiroukset</div>
-			        </div>`;
-			}
-			if (data.attack == 1) {
-			    cardImageHtml += `
-			        <div class="image-container">
-			            <img src="img/speargoblin_200x200.png" alt="Goblin" tabindex="0">
-			            <div class="hover-text">Hy&ouml;kk&auml;yskortti</div>
-			        </div>`;
-			}
-			if (data.setup_text) {
-				cardImageHtml += `
-			        <div class="image-container">
-			            <img src="img/peasant_200x200.png" alt="Valmistelut" tabindex="0">
-				    <div class="hover-text">`;
-				cardImageHtml += data.setup_text;
-				cardImageHtml += `</div>
-			        </div>`;
-			}
-//			cardImageHtml += `</div>`;
+			// Name cell with formatted content
+			let cardImageHtml = gen_card_name_html(data);
+			cardImageHtml += gen_card_specials_html(data, true);
 			cells[1].innerHTML = cardImageHtml; // Update the second cell
 			cells[2].textContent = data.expansion_name; // Update expansion name
-		} else {
-			// Update the necessary cells (assuming these keys match your PHP response)
-			row.querySelector(\'.checkbox input\').value = data.id; // update checkbox value
-			row.querySelector(\'td:nth-child(2) div p\').textContent = data.name; // update card name
-			row.querySelector(\'td:nth-child(2) .card-img\').src = `cardpics/${data.imagename}`; // update card image
+		} else if (cells.length > 3) {
+			// Name cell with formatted content
+			let cardImageHtml = gen_card_name_html(data);
+			let cardSpecialHtml = gen_card_specials_html(data, false);
+
+			// Update the necessary cells
+			cells[1].innerHTML = cardImageHtml;
+			cells[2].innerHTML = cardSpecialHtml;
+
+			row.querySelector(\'td:nth-child(4)\').textContent = data.type_name; // update card type
 			row.querySelector(\'td:nth-child(5)\').textContent = data.prize; // update card prize
 			row.querySelector(\'td:nth-child(6)\').textContent = data.expansion_name; // update expansion name
 		}
@@ -893,6 +925,7 @@ function replaceCard(cardId, cardPrize) {
     if (expansions.length === 0) {
         expansions.push(\'0\'); // Send 0 for no expansions checked
     }
+
     //console.log("expansions: "+expansions.join(\',\'));
 
     const tmp = keepIDs.join(\',\');
