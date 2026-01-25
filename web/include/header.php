@@ -816,9 +816,17 @@ input.value = newId;
 
 function gen_card_name_html(data)
 {
+	let cardName;
+	if (data.en_name && data.name && (data.name != data.en_name))
+		cardName = data.name + " (" + data.en_name + ")";
+	else
+		cardName = data.name;
+
+	//console.log(cardName);
+
 	let cardImageHtml = `
 	    <div class="image-container">
-	        <p tabindex="0">${data.name}<div class="hover-text"><img class="card-img" src="../cardpics/${data.imagename}"></div></p></div>`;
+	        <p tabindex="0">${cardName}<div class="hover-text"><img class="card-img" src="../cardpics/${data.imagename}"></div></p></div>`;
 	if (data.bottom_name) {
 		cardImageHtml += `
 	    <div class="image-container">
