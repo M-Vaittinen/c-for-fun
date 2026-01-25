@@ -843,7 +843,7 @@ function gen_card_specials_html(data, nodash)
 	if (data.potion == 1) {
 	    cardImageHtml += `
 	        <div class="image-container">
-	            <img src="../img/potion.png" alt="Rohto" class="rohto-img" tabindex="0">
+	            <img src="img/potion.png" alt="Rohto" class="rohto-img" tabindex="0">
 	            <div class="hover-text">Rohto</div>
 	        </div>`;
 		nodash = true;
@@ -851,7 +851,7 @@ function gen_card_specials_html(data, nodash)
 	if (data.curses == 1) {
 	    cardImageHtml += `
 	        <div class="image-container">
-	            <img src="../img/curse_100x100.png" alt="Kirous" tabindex="0">
+	            <img src="img/curse_100x100.png" alt="Kirous" tabindex="0">
 	            <div class="hover-text">Kiroukset</div>
 	        </div>`;
 		nodash = true;
@@ -859,15 +859,23 @@ function gen_card_specials_html(data, nodash)
 	if (data.attack == 1) {
 	    cardImageHtml += `
 	        <div class="image-container">
-	            <img src="../img/speargoblin_200x200.png" alt="Goblin" tabindex="0">
+	            <img src="img/speargoblin_200x200.png" alt="Goblin" tabindex="0">
 	            <div class="hover-text">Hy&ouml;kk&auml;yskortti</div>
+	        </div>`;
+		nodash = true;
+	}
+	if (data.omen == 1) {
+	    cardImageHtml += `
+	        <div class="image-container">
+	            <img src="img/omena.png" alt="Omena" tabindex="0">
+	            <div class="hover-text">Olen Omena (prophecy mukaan)</div>
 	        </div>`;
 		nodash = true;
 	}
 	if (data.setup_text) {
 		cardImageHtml += `
 	        <div class="image-container">
-	            <img src="../img/peasant_200x200.png" alt="Valmistelut" tabindex="0">
+	            <img src="img/peasant_200x200.png" alt="Valmistelut" tabindex="0">
 		    <div class="hover-text">`;
 		cardImageHtml += data.setup_text;
 		cardImageHtml += `</div>
