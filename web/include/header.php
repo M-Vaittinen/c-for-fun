@@ -33,12 +33,19 @@ function do_head($title, $mobile = false)
 	$mva_height = ($mobile) ? '50vh' : '25vh';
 	$mvacont_top = ($mobile) ? '10%' : '20%';
 
+	$keep_box_w = ($mobile) ? '120px' : '50px';
+
 echo '
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+
+.swipeicon {
+	vertical-align: middle;
+	padding: 18px
+}
 
 /* Lets try implementing the swipe ... */
 .card-row {
@@ -559,10 +566,11 @@ table.cardlist {
 	width:200px;
 }
 .cardlist th.checkbox {
-	width:50px;
+	width:'.$keep_box_w.';
 }
 .cardlist td.checkbox {
-	width:50px;
+	width:'.$keep_box_w.';
+	vertical-align: middle;
 }
 .cardlist td {
   border: 1px solid black;

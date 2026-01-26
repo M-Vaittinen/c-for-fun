@@ -153,7 +153,10 @@ class dom_card_set {
 	{
 		$card_table_headers = dom_card::get_card_tablehead($mobile);
 		$out = '<table class="cardlist"><tr>'."\n";
-		$out .= '<th class="checkbox">[pid&auml;]</th>';
+		if ($mobile)
+			$out .= '<th class="checkbox">[pid&auml;] / vaihda</th>';
+		else
+			$out .= '<th class="checkbox">[pid&auml;]</th>';
 		$out .= $card_table_headers;
 		$out .= '</tr>';
 
@@ -197,7 +200,7 @@ class dom_card_set {
 				}
 
 				$out .= '<tr '.$this->add_card_row_swipe_info($c->id, $c->prize).'>';
-				$out .= '<td class="checkbox">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'</td>'."\n";
+				$out .= '<td class="checkbox swipeicon">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'<img src="img/swipe_scaled.webp" alt="swipe-right"></td>'."\n";
 				$out .= $c->get_card_row($mobile);
 				$out .= '</tr>';
 			}
