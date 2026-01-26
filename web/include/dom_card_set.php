@@ -23,7 +23,7 @@
  *   function which outputs the table cell with card data. This class should just call the
  *   card's show().
  *
- * Copyright 2025, Matti Vaittinen mazziesaccount@gmail.com>
+ * Copyright 2025, 2026 Matti Vaittinen mazziesaccount@gmail.com>
  */
 
 class dom_card_set {

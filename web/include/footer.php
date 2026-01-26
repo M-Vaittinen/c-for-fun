@@ -7,7 +7,7 @@
  *
  * Written just for fun. No Warranty. Use at your own risk!
  *
- * Copyright 2025, Matti Vaittinen mazziesaccount@gmail.com>
+ * Copyright 2025, 2026 Matti Vaittinen mazziesaccount@gmail.com>
  */
 
 mysqli_close($conn);

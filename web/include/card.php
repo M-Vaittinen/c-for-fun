@@ -14,7 +14,7 @@
  *   'landmark_cards'.
  * - We should add show() functions to these card classes, to generate the HTML table-cells.
  *
- * Copyright 2025, Matti Vaittinen mazziesaccount@gmail.com>
+ * Copyright 2025, 2026 Matti Vaittinen mazziesaccount@gmail.com>
  */
 
 $CARD_DEFAULT_WEIGH = 1;

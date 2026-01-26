@@ -1,4 +1,15 @@
 <?php
+/*
+ * Dominon card randomizer.
+ * Uses MySQL database.
+ *
+ * AUTHOR: Matti Vaittinen <mazziesaccount@gmail.com>
+ *
+ * Written just for fun. No Warranty. Use at your own risk!
+ *
+ * Copyright 2025, 2026 Matti Vaittinen mazziesaccount@gmail.com>
+ */
+
 define("LAND_ID_OFFSET", 1000000);
 define("EVENT_ID_OFFSET", 2000000);
 define("OMENA_ID_OFFSET", 3000000);
