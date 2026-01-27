@@ -281,7 +281,7 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 </div>'."\n";
 	$output .= '</div>'."\n"; // class="ometers" ends
 
-	$output .= '<input class="shufflesubmit" type="submit" value="Arvo kortit">'."\n";
+	$output .= '<input class="shufflesubmit" type="submit" value="Arvo uudet kortit">'."\n";
 	$output .= '</form>'."\n";
 
 	return $output;
