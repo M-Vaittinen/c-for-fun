@@ -33,7 +33,7 @@ function do_head($title, $mobile = false)
 	$mva_height = ($mobile) ? '50vh' : '25vh';
 	$mvacont_top = ($mobile) ? '10%' : '20%';
 
-	$keep_box_w = ($mobile) ? '120px' : '50px';
+	$keep_box_w = ($mobile) ? '80px' : '100px';
 
 echo '
 <!DOCTYPE html>
@@ -51,6 +51,7 @@ echo '
 .card-row {
     transition: transform 0.3s ease;
     touch-action: pan-y; /* Prevent vertical scrolling */
+    touch-action: none;
 }
 .swiped {
     transform: translateX(100%); /* Adjust as needed */
@@ -982,26 +983,56 @@ function replaceCard(cardId, cardPrize) {
 }
 
 function startSwipe(event) {
-    startX = event.touches[0].clientX;
+//    startX = event.touches[0].clientX;
+	console.log("start event" + event);
+	const targetRow = event.target.closest(\'.card-row\');
+	if (!targetRow) return; // Exit if not a row
+
+
+	// Get the starting coordinate
+	startX = event.type === \'touchstart\' ? event.touches[0].clientX : event.clientX;
+	targetRow.classList.add(\'swiping\');  // Optional, for visual feedback
 }
 
 function endSwipe(event) {
-    const endX = event.changedTouches[0].clientX;
-    const diffX = endX - startX;
+	console.log("End event" + event);
+	const targetRow = event.target.closest(\'.card-row\');
+	if (!targetRow)
+		return; // Exit if not a row
+	let endX;
+	endX = event.type === \'touchend\' ? event.changedTouches[0].clientX : event.clientX;
 
-    if (Math.abs(diffX) > 50) { // Swipe threshold
-        const row = event.currentTarget;
-        if (diffX > 0) {
-                const cardId = row.getAttribute(\'data-cardid\');
-		const cardPrize = row.getAttribute(\'data-cardprize\');
-            // Swipe Right
-//            row.classList.add(\'swiped\');
-            // Add logic to replace card, e.g., randomizing new card
-            replaceCard(cardId, cardPrize);
-        }
-    }
+	const diffX = endX - startX;
+
+//    const endX = event.changedTouches[0].clientX;
+  //  const diffX = endX - startX;
+
+	if (Math.abs(diffX) > 50) { // Swipe threshold
+/*		const row = event.currentTarget; */
+		if (diffX > 0) {
+			const cardId = targetRow.getAttribute(\'data-cardid\');
+			cardPrize = targetRow.getAttribute(\'data-cardprize\');
+			replaceCard(cardId, cardPrize);
+		}
+	}
 }
 
+document.addEventListener(\'DOMContentLoaded\', () => {
+    const tableIds = [\'cardtable1\', \'cardtable2\', \'cardtable3\'];
+
+	console.log("Adding event listeners");
+
+    tableIds.forEach(tableId => {
+        const table = document.querySelector(`#${tableId}`);
+        if (table) {
+		console.log("Adding event listeners for" + table);
+            table.addEventListener(\'touchstart\', startSwipe);
+            table.addEventListener(\'mousedown\', startSwipe);
+            table.addEventListener(\'touchend\', endSwipe);
+            table.addEventListener(\'mouseup\', endSwipe);
+        }
+    });
+});
 
 /* Swipe and ajax stuff ends */
 

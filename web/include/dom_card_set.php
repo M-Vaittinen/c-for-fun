@@ -144,15 +144,15 @@ class dom_card_set {
 		$out = 'data-cardid="'.$id.'" ';
 		$out .= 'data-cardprize="'.$prize.'" ';
 		$out .= 'class="card-row" ';
-		$out .= 'onTouchStart="startSwipe(event)" ';
-		$out .= 'onTouchEnd="endSwipe(event)"';
+/*		$out .= 'onTouchStart="startSwipe(event)" ';
+$out .= 'onTouchEnd="endSwipe(event)"'; */
 
 		return $out;
 	}
-	private function set_table_start($mobile)
+	private function set_table_start($mobile, $tableid)
 	{
 		$card_table_headers = dom_card::get_card_tablehead($mobile);
-		$out = '<table class="cardlist"><tr>'."\n";
+		$out = '<table '.$tableid.' class="cardlist"><tr>'."\n";
 		if ($mobile)
 			$out .= '<th class="checkbox">[pid&auml;] / vaihda</th>';
 		else
@@ -162,16 +162,27 @@ class dom_card_set {
 
 		return $out;
 	}
+
 	public function show_sets($keepids, $check_selected, $mobile = 0) {
+		/* Hack. Add table IDs so we can register swipe-event handlers */
+		$table_ids = array('id="cardtable1"', 'id="cardtable2"', 'id="cardtable3"');
 		$vals_on_sets = array(3,3,4);
 		$omena = false;
+
+		if ($mobile) {
+			$swap_image = '<img src="img/swipe_scaled.webp" alt="swipe-right">';
+			$swip_image = '';
+		} else {
+			$swap_image = '';
+			$swip_image = '<img src="img/cursor.webp" alt="swipe-with-mouse">';
+		}
 
 		$out = "";
 		for ($i = 0; $i < 3; $i++) {
 			$tuhinasum = 0;
 
-			$out .= '<div class="settitle"><h3>' . htmlspecialchars($this->set_name[$i]) . '</h3></div>'."\n";
-			$out .= $this->set_table_start($mobile);
+			$out .= '<div class="settitle"><h3>' . htmlspecialchars($this->set_name[$i]) . '</h3>'.$swip_image.'Huono kortti? Pyyhk&auml;ise se kuin tuhka tuuleen =)</div>'."\n";
+			$out .= $this->set_table_start($mobile, $table_ids[$i]);
 
 			/* This is a horrible hack, trusting sets have 3, 3, 4 cards */
 			for ($j = 0; $j < $vals_on_sets[$i]; $j++) {
@@ -200,7 +211,7 @@ class dom_card_set {
 				}
 
 				$out .= '<tr '.$this->add_card_row_swipe_info($c->id, $c->prize).'>';
-				$out .= '<td class="checkbox swipeicon">' . $this->add_change_input($c->id, $i, $c->prize, $checked).'<img src="img/swipe_scaled.webp" alt="swipe-right"></td>'."\n";
+				$out .= '<td class="checkbox swipeicon">' . $this->add_change_input($c->id, $i, $c->prize, $checked).$swap_image.'</td>'."\n";
 				$out .= $c->get_card_row($mobile);
 				$out .= '</tr>';
 			}
