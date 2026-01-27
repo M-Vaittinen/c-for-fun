@@ -113,10 +113,13 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	/* Output the form table */
 
 	$url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
-	if (!$url)
-		die('malformed URL');
+	if (!$url) {
+		$url = "";
+	}
+	/*		die('malformed URL'.$_SERVER["REQUEST_URI"]); */
 
 	$output = '<form action="'.$url.'" method="post" id="theform">'."\n";
+	$output .= '<input type="hidden" name="rand" value="0">'."\n";
 	$output .= '<div><br /></div>'."\n";
 	$output .= '<div class="expansionform">'."\n";
 	$output .= '<table><tr><td><h3>Käytettävät lisäosat</h3></td>';
@@ -160,7 +163,7 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	
 		$output .= '<tr><td>'."\n";
 		$output .= '<div class="checkbox-container">'."\n";
-		$output .= '<input class="checkboxes" type="checkbox" ';
+		$output .= '<input form="theform" class="checkboxes" type="checkbox" ';
 		$output .= 'id="' . htmlspecialchars($row['name']) . '" ';
 		$output .= 'name="expansion[]" ';
 		$output .= $hidden_onclick .' ';
@@ -177,7 +180,7 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 					}
 				}
 			}
-			$output .= '<input type="checkbox" id="exp_'. $related_id .'" name="event_expansions[]" value="' . $row['id'] . '" class="'.$related_id.' hidden"'."$evchecked>\n";
+			$output .= '<input form="theform" type="checkbox" id="exp_'. $related_id .'" name="event_expansions[]" value="' . $row['id'] . '" class="'.$related_id.' hidden"'."$evchecked>\n";
 			$output .= '<label for="exp_' . $related_id . '" class="'.$related_id.' hidden">Tapahtumat</label>'."\n";
 		}
 		if ($row['expansion_landmarks'] != NULL) {
@@ -191,7 +194,7 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 				}
 			}
 
-			$output .= '<input type="checkbox" id="land_'. $related_id .'" name="landmark_expansions[]" value="' . $row['id'] . '" class="'.$related_id.' hidden"'."$landchecked>";
+			$output .= '<input form="theform" type="checkbox" id="land_'. $related_id .'" name="landmark_expansions[]" value="' . $row['id'] . '" class="'.$related_id.' hidden"'."$landchecked>";
 			$output .= '<label for="land_' . $related_id . '" class="'.$related_id.' hidden">'.$landmark_type.'</label>'."\n";
 		}
 		if ($row['expansion_events'] != NULL || $row['expansion_landmarks'] != NULL) {
@@ -228,7 +231,7 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	$output .= '<div class="slidecontainer">'."\n".'
   <span class="label">-10</span>'."\n".'
   <div class="slider-wrapper">'."\n".'
-    <input type="range" min="-10" max="10" value="'.$tuh_inafactor.'" class="slider" name="tuhinarange">'."\n".'
+    <input form="theform" type="range" min="-10" max="10" value="'.$tuh_inafactor.'" class="slider" name="tuhinarange">'."\n".'
     <div class="value-bubble">0</div>'."\n".'
   </div>'."\n".'
   <span class="label">+10</span>'."\n".'
@@ -246,14 +249,14 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	$output .= '<div class="slidecontainer">
   <span class="label">-10</span>
   <div class="slider-wrapper">
-    <input type="range" min="-10" max="10" value="'.$tup_inafactor.'" class="slider" name="tupinarange">
+    <input form="theform" type="range" min="-10" max="10" value="'.$tup_inafactor.'" class="slider" name="tupinarange">
     <div class="value-bubble">0</div>
   </div>
   <span class="label">+10</span>
 </div>'."\n";
 
 
-	$output .= '<input type="checkbox" id="add_nihilism" name="add_nihilism" value="1">'."\n";
+	$output .= '<input form="theform" type="checkbox" id="add_nihilism" name="add_nihilism" value="1">'."\n";
 	$output .= '<label for="add_nihilism">...ripauksella nihilismi&auml;</label></br></br>'."\n";
 
 
@@ -274,14 +277,14 @@ function output_input_form($conn, $mobile, $exp, $land_exp, $event_exp, $tuh_ina
 	$output .= '<div class="slidecontainer">
   <span class="label">-10</span>
   <div class="slider-wrapper">
-    <input type="range" min="-10" max="10" value="'.$kap_itafactor.'" class="slider" name="kapitarange">
+    <input form="theform" type="range" min="-10" max="10" value="'.$kap_itafactor.'" class="slider" name="kapitarange">
     <div class="value-bubble">0</div>
   </div>
   <span class="label">+10</span>
 </div>'."\n";
 	$output .= '</div>'."\n"; // class="ometers" ends
 
-	$output .= '<input class="shufflesubmit" type="submit" value="Arvo uudet kortit">'."\n";
+	$output .= '<input form="theform" class="shufflesubmit" type="submit" value="Arvo uudet kortit">'."\n";
 	$output .= '</form>'."\n";
 
 	return $output;

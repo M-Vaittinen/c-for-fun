@@ -56,7 +56,7 @@ $keep_omena_ids = null;
 $g_check_boxes = true;
 $g_shared_rated = false;
 
-if (isset($_GET['keepid']) && !isset($_POST['keepid'])) {
+if (isset($_GET['keepid']) && !isset($_POST['keepid']) && !isset($_POST['rand'])) {
 	$_POST['keepid'] = $_GET['keepid'];
 	/* User has probably followed a link to a shared deck because forms use post. */
 	$g_check_boxes = false;
